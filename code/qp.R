@@ -47,13 +47,15 @@ opt_fun <- function(pi_hat, real, distance, lambda){
   r = dim(real)[1]
   q = dim(pi_hat)[1]
   time_window = dim(pi_hat)[2]
-  Dmat <- 2*construct_Q(r, q, pi_hat)
-  pi_z <- matrix(0, r*q, t_window)
+  Dmat <- 2*construct_Q(r, q, pi_hat)/time_window
+  Z <- matrix(real, nrow = 1)
+  D <- NULL
   for (i in 1:time_window){
-    pi_z[,i] <- rep(pi_hat[,i], r) * rep(Z[,i], each=q)
+    D <- rbind(D, bdiag(replicate(r, matrix(pi_hat[,i], nrow = 1), simplify = FALSE)))
   }
-  dvec <-  2*apply(pi_z, 1, sum) - lambda*as.vector(t(distance))
-  
+  dvec <- -t(lambda * matrix(t(distance), nrow = 1) - 2 * Z %*% D/time_window)
+  # check the result in the optimization function equals to the result of matrix form.
+  # total_opt = -t(dvec) %*% vec_A + 1/2 * t(vec_A) %*% Dmat%*% vec_A + t(vec_Z) %*% vec_Z/time_window
   A1 <- diag(q)
   for (i in 1:(r-1)){
     A1 <- cbind(A1, diag(q))
@@ -68,11 +70,10 @@ opt_fun <- function(pi_hat, real, distance, lambda){
   Amat <- t(rbind(A1, A2, A3))
   bvec <- c(b1, b2, b3)
   
-  solution <- quadprog::solve.QP(Dmat, dvec, Amat, bvec, meq = r)
+  solution <- quadprog::solve.QP(Dmat, dvec, Amat, bvec, meq = q)
   
   t(matrix(solution$solution, 12, 4))
 }
-
 
 
 simulate_series <- function(param_a, n, intercept = 0.0,
@@ -108,6 +109,14 @@ glarma_base_forecast <- function(series, total=FALSE){
 }
 
 
+brier_score <- function(probf, real){
+  time_window <- dim(probf)[2]
+  total = 0
+  for (i in 1:time_window){
+    total = total + sum((probf[,i] - real[,i])^2)
+  }
+  total/time_window
+}
 # equality constraint
 
 # >=0

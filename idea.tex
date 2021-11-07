@@ -1,10 +1,13 @@
 \documentclass{article}
+
 \usepackage{amsfonts,amsmath,bm,xcolor}
 \title{Discrete Forecast Reconciliation: An Idea}
 \newcommand{\bY}{\mathbf{Y}}
 \newcommand{\bpi}{\bm{\pi}}
 \author{Anastasios Panagiotelis}
+
 \begin{document}
+
 	\maketitle
 	\section{Preliminaries}
 	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables. Let $\bY$ be partitioned so that the first $m$ elements are `bottom-level' variables the remaining $(n-m)$ variables are `top-level' series. The `top-level' variables are some deterministic linear function of the `bottom-level' variables, usually aggregates. Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
@@ -131,6 +134,44 @@
     &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j
     \end{align*}
     This is a fairly standard problem in quadratic programming.
+
+    \subsection{Matrix form of the optimisation problem}
+
+    The optimisation priblem can be formulated into matrix form.
+    \[
+    \begin{align*}
+      \min\limits_{A \in \mathbb{R}^{r\times q}} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(A)' Q \text{vec}(A) &+ \left[\lambda \text{vec}(c)' - \frac{2}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(Z)'D\right]\text{vec}(A) \\&+ \frac{1}{|\mathcal{T}_{\textrm{window}}|} \text{vec}(Z)'\text{vec}(Z)\,
+    \end{align*}
+    \]
+    subject to \[\begin{align*}
+      0 \leq A \leq 1\\
+      E A = \mathbf{1}
+    \end{align*} \\ \]
+    where
+    \[
+    Q = \left[\begin{matrix}
+      Q_1  & \\
+       &\ddots \\
+       &  & Q_r
+
+    \end{matrix}  \right]
+    D = \left[\begin{matrix}
+      D_1 \\ \vdots \\ D_T
+    \end{matrix}\right] 
+    D_t = \left[\begin{matrix}
+      \hat\pi_{t}' & \\
+      & \ddots & \\
+      & & \hat\pi_{t}'
+    \end{matrix}\right]_{r\times (rq)}
+    \]
+    and
+    \[\textrm{vec}(c) = \left[c_1' \dots c_r'\right]',\]
+    \[\textrm{vec}(Z) = \left[Z_1' \dots Z_{|\mathcal{T}_{\textrm{window}}|}'\right]',\]
+    \[E = [I_q \quad I_q  \quad \dots \quad I_q]_{q\times rq},\]
+    \[Q_1 =\dots =Q_r = \hat{\boldsymbol{\pi}}\hat{\boldsymbol{\pi}}^\prime.\] $\hat{\boldsymbol{\pi}}$ is the matrix of $q \times |\mathcal{T}_{\textrm{window}}|$ that contains base probabilistic forecasts in the rolling window. If \[A = \left[\begin{matrix}
+      A_1' \\ \vdots \\ A_r'
+    \end{matrix}\right],\] then $\textrm{vec}(A) = [A_1' \cdots A_r']'$.
+
     
     \subsection{Computational considerations}
     
@@ -138,10 +179,7 @@
     \[
      c_{kj}>\underset{j}{\min}\,c_{kj}\,.
     \]  
-    This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point. 
-    
-    
-    
+    This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.     
     
     
 \end{document}
