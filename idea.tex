@@ -4,7 +4,7 @@
 \title{Discrete Forecast Reconciliation: An Idea}
 \newcommand{\bY}{\mathbf{Y}}
 \newcommand{\bpi}{\bm{\pi}}
-\author{Anastasios Panagiotelis}
+\author{Anastasios Panagiotelis, Bohan Zhang}
 
 \begin{document}
 
@@ -138,15 +138,13 @@
     \subsection{Matrix form of the optimisation problem}
 
     The optimisation priblem can be formulated into matrix form.
-    \[
     \begin{align*}
-      \min\limits_{A \in \mathbb{R}^{r\times q}} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(A)' Q \text{vec}(A) &+ \left[\lambda \text{vec}(c)' - \frac{2}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(Z)'D\right]\text{vec}(A) \\&+ \frac{1}{|\mathcal{T}_{\textrm{window}}|} \text{vec}(Z)'\text{vec}(Z)\,
+      \min\limits_{A \in \mathbb{R}^{r\times q}} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(A)' Q \text{vec}(A) &+ \left[\lambda \text{vec}(c)' - \frac{2}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(Z)'D\right]\text{vec}(A) \\&+ \frac{1}{|\mathcal{T}_{\textrm{window}}|} \text{vec}(Z)'\text{vec}(Z),
     \end{align*}
-    \]
-    subject to \[\begin{align*}
+    subject to \begin{align*}
       0 \leq A \leq 1\\
       E A = \mathbf{1}
-    \end{align*} \\ \]
+    \end{align*}
     where
     \[
     Q = \left[\begin{matrix}
@@ -164,13 +162,14 @@
       & & \hat\pi_{t}'
     \end{matrix}\right]_{r\times (rq)}
     \]
+
     and
     \[\textrm{vec}(c) = \left[c_1' \dots c_r'\right]',\]
     \[\textrm{vec}(Z) = \left[Z_1' \dots Z_{|\mathcal{T}_{\textrm{window}}|}'\right]',\]
     \[E = [I_q \quad I_q  \quad \dots \quad I_q]_{q\times rq},\]
     \[Q_1 =\dots =Q_r = \hat{\boldsymbol{\pi}}\hat{\boldsymbol{\pi}}^\prime.\] $\hat{\boldsymbol{\pi}}$ is the matrix of $q \times |\mathcal{T}_{\textrm{window}}|$ that contains base probabilistic forecasts in the rolling window. If \[A = \left[\begin{matrix}
       A_1' \\ \vdots \\ A_r'
-    \end{matrix}\right],\] then $\textrm{vec}(A) = [A_1' \cdots A_r']'$.
+    \end{matrix}\right],\] then $\textrm{vec}(A) = [A_1' \cdots A_r']'$.    
 
     
     \subsection{Computational considerations}
@@ -179,7 +178,39 @@
     \[
      c_{kj}>\underset{j}{\min}\,c_{kj}\,.
     \]  
-    This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.     
+    This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
+
+   \subsection{Reconciliation through decomposition}
+
+   Although forcing corresponding parameters of the non-nearest points to 0 reduce the dimension, there can still be a large amount of unknown parameters to estimate when handling high-dimensional hierarchy. 
+   
+   Consider a two-hierarchy with one root node and $k$ children nodes. 
+   The children nodes have the same domain $\{0, 1\}$, and thus the root node hierarchies domain $\{0, 1, \dots, k\}$.
+   The cardinality of coherent domain would be $2^k$, and the cardinality of incoherent domain would be $2^k\cdot (k+1)$. 
+   The dimension of the parameter space of $A$ would be at least $2^k$, when we simply assume each incoherent point has two nearest neighbors. Actually, there may be $k$ nearest neighbors and even more. For example, when $k=4$, the nearest neighbors of $00001$ contain $00000, 10001, 01001, 00101, 00011$.
+
+   By destructing the high-dimensional hierarchy into multiple simplest two-level hierarchies with three nodes and averaging the reconciled marginal distribution, we can avoid the problem caused by exponentially growth of the parameter space. 
+
+   Denote the root node as $y_0$ and children nodes as $y_1, \dots, y_k$. 
+   Denote the marginal distribution of node $y_1$ as $P(y_1)$ and the joint distribution of node $y_1$ and $y_2$ as $P(y_1, y_2)$. 
+   Denote the reconciled marginal distribution of $y_1$ as $\tilde P(y_1)$.
+
+   The simplest two-level hierarchy is constructed using one single node $y_i, i\in \{1,\dots,k\}$, sum of a subset of other children nodes $y_{U}, U \subset \{1, \dots, k\} \setminus \{i\}$ and their sum $y_{T} = y_U + y_i$. The maximum cardinality of the coherent domain of the simplest hierarchy would be $2k$. The corresponding parameter space would be at least $k^2$. The dimension reduces from $2^k$ to $k^2$. Note that the effect of dimension reduction is estimated.
+
+   For each single children node, there would be $\sum\limits_{j=1}^{k-1} {{k-1}\choose{j}}$ hierarchies and the same number of models.
+   For each model, we can obtain $\tilde p(y_i, y_{U})$ using $p(y_i)$, $y_U$ and $y_{T}$. 
+   Then $\tilde p(y_i)$ can be computed through calculus. 
+   By averaging reconciled distribution obtained from these models, we can get the final reconciled marginal distribution of $y_i$. Totally, $k \times \sum\limits_{j=1}^{k-1} {{k-1}\choose{j}}$ models need to be constructed.
+
+   In the cross-sectional setting, the method above would make sense. We can add the series in subset $U$ up and forecast the aggregated series $y_U$. Totally, there will be $\sum\limits_{j=1}^k{k\choose{j}}$ aggregated and single series to forecast.
+
+   While in the temporal setting, a subset of children nodes can not be simply added up because they are temporally consecutive. 
+   We may obtain $p(y_U)$ and $p(y_T)$ by assuming the independence of the base forecasts.
+   \[p(y_U) = \int p(y_U|y_{j,  j\in U})p(y_{j, j\in U}) \text{d}y_{j, j\in U} = \int p(y_U|y_{j,  j\in U})\prod\limits_{j\in U}y_j \text{d}y_{j, j\in U}. \]
+
+   When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
+   Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
+
     
     
 \end{document}
