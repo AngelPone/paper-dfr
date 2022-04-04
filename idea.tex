@@ -222,7 +222,7 @@
       $\hat p(y_{U_i}) \leftarrow$ \forecast{$y_{U_i}$}\;
       $\tilde p(y_i, y_{U_i}) \leftarrow $ \reconcile{$\hat p(y_i)$, $\hat p(y_{U_i})$, $\hat p(y_{U_{i-1}})$} \;
       $\tilde p_i(y_{U_{i-1}}) \leftarrow$ \calculus{$\tilde p(y_i, y_{U_i})$} \; 
-      $\tilde p(y_{U_{i-1}}) = \frac{1}{2}(\tilde p_{i-1}(y_{U_{i-1}}) + \tilde p_i(y_{U_{i-1}}))$\;
+      $\tilde p(y_{U_{i-1}}) \leftarrow \frac{1}{2}(\tilde p_{i-1}(y_{U_{i-1}}) + \tilde p_i(y_{U_{i-1}}))$\;
       $\tilde p'(y_i, y_{U_i}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(y_i, y_{U_i})$}\;
       $\bm{y}_{i-1} \leftarrow (y_1,\dots,y_{i-1})'$\;
       $\tilde p'(\bm{y}_{i-1}, y_{U_{i-1}}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(\bm{y}_{i-1}, y_{U_{i-1}})$}\;
