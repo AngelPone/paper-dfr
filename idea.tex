@@ -1,9 +1,12 @@
 \documentclass{article}
 
 \usepackage{amsfonts,amsmath,bm,xcolor}
+\usepackage[ruled]{algorithm2e}
 \title{Discrete Forecast Reconciliation: An Idea}
 \newcommand{\bY}{\mathbf{Y}}
 \newcommand{\bpi}{\bm{\pi}}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
 \author{Anastasios Panagiotelis, Bohan Zhang}
 
 \begin{document}
@@ -180,7 +183,7 @@
     \]  
     This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
 
-   \subsection{Reconciliation through decomposition}
+   \subsection{Step-wise reconciliation}
 
    Although forcing corresponding parameters of the non-nearest points to 0 reduce the dimension, there can still be a large amount of unknown parameters to estimate when handling high-dimensional hierarchy. 
    
@@ -190,23 +193,62 @@
    The dimension of the parameter space of $A$ would be at least $2^k$, when we simply assume each incoherent point has two nearest neighbors. Actually, there may be $k$ nearest neighbors and even more. For example, when $k=4$, the nearest neighbors of $00001$ contain $00000, 10001, 01001, 00101, 00011$.
 
    By destructing the high-dimensional hierarchy into multiple simplest two-level hierarchies with three nodes and averaging the reconciled marginal distribution, we can avoid the problem caused by exponentially growth of the parameter space. 
+  
 
    Denote the root node as $y_0$ and children nodes as $y_1, \dots, y_k$. 
-   Denote the marginal distribution of node $y_1$ as $P(y_1)$ and the joint distribution of node $y_1$ and $y_2$ as $P(y_1, y_2)$. 
-   Denote the reconciled marginal distribution of $y_1$ as $\tilde P(y_1)$.
+   Denote the marginal distribution of node $y_1$ as $p(y_1)$ and the joint distribution of node $y_1$ and $y_2$ as $p(y_1, y_2)$. 
+   Denote the reconciled marginal distribution of $y_1$ as $\tilde p(y_1)$.
 
-   The simplest two-level hierarchy is constructed using one single node $y_i, i\in \{1,\dots,k\}$, sum of a subset of other children nodes $y_{U}, U \subset \{1, \dots, k\} \setminus \{i\}$ and their sum $y_{T} = y_U + y_i$. The maximum cardinality of the coherent domain of the simplest hierarchy would be $2k$. The corresponding parameter space would be at least $k^2$. The dimension reduces from $2^k$ to $k^2$. Note that the effect of dimension reduction is estimated.
+   \begin{algorithm}[H]
+    \caption{Step-wise reconciliation}
+    \SetKwFunction{reconcile}{reconcile}
+    \SetKwFunction{calculus}{calculus}
+    \SetKwFunction{alignDistribution}{alignDistribution}
+    \SetKwFunction{calJointDistribution}{calJointDistribution}
+    \SetKwFunction{forecast}{forecast}
+    \SetKwInOut{Input}{input}
+    \SetKwInOut{Output}{output}
+    \Input{Time series $\bm{y} = (y_1,\dots,y_k)'$}
+    $y_{U_1} \leftarrow \sum\limits_{j=2}^k y_j$\;
+    $y_T \leftarrow y_1 + y_{U_1}$ \;
+    $\hat p(y_1) \leftarrow$ \forecast{$y_1$}\;
+    $\hat p(y_{U_1}) \leftarrow$ \forecast{$y_{U_1}$}\;
+    $\hat p(y_{T}) \leftarrow$ \forecast{$y_{T}$}\;
+    $\tilde p(y_1, y_{U_1}) \leftarrow $ \reconcile{$\hat p_1(y_1)$, $\hat p_1(y_{U_1})$,$\hat p_1(y_T)$}\;
+    $\tilde p_1(y_{U_1}) \leftarrow$ \calculus{$\tilde p_1(y_1, y_{U_1})$}\;
+    \For {$i=2,\dots,k-1$}{
+      $y_{U_{i}} \leftarrow \sum\limits_{j=i+1}^k y_j$\;
+      $\hat p(y_i) \leftarrow$ \forecast{$y_i$}\;
+      $\hat p(y_{U_i}) \leftarrow$ \forecast{$y_{U_i}$}\;
+      $\tilde p(y_i, y_{U_i}) \leftarrow $ \reconcile{$\hat p(y_i)$, $\hat p(y_{U_i})$, $\hat p(y_{U_{i-1}})$} \;
+      $\tilde p_i(y_{U_{i-1}}) \leftarrow$ \calculus{$\tilde p(y_i, y_{U_i})$} \; 
+      $\tilde p(y_{U_{i-1}}) = \frac{1}{2}(\tilde p_{i-1}(y_{U_{i-1}}) + \tilde p_i(y_{U_{i-1}}))$\;
+      $\tilde p'(y_i, y_{U_i}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(y_i, y_{U_i})$}\;
+      $\bm{y}_{i-1} \leftarrow (y_1,\dots,y_{i-1})'$\;
+      $\tilde p'(\bm{y}_{i-1}, y_{U_{i-1}}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(\bm{y}_{i-1}, y_{U_{i-1}})$}\;
+      $\tilde p(\bm{y}_{i-1}, y_{i}, y_{U_i}) \leftarrow$ \calJointDistribution{$\tilde p'(\bm{y}_{i-1}, y_{U_{i-1}}), \tilde p'(y_i, y_{U_i}), \tilde p(y_{U_{i-1}})$}\;
+    
+    }
+    \Output{$\tilde p(\bm{y})$}
+    
+   \end{algorithm}
 
-   For each single children node, there would be $\sum\limits_{j=1}^{k-1} {{k-1}\choose{j}}$ hierarchies and the same number of models.
-   For each model, we can obtain $\tilde p(y_i, y_{U})$ using $p(y_i)$, $y_U$ and $y_{T}$. 
-   Then $\tilde p(y_i)$ can be computed through calculus. 
-   By averaging reconciled distribution obtained from these models, we can get the final reconciled marginal distribution of $y_i$. Totally, $k \times \sum\limits_{j=1}^{k-1} {{k-1}\choose{j}}$ models need to be constructed.
+   By reordering $\bm{y}$, we can obtain multiple $\tilde p(\bm{y})$ and average them to obtain final reconciled joint distribution.
 
-   In the cross-sectional setting, the method above would make sense. We can add the series in subset $U$ up and forecast the aggregated series $y_U$. Totally, there will be $\sum\limits_{j=1}^k{k\choose{j}}$ aggregated and single series to forecast.
+   \begin{algorithm}[H]
+     \caption{calculation of joint distribution}
+     \SetKwInOut{Input}{input}
+     \Input{$p(A,B), p(C,D), B=C+D$}
+     \[
+      \begin{aligned}
+        p(A,B,C,D) &= p(C, D|A,B)p(A,B) \\ 
+          &= p(C,D|B)p(A,B)  \:\: \textrm{assume}\:\: C,D \independent {A}\\
+          &= \frac{p(B,C,D)}{p(B)}p(A,B) \\
+          &= \frac{p(C,D)}{p(B)}p(A,B)
+     \end{aligned}
+     \]
+   \end{algorithm}
 
-   While in the temporal setting, a subset of children nodes can not be simply added up because they are temporally consecutive. 
-   We may obtain $p(y_U)$ and $p(y_T)$ by assuming the independence of the base forecasts.
-   \[p(y_U) = \int p(y_U|y_{j,  j\in U})p(y_{j, j\in U}) \text{d}y_{j, j\in U} = \int p(y_U|y_{j,  j\in U})\prod\limits_{j\in U}y_j \text{d}y_{j, j\in U}. \]
 
    When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
    Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
