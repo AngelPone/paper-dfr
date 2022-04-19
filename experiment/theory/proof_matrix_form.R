@@ -49,6 +49,3 @@ print((total - total_matrix[1][1]) < 1e-10)
 total
 
 total_matrix
-
-debug(opt_fun)
-opt_fun(pi_hat, Z, distance, lambda)
