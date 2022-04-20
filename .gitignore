@@ -5,7 +5,6 @@
 *.log
 *.pdf
 *.dvi
-
 *.gz
 .Rproj.user
 .Rdata

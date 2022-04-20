@@ -235,19 +235,19 @@
 
    By reordering $\bm{y}$, we can obtain multiple $\tilde p(\bm{y})$ and average them to obtain final reconciled joint distribution.
 
-   \begin{algorithm}[H]
-     \caption{calculation of joint distribution}
-     \SetKwInOut{Input}{input}
-     \Input{$p(A,B), p(C,D), B=C+D$}
-     \[
+  Given reconciled joint distribution $p(A, B)$ and $p(C,D)$, where $B=C+D$, we can obtain joint distribution of $A,C,D$ by assuming $C,D \independent{A}$:
+
+  \[
       \begin{aligned}
         p(A,B,C,D) &= p(C, D|A,B)p(A,B) \\ 
           &= p(C,D|B)p(A,B)  \:\: \textrm{assume}\:\: C,D \independent {A}\\
           &= \frac{p(B,C,D)}{p(B)}p(A,B) \\
-          &= \frac{p(C,D)}{p(B)}p(A,B)
+          &= \frac{p(C,D)}{p(B)}p(A,B);
      \end{aligned}
      \]
-   \end{algorithm}
+     \[
+       p(A,C,D) = \int P(A,B,C,D) \textrm{d}B.
+      \]
 
 
    When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
