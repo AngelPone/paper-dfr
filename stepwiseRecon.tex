@@ -1,0 +1,380 @@
+\documentclass[12pt]{article}
+
+\usepackage{hyperref}
+\usepackage{outlines}
+\usepackage{amsmath}
+\usepackage{qtree}
+
+\usepackage{geometry}
+\geometry{a4paper,scale=0.8}
+\hypersetup{colorlinks=true,linkcolor=blue}
+
+\title{Implementation details of stepwise reconciliation}
+\author{Bohan Zhang}
+\let\code=\texttt
+
+\begin{document}
+
+\maketitle
+
+\section{Notation}
+
+\begin{itemize}
+    \item $S_i$: series $i$.
+    \item $d_i$: cardinality of series $i$.
+    \item $k$: number of child nodes.
+    \item $T$: training size.
+    \item $q$: cardinality of incoherent domain.
+    \item $r$: cardinality of coherent domain.
+\end{itemize}
+
+\section{Model Training}
+
+
+\subsection{Input}
+
+\textbf{Hierarchy} \\ a 2-level hierarchy with $1$ parent node and $k$ child nodes.
+
+\Tree [.$S_0$ $S_1$ $S_2$ $S_3$ $\cdots$ $S_k$ ]
+
+\vspace{3mm}
+
+
+
+\noindent\textbf{Base forecasts for training}:  Multiple training samples produced through rolling origin. Each timestamp consists of independently 1-step-ahead marginal discrete distributions of all time series. e.g. ($k=3$) 
+\begin{table}[h]
+    \centering
+    \begin{tabular}{lcccc}
+        \hline
+         & 0 & 1 & 2 & 3\\\hline
+        $S_{0t}$ & 0.1 & 0.15 & 0.25 & 0.5 \\
+        $S_{1t}$ & 0.1 & 0.9 &  & \\
+        $S_{2t}$ & 0.2 & 0.8 &  & \\ 
+        $S_{3t}$ & 0.3 & 0.7 &  & \\\hline
+    \end{tabular}
+\end{table}
+
+\noindent R Object: \code{list} of length $k+1$. Each element is a matrix of shape $T \times d_{i-1}$ 
+
+\vspace{3mm}
+\noindent\textbf{Observations}: corresponding real observations of the base forecasts for training. \\
+R Object: \code{dhts} object whose \code{bts} attribute is a $T \times k$ matrix. (only bottom series are included.)
+
+\subsection{Training procedure}
+
+Split the hierarchy into multiple small trees and train small reconciliation models.
+
+\vspace{5mm}
+\noindent\textbf{\fontsize{14}{15}\selectfont For node $1$}\\
+The small tree is 
+
+\Tree[.$S_{total}$($S_{0}$) $S_{left}$($S_{1}$) $S_{right}$($\sum_{i=2}^kS_i$) ]
+
+\noindent\textbf{Preparation before training}
+
+\begin{outline}
+    \1 Sum up base forecasts of node $i=2,\dots,k$ and obtain $S_{right}$. See \hyperref[marginal2Sum]{\code{marginal2Sum}}
+    \1 Transform marginal distributions $P_{Total}, P_{left}, P_{right}$ into joint distributions $P(Total, left, right)$. See \hyperref[marginal2Joint]{\code{marginal2Joint}} \\ Output: $\hat{\boldsymbol{\pi}}_1 \in \mathcal{R}^{T\times q_1}$, where $q_1 = d_0d_1(d_2+\dots+d_k)$.
+    \1 Transform time series into dummy series. See \hyperref[series2Dummy]{\code{series2Dummy}} \\ Output: $\boldsymbol{y}_1 \in \{0, 1\}^{T\times r_1}$, where $r_1 = d_1(d_2+\dots+d_k)$.
+\end{outline}
+
+\noindent\textbf{Train the reconciliation model}
+\[
+  \hat{A}_{1} = \mathop{\arg\min}_{A}\textrm{Brier Score}(A\hat{\boldsymbol{\pi}}, \boldsymbol{y}) + \lambda \cdot \textrm{penality}
+\]
+
+
+\vspace{10mm}
+
+\noindent\textbf{\fontsize{14}{15}\selectfont For node $i=2,\dots,k-1$}
+
+\noindent The small tree is 
+
+\Tree[.$S_{total}$($\sum_{j=i}^kS_j$) $S_{left}$($S_{i}$) $S_{right}$($\sum_{j=i+1}^kS_j$) ]
+
+\noindent\textbf{Preparation before training}
+
+\begin{outline}
+    \1 Sum up base forecasts of node $j=i+1,\dots,k$ and obtain $S_{right}$. See \hyperref[marginal2Sum]{\code{marginal2Sum}}
+    \1 \textbf{Base forecasts of $S_{total}$}
+        \2 \textit{We do not want to forecast the Series $S_{total}$ separately. Thus, we use the reconciled forecasts from last small hierarchy as base forecasts.}
+        \2 Obtain reconciled forecasts of last small hierarchy $\tilde{\boldsymbol{\pi}}_{i-1} = \hat A_{i-1}\hat{\boldsymbol{\pi}}_{i-1}$ 
+        \2 Obtain marginal distributions of $S_{right, i-1}$, i.e. $S_{total, i}$, see \hyperref[joint2Marginal]{\code{joint2Marginal}}
+    \1 Transform marginal distributions $\hat{\boldsymbol{\pi}}_{Total}, \hat{\boldsymbol{\pi}}_{left}, \hat{\boldsymbol{\pi}}_{right}$ into joint distributions $\hat{\boldsymbol{\pi}}$. See \hyperref[marginal2Joint]{\code{marginal2Joint}} \\ Output: $\hat{\boldsymbol{\pi}}_i \in \mathcal{R}^{T\times q_i}$, where $q_i = (d_i+\dots+d_k)d_i(d_{i+1}+\dots+d_k)$. 
+    \1 Transform time series into dummy series. See \hyperref[series2Dummy]{\code{series2Dummy}} \\ Output: $\boldsymbol{y}_i \in \{0, 1\}^{T\times r_i}$, where $r_i = d_i(d_{i+1}+\dots+d_k)$.
+\end{outline}
+
+\noindent\textbf{Train the reconciliation model}
+\[
+  \hat{A}_{i} = \mathop{\arg\min}_{A}\textrm{Brier Score}(A\hat{\boldsymbol{\pi}}_{i}, \boldsymbol{y}_i) + \lambda \cdot \textrm{penality}
+\]
+
+Finally, we get $\hat A_1,\dots,\hat A_{k-1}$.
+
+
+
+
+
+\section{Forecasting}
+
+\subsection{Input}
+
+\noindent\textbf{Base forecasts}: independently produced $h-$ step ahead discrete marginal distributions of all time series.\\
+R Object: \code{list} of length $k+1$. Each element is a matrix of shape $h\times d_{i-1}$
+
+\noindent\textbf{Trained model}: $\hat{{A}_1},\dots,\hat A_{k-1}$.
+
+\subsection{Stepwise forecasting}
+
+\noindent\textbf{For node $1$}
+
+\begin{outline}
+    \1 Prepare $\hat{\boldsymbol{\pi}}_{total,1}, \hat{\boldsymbol{\pi}}_{left,1}, \hat{\boldsymbol{\pi}}_{right,1}$, and then transform it into joint distribution $\hat{\boldsymbol{\pi}}_1$.
+    \1 Compute reconciled forecasts for the first small hierarchy $\tilde{\boldsymbol{\pi}}_1 = \hat A_1 \hat{\boldsymbol{\pi}}_1$
+\end{outline}
+
+
+\noindent\textbf{For node $i=2,\cdots,k-1$}
+
+\Tree[.$S_{total}$($\sum_{j=i}^kS_j$) $S_{left}$($S_{i}$) $S_{right}$($\sum_{j=i+1}^kS_j$) ]
+
+\begin{outline}
+    \1 Prepare $\hat{\boldsymbol{\pi}}_{total, i}$. 
+        \2 Obtain reconciled forecasts of last small hierarchy $\tilde{\boldsymbol{\pi}}_{i-1} = \hat A_{i-1}\hat{\boldsymbol{\pi}}_{i-1}$.
+        \2 Obtain marginal distributions of $S_{right, i-1}$ (i.e. $S_{total,i}$), $\hat{\boldsymbol{\pi}}_{total, i}$.
+    \1 Prepare $\hat{\boldsymbol{\pi}}_{left, i}, \hat{\boldsymbol{\pi}}_{right, i}$.
+    \1 Compute reconciled forecasts for current hierarchy $\tilde{\boldsymbol{\pi}}_{i} = \hat{A}_i\hat{\boldsymbol{\pi}}_{i}$
+        
+\end{outline}
+
+\noindent Finally, we get $\tilde{\boldsymbol{\pi}}_{1},\dots,\tilde{\boldsymbol{\pi}}_{k-1}$.
+
+
+
+
+\subsection{Transform stepwise forecasts into joint distribution}
+
+\textbf{Input}: $\tilde{\boldsymbol{\pi}}_{1},\dots,\tilde{\boldsymbol{\pi}}_{k-1}$, where $\tilde{\boldsymbol{\pi}}_{i}\in \mathcal{R}^{h\times r_i}$
+
+\noindent Note that $\tilde{\boldsymbol{\pi}}_{right,i}$ and $\tilde{\boldsymbol{\pi}}_{left,i+1}$ refer to same node ($\sum_{j=i+1}^k S_j$). But their reconciled forecasts are not same.
+
+
+\vspace{10mm}
+\noindent Set $\tilde{\boldsymbol{\pi}} = \tilde{\boldsymbol{\pi}}_{1}$
+
+\noindent\textbf{For node $i=2,\dots,k-1$}
+
+
+\begin{outline}[enumerate]
+    \1 Compute $\tilde{\boldsymbol{\pi}}_{last}, \tilde{\boldsymbol{\pi}}_{total,i}$, where $\tilde{\boldsymbol{\pi}}_{last}$ is the marginal distribution of current joint distribution $\tilde{\boldsymbol{\pi}}$.
+    \1 $\tilde {\boldsymbol{\pi}}_{last} = \tilde {\boldsymbol{\pi}}_{total, i} \leftarrow (\tilde{\boldsymbol{\pi}}_{last}+\tilde{\boldsymbol{\pi}}_{total,i})/2$
+    \1 Adjust $\tilde {\boldsymbol{\pi}}$ and $\tilde {\boldsymbol{\pi}}_{i-1}$ according to $\tilde {\boldsymbol{\pi}}_{last}$. See \hyperref[adjust2Coherent]{\code{adjust2Coherent}}.
+    \1 Update $\tilde{\boldsymbol{\pi}}$. See \hyperref[updateJoint]{\code{updateJoint}}.
+\end{outline}
+
+
+
+
+
+
+
+
+\section{Appendix}
+
+
+
+\subsection{marginal2Joint}
+\label{marginal2Joint}
+Transform independent marginal distributions into joint distribution.
+
+
+
+\vspace{4mm}
+\begin{minipage}[t]{.3\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+            & 0 & 1 & 2\\\hline
+        $S_{0t}$ & 0.1 & 0.4 & 0.5  \\
+        $S_{1t}$ & 0.1 & 0.9 &   \\
+        $S_{2t}$ & 0.2 & 0.8 &   \\\hline
+    \end{tabular}
+\end{minipage}%
+\hfill
+\noindent
+\begin{minipage}[t]{0.1\textwidth}
+    $\rightarrow$
+\end{minipage}%
+\hfill
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+        $S_{0t}$  & $S_{1t}$ & $S_{2t}$ &  Probability\\\hline
+        0 & 0 & 0 & 0.002 \\
+        1 & 0 & 0 &  0.008 \\
+        2 & 0 & 0 & 0.01 \\
+        0 & 1 & 0 & 0.018 \\
+        $\cdots$ \\
+        2 & 1 & 1  &0.036\\ \hline
+
+    \end{tabular}
+
+\end{minipage}
+
+
+\subsection{marginal2Sum}
+\label{marginal2Sum}
+Obtain distribution of sum of several series (under dependence assumption).
+
+\vspace{10mm}
+\begin{minipage}[t]{.3\textwidth}
+    \begin{tabular}{lcc}
+        \hline
+            & 0 & 1\\\hline
+        $S_{1t}$ & 0.1 & 0.9   \\
+        $S_{2t}$ & 0.2 & 0.8   \\\hline
+    \end{tabular}
+\end{minipage}%
+\begin{minipage}[t]{0.4\textwidth}
+    \begin{tabular}{lcc}
+        \hline
+        $S_{1t}$ & $S_{2t}$ &  Probability\\\hline
+         0 & 0 &  0.02\\
+         1 & 0 &  0.18 \\
+         0 & 1 &  0.08 \\
+         1 & 1 &  0.72 \\\hline
+    \end{tabular}
+\end{minipage}%
+\begin{minipage}[t]{.3\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+            & 0 & 1 & 2\\\hline
+        $S_{1t}+S_{2t}$ & 0.02 & 0.26 & 0.72   \\\hline
+    \end{tabular}
+\end{minipage}%
+
+
+\subsection{series2Dummy}
+\label{series2Dummy}
+
+Similar to \hyperref[marginal2Joint]{\code{marginal2Joint}}, but replace probability with $\{0, 1\}$ dummies.
+
+
+\subsection{joint2Marginal}
+\label{joint2Marginal}
+
+Inverse of \hyperref[marginal2Sum]{\code{marginal2Sum}}. Implemented by group rows by specified axis and take sum of probabilities.
+
+\vspace{10mm}
+\begin{minipage}[t]{0.3\textwidth}
+    \begin{tabular}{lcc}
+        \hline
+        $S_{1t}$ & $S_{2t}$ &  Probability\\\hline
+         0 & 0 &  0.02\\
+         1 & 0 &  0.18 \\
+         0 & 1 &  0.08 \\
+         1 & 1 &  0.72 \\\hline
+    \end{tabular}
+\end{minipage}%
+\begin{minipage}[t]{.3\textwidth}
+    \begin{tabular}{lcc}
+        \hline
+            & 0 & 1\\\hline
+        $S_{1t}$ & 0.1 & 0.9   \\
+        $S_{2t}$ & 0.2 & 0.8   \\\hline
+    \end{tabular}
+\end{minipage}%
+
+
+\subsection{adjust2Coherent}
+\label{adjust2Coherent}
+
+Given
+
+\vspace{4mm}
+\begin{minipage}[t]{0.4\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+        $S_{0t}$ & $S_{1t}$ & $S_{2t}+S_{3t}$ & Probability\\\hline
+        0 & 0 & 0 &  0.02\\
+        1 & 1 & 0 &  0.18 \\
+        1 & 0 & 1 &  0.08 \\
+        2 & 1 & 1 &  0.4\\
+        2 & 0 & 2 &  0.3\\
+        3 & 1 & 2 &  0.02\\\hline
+    \end{tabular}
+\end{minipage}%
+\begin{minipage}[t]{.4\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+            & 0 & 1 & 2\\\hline
+        $S_{2t}+S_{3t}$ & 0.04 & 0.39 &  0.6  \\\hline
+    \end{tabular}
+\end{minipage}%
+\vspace{3mm}
+
+\noindent The adjusted distribution is
+
+\begin{table}[h]
+    \begin{tabular}{lccc}
+        \hline
+        $S_{0t}$ & $S_{1t}$ & $S_{2t}+S_{3t}$ & Probability\\\hline
+        0 & 0 & 0 &  0.02$\times\frac{0.04}{0.02+0.18}$\\
+        1 & 1 & 0 &  0.18$\times\frac{0.04}{0.02+0.18}$ \\
+        1 & 0 & 1 &  0.08$\times\frac{0.39}{0.08+0.4}$ \\
+        2 & 1 & 1 &  0.4$\times\frac{0.39}{0.08+0.4}$\\
+        2 & 0 & 2 &  0.3$\times\frac{0.6}{0.02+0.3}$\\
+        3 & 1 & 2 &  0.02$\times\frac{0.6}{0.02+0.3}$\\\hline
+    \end{tabular}
+\end{table}
+
+
+\subsection{updateJoint}
+\label{updateJoint}
+
+Given two joint distributions whose marginal distributions of the shared node are same.
+
+\vspace{4mm}
+
+\begin{minipage}[t]{0.4\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+        $S_{0t}$ & $S_{1t}$ & $S_{2t}+S_{3t}$ & Probability\\\hline
+        0 & 0 & 0 &  0.02\\
+        1 & 1 & 0 &  0.18 \\
+        1 & 0 & 1 &  0.08 \\
+        2 & 1 & 1 &  0.4\\
+        2 & 0 & 2 &  0.3\\
+        3 & 1 & 2 &  0.02\\\hline
+    \end{tabular}
+\end{minipage}%
+\begin{minipage}[t]{.4\textwidth}
+    \begin{tabular}{lccc}
+        \hline
+        $S_{2t}+S_{3t}$ & $S_{2t}$ & $S_{3t}$ &  Probability\\\hline
+        0 & 0 & 0 &  0.2\\
+        1 & 1 & 0 &  0.1 \\
+        1 & 0 & 1 &  0.38 \\
+        2 & 1 & 1 &  0.32\\\hline
+    \end{tabular}
+\end{minipage}%
+
+
+\vspace{4mm}
+
+\begin{table}
+    \begin{tabular}{lcccc}
+        \hline
+        $S_{0t}$ & $S_{1t}$ & $S_{2t}$ & $S_{3t}$ & Probability\\\hline
+        0 & 0 & 0 & 0 & $0.02\times \frac{0.2}{0.2}$\\
+        1 & 1 & 0 & 0 & $0.18\times \frac{0.2}{0.2}$ \\
+        1 & 0 & 1 & 0 & $0.08\times \frac{0.1}{0.1 + 0.38}$ \\
+        2 & 1 & 1 & 0 & $0.4\times \frac{0.1}{0.1 + 0.38}$\\
+        1 & 0 & 0 & 1 & $0.08\times \frac{0.38}{0.1 + 0.38}$\\
+        2 & 1 & 0 & 1 & $0.4\times \frac{0.38}{0.1 + 0.38}$ \\
+        2 & 0 & 1 & 1 & $0.3\times \frac{0.32}{0.32}$ \\
+        3 & 1 & 1 & 1 & $0.02\times \frac{0.32}{0.32}$\\\hline
+    \end{tabular}
+\end{table}
+
+\end{document}
