@@ -1,13 +1,22 @@
-\documentclass{article}
+\documentclass[a4paper,review,11pt,authoryear]{elsarticle}
 
+\usepackage{natbib}
 \usepackage{amsfonts,amsmath,bm,xcolor}
 \usepackage[ruled]{algorithm2e}
-\title{Discrete Forecast Reconciliation: An Idea}
+\usepackage{geometry}
+\geometry{a4paper,scale=0.8}
+\usepackage{setspace}
+\setstretch{1.5}
+\let\code=\texttt
+\let\proglang=\textsf
+\title{Discrete Forecast Reconciliation}
+
+
 \newcommand{\bY}{\mathbf{Y}}
 \newcommand{\bpi}{\bm{\pi}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
-\author{Anastasios Panagiotelis, Bohan Zhang}
+\author{Anastasios Panagiotelis, Bohan Zhang, Yanfei Kang, Feng li}
 
 \begin{document}
 
@@ -254,5 +263,39 @@
    Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
 
     
-    
+\section{Simulation}
+
+To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different context. 
+In the first cross-sectional setting, we use the simplest three-node hierarchy. 
+While in the temporal setting, we simulate daily time series and use eight-node hierarchy.
+
+\subsection{Cross-sectional hierarchy}
+
+\subsection{Temporal hierarchy}
+
+We now consider a daily temporal setting with one total level and $m=7$ bottom-level series. The bottom-level time series can only take values of $0$ and $1$. 
+Even though, the domain of the hierarchy is still quite large, so it is challenging to estimate a full reconciliation matrix given limited observations in practice. 
+To avoid the curse of dimensionality, we use the proposed step-wise reconciliation algorithm. 
+
+\subsubsection{Simulation setup} 
+
+The time series were simulated using function \code{simID} in package \code{tsintermittent} for \proglang{R}. 
+The simulation algorithm is designed for simulating intermittent demand series, which is particularly suitable in our context.
+We can control the algorithm by three parameters, which are average intermittent demand interval (\code{idi}), variation of the non-zero demands (\code{cv2}) and mean level of the non-zero demands (\code{level}) (\Citealp{petropoulosHorsesCoursesDemand2014}). We set \code{idi}$=2$, \code{level} $\:=1.5$ and \code{cv2} $\:=0.5$ in this experiment.
+The simulated time series are not guaranteed to take only $0$ and $1$, so we set values bigger than one to be one. 
+
+We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated; the final $h=21$ observations were used as test sets. 
+In the training period, we employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size $k=300$. 
+For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. In total, we had $500$ windows, thus $500$ samples, used for training the step-wise reconciliation model.
+Using the same strategy, there were $14$ samples in test period can be used to evaluate forecast performance.
+
+
+
+
+// Simulation algorithm used by \code{tsintermittent}.
+
+
+\bibliographystyle{agsm}
+\bibliography{references.bib}
+
 \end{document}
