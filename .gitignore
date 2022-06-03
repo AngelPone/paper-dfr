@@ -1,6 +1,8 @@
+.vscode
 *.Rproj
 *.rds
 .DS_Store
+*.spl
 *.aux
 *.bbl
 *.blg
