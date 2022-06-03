@@ -1,7 +1,7 @@
 \documentclass[a4paper,review,11pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
-\usepackage{amsfonts,amsmath,bm,xcolor}
+\usepackage{amsfonts,amsmath,bm,xcolor, booktabs}
 \usepackage[ruled]{algorithm2e}
 \usepackage{geometry}
 \geometry{a4paper,scale=0.8}
@@ -10,6 +10,7 @@
 \let\code=\texttt
 \let\proglang=\textsf
 \title{Discrete Forecast Reconciliation}
+
 
 
 \newcommand{\bY}{\mathbf{Y}}
@@ -21,10 +22,11 @@
 \begin{document}
 
 	\maketitle
-	\section{Preliminaries}
+  \section{Methodology}
+	\subsection{Preliminaries}
 	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables. Let $\bY$ be partitioned so that the first $m$ elements are `bottom-level' variables the remaining $(n-m)$ variables are `top-level' series. The `top-level' variables are some deterministic linear function of the `bottom-level' variables, usually aggregates. Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
 	
-	\section{Incoherent and Incoherent Domain}
+	\subsection{Incoherent and Incoherent Domain}
 	The \textit{incoherent domain} of $\bY$ is given by
 	\[
 	\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\}\,,
@@ -52,7 +54,7 @@
         \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
     \]
     
-    \section{Probabilistic Forecasts}
+    \subsection{Probabilistic Forecasts}
     Suppose a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$. Let $\hat{\bpi}^{t+h|t}$ be a $q$-vector of probabilities where each element in $\hat{\bpi}^{t+h|t}$ corresponds to one point in the incoherent domain. Two notational conventions will be used for the elements of $\hat{\bpi}^{t+h|t}$. First, $\hat{\pi}_j^{t+h|t}$ will be used to denote the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$.  Second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\hat{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$. The two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. Using the small example in the previous section $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
     
     This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some point for which the aggregation constraints do not hold. This can happen quite easily in practice. Suppose probabilistic forecasts are generated for each variable independently and the joint forecast is then constructed assuming independence. Such forecasts will in general be incoherent. For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$. We are assigning non-zero probability to an incoherent point.
@@ -91,7 +93,7 @@
     \]
     where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique although this does not affect the proposed algorithms.
     
-    \section{Reconciliation}
+    \subsection{Reconciliation}
     
     The idea is to `move' probability from $\hat{\bpi}$ to $\tilde{\bpi}$ with the superscript $t+h|t$ dropped for convenience.  Let
     
@@ -133,7 +135,7 @@
     \end{align*}
     This is a quadratic function of the $a_{kj}$ with smaller values indicating a better coherent forecast.
     
-    \section{The optimisation problem}
+    \subsection{The optimisation problem}
     
     Putting everything together, the optimisation problem is to 
     
@@ -269,6 +271,11 @@ To demonstrate the usefulness of the proposed framework, we conduct two simulati
 In the first cross-sectional setting, we use the simplest three-node hierarchy. 
 While in the temporal setting, we simulate daily time series and use eight-node hierarchy.
 
+\subsubsection*{Evaluation Metrics}
+
+To evaluate the reconciled forecasts, we track $4$ metrics, the Mean Absolute Error(MAE), the Root Mean Squared Error(RMSE), and the Brier Score (BS). 
+
+
 \subsection{Cross-sectional hierarchy}
 
 \subsection{Temporal hierarchy}
@@ -284,16 +291,117 @@ The simulation algorithm is designed for simulating intermittent demand series, 
 We can control the algorithm by three parameters, which are average intermittent demand interval (\code{idi}), variation of the non-zero demands (\code{cv2}) and mean level of the non-zero demands (\code{level}) (\Citealp{petropoulosHorsesCoursesDemand2014}). We set \code{idi}$=2$, \code{level} $\:=1.5$ and \code{cv2} $\:=0.5$ in this experiment.
 The simulated time series are not guaranteed to take only $0$ and $1$, so we set values bigger than one to be one. 
 
-We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated; the final $h=21$ observations were used as test sets. 
-In the training period, we employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size $k=300$. 
-For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. In total, we had $500$ windows, thus $500$ samples, used for training the step-wise reconciliation model.
-Using the same strategy, there were $14$ samples in test period can be used to evaluate forecast performance.
+We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $k=300$. 
+For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
+In total, we had $521$ windows, thus $521$ samples.
+The first $500$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
 
 
+Base forecasts of daily time series were generated using autoregressive logistic model. 
+More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
+To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
 
+Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
+Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
+For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
+We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
+Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
 
-// Simulation algorithm used by \code{tsintermittent}.
+\subsubsection{Simulation results}
 
+We compare the average brier score of our model and bottom-up method.
+
+\begin{table}[h]
+  \centering
+  \caption{}
+  
+  \begin{tabular}{cc}
+    \hline
+    Stepwise reconciliation & Bottom up \\\hline
+    0.9936770 & 0.9938859 \\\hline
+  \end{tabular}
+\end{table}
+
+\subsubsection{Simulation setup 2}
+
+We simulated the daily time series in a top-down manner. 
+While the intermittent series are characterized by variable demand interval and demand size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
+Following this intuition, we first simulated weekly time series with seasonal period $4$, which were then disaggregated as daily time series.
+
+Assuming the weekly time series were Poisson distributed, we first simulated the conditional mean series based on autoregressive integrated moving average(ARIMA)  process. This procedure was implemented using the \code{gratis} package for \proglang{R}. 
+The controlled parameters are shown in Table~\ref{tab:parameters}. Other parameters were randomly generated by the package to enable diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}). 
+Considering that the domain of the weekly time series in our setting was finite (i.e., $\leq 7$), we linearly mapped the generated conditional mean series into $[2.5, 4.5]$. 
+Then we simulated the Poisson distributed series based on the conditional mean series. Values bigger than $7$ were set to $7$.
+
+\begin{table}[h]
+  \centering
+  \caption{\label{tab:parameters} Selected parameters of ARIMA process used in simulation of conditional mean of weekly time series in temporal setting.}
+  \begin{tabular}{lc}
+    \toprule
+    Parameter name & Value \\ \midrule
+    frequency & 4 \\
+    Number of autoregressive terms & 3 \\
+    Difference order & 0 \\
+    seasonal difference order & 0 \\ \bottomrule
+  \end{tabular}
+\end{table}
+
+The weekly time series were then disaggregated into daily time series by randomly choosing days taking $1$ and ensuring coherence. 
+We first simulated $7$ probabilities based on $7$ independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of taking $1$ from Monday to Sunday. 
+Values of the $k$ days with the biggest probabilities were set to $1$, and others were set to $0$. $k$ is the value of corresponding weekly observation.
+$\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$. This allows the probabilities of taking $1$ increasing gradually from $i=1$ to $i=7$, implying potential seasonality.
+
+We repeated the simulation process $1000$ times. For each daily time series, $T=903$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $350$. 
+For each rolling timestamp, latest $350$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
+In total, we had $547$ windows, thus $547$ samples.
+The first $526$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
+
+Base forecasts of daily time series were generated using autoregressive logistic model. 
+More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
+To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
+
+Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
+Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
+For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
+We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
+Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
+
+\subsubsection{Simulation results 2}
+
+Table~\ref{tab:sim_temporal_res_point} summarizes the point forecast performance of the stepwise reconciliation model, compared with base forecasts and bottom-up method.
+
+\begin{table}[h]
+\centering
+\caption{\label{tab:sim_temporal_res_point} Point forecast performance summary of temporal setting.}
+\begin{tabular}{lcccc}
+\toprule
+& \multicolumn{2}{c}{RMSE} & \multicolumn{2}{c}{MAE} \\ 
+& Bottom Level & Total Level & Bottom Level & Total Level\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+Base      & $0.498$ & $2.77$ & $\textbf{0.480}$ & $2.71$\\
+Bottom-Up & $0.498$ & $2.80$ & $\textbf{0.480}$ & $2.70$\\
+SDFR      & $\textbf{0.493}$ & $\textbf{2.71}$ & $0.482$ & $\textbf{2.66}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of stepwise reconciliation model, compared with base forecasts and bottom-up method.
+The performance of bottom level and total level is computed by averaging the brier score of all series in corresponding level. For our stepwise reconciliation model, brier score for each series is computed using marginal distribution of the series, while for other two methods, brier scores are computed using independent base forecasts. 
+The brier score of total level for the bottom up method is computed using the sum of distributions of bottom levels assuming independence.
+\begin{table}[h]
+\centering
+\caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting.}
+\begin{tabular}{lccc}
+\toprule
+& \multicolumn{3}{c}{Brier Score} \\ 
+& Bottom Level & Total Level & Hierarchy \\
+\cmidrule(lr){2-4}
+Base      & $0.498$ & $\textbf{0.821}$ &  $-$ \\
+Bottom-Up & $0.498$ & $0.836$ &  $0.991$ \\
+SDFR      & $\textbf{0.488}$ & $0.825$ & $\textbf{0.989}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \bibliographystyle{agsm}
 \bibliography{references.bib}
