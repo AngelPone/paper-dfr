@@ -55,6 +55,7 @@
     \]
     
     \subsection{Probabilistic Forecasts}
+
     Suppose a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$. Let $\hat{\bpi}^{t+h|t}$ be a $q$-vector of probabilities where each element in $\hat{\bpi}^{t+h|t}$ corresponds to one point in the incoherent domain. Two notational conventions will be used for the elements of $\hat{\bpi}^{t+h|t}$. First, $\hat{\pi}_j^{t+h|t}$ will be used to denote the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$.  Second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\hat{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$. The two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. Using the small example in the previous section $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
     
     This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some point for which the aggregation constraints do not hold. This can happen quite easily in practice. Suppose probabilistic forecasts are generated for each variable independently and the joint forecast is then constructed assuming independence. Such forecasts will in general be incoherent. For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$. We are assigning non-zero probability to an incoherent point.
@@ -93,6 +94,11 @@
     \]
     where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique although this does not affect the proposed algorithms.
     
+    \subsection{Naive methods}
+
+    \subsubsection*{Bottom-Up}
+
+    \subsubsection*{Top-Down}
     \subsection{Reconciliation}
     
     The idea is to `move' probability from $\hat{\bpi}$ to $\tilde{\bpi}$ with the superscript $t+h|t$ dropped for convenience.  Let
@@ -264,7 +270,7 @@
    When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
    Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
 
-    
+
 \section{Simulation}
 
 To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different context. 
@@ -284,45 +290,45 @@ We now consider a daily temporal setting with one total level and $m=7$ bottom-l
 Even though, the domain of the hierarchy is still quite large, so it is challenging to estimate a full reconciliation matrix given limited observations in practice. 
 To avoid the curse of dimensionality, we use the proposed step-wise reconciliation algorithm. 
 
-\subsubsection{Simulation setup} 
+% \subsubsection{Simulation setup} 
 
-The time series were simulated using function \code{simID} in package \code{tsintermittent} for \proglang{R}. 
-The simulation algorithm is designed for simulating intermittent demand series, which is particularly suitable in our context.
-We can control the algorithm by three parameters, which are average intermittent demand interval (\code{idi}), variation of the non-zero demands (\code{cv2}) and mean level of the non-zero demands (\code{level}) (\Citealp{petropoulosHorsesCoursesDemand2014}). We set \code{idi}$=2$, \code{level} $\:=1.5$ and \code{cv2} $\:=0.5$ in this experiment.
-The simulated time series are not guaranteed to take only $0$ and $1$, so we set values bigger than one to be one. 
+% The time series were simulated using function \code{simID} in package \code{tsintermittent} for \proglang{R}. 
+% The simulation algorithm is designed for simulating intermittent demand series, which is particularly suitable in our context.
+% We can control the algorithm by three parameters, which are average intermittent demand interval (\code{idi}), variation of the non-zero demands (\code{cv2}) and mean level of the non-zero demands (\code{level}) (\Citealp{petropoulosHorsesCoursesDemand2014}). We set \code{idi}$=2$, \code{level} $\:=1.5$ and \code{cv2} $\:=0.5$ in this experiment.
+% The simulated time series are not guaranteed to take only $0$ and $1$, so we set values bigger than one to be one. 
 
-We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $k=300$. 
-For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
-In total, we had $521$ windows, thus $521$ samples.
-The first $500$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
+% We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $k=300$. 
+% For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
+% In total, we had $521$ windows, thus $521$ samples.
+% The first $500$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
 
 
-Base forecasts of daily time series were generated using autoregressive logistic model. 
-More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
-To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
+% Base forecasts of daily time series were generated using autoregressive logistic model. 
+% More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
+% To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
 
-Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
-Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
-For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
-We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
-Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
+% Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
+% Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
+% For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
+% We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
+% Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
 
-\subsubsection{Simulation results}
+% \subsubsection{Simulation results}
 
-We compare the average brier score of our model and bottom-up method.
+% We compare the average brier score of our model and bottom-up method.
 
-\begin{table}[h]
-  \centering
-  \caption{}
+% \begin{table}[h]
+%   \centering
+%   \caption{}
   
-  \begin{tabular}{cc}
-    \hline
-    Stepwise reconciliation & Bottom up \\\hline
-    0.9936770 & 0.9938859 \\\hline
-  \end{tabular}
-\end{table}
+%   \begin{tabular}{cc}
+%     \hline
+%     Stepwise reconciliation & Bottom up \\\hline
+%     0.9936770 & 0.9938859 \\\hline
+%   \end{tabular}
+% \end{table}
 
-\subsubsection{Simulation setup 2}
+\subsubsection{Simulation setup}
 
 We simulated the daily time series in a top-down manner. 
 While the intermittent series are characterized by variable demand interval and demand size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
@@ -330,6 +336,7 @@ Following this intuition, we first simulated weekly time series with seasonal pe
 
 Assuming the weekly time series were Poisson distributed, we first simulated the conditional mean series based on autoregressive integrated moving average(ARIMA)  process. This procedure was implemented using the \code{gratis} package for \proglang{R}. 
 The controlled parameters are shown in Table~\ref{tab:parameters}. Other parameters were randomly generated by the package to enable diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}). 
+The first $100$ generated samples were removed.
 Considering that the domain of the weekly time series in our setting was finite (i.e., $\leq 7$), we linearly mapped the generated conditional mean series into $[2.5, 4.5]$. 
 Then we simulated the Poisson distributed series based on the conditional mean series. Values bigger than $7$ were set to $7$.
 
@@ -339,16 +346,16 @@ Then we simulated the Poisson distributed series based on the conditional mean s
   \begin{tabular}{lc}
     \toprule
     Parameter name & Value \\ \midrule
-    frequency & 4 \\
+    Frequency & 4 \\
     Number of autoregressive terms & 3 \\
     Difference order & 0 \\
-    seasonal difference order & 0 \\ \bottomrule
+    Seasonal difference order & 0 \\ \bottomrule
   \end{tabular}
 \end{table}
 
 The weekly time series were then disaggregated into daily time series by randomly choosing days taking $1$ and ensuring coherence. 
 We first simulated $7$ probabilities based on $7$ independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of taking $1$ from Monday to Sunday. 
-Values of the $k$ days with the biggest probabilities were set to $1$, and others were set to $0$. $k$ is the value of corresponding weekly observation.
+Values of the $k$ days with the largest probabilities were set to $1$, and others were set to $0$. $k$ is the value of corresponding weekly observation.
 $\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$. This allows the probabilities of taking $1$ increasing gradually from $i=1$ to $i=7$, implying potential seasonality.
 
 We repeated the simulation process $1000$ times. For each daily time series, $T=903$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $350$. 
@@ -357,51 +364,77 @@ In total, we had $547$ windows, thus $547$ samples.
 The first $526$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
 
 Base forecasts of daily time series were generated using autoregressive logistic model. 
-More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
+More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations and weekly dummies as regressors to predict the next observation. 
 To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
 
 Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
 Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
 For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
 We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
-Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
+Given the predicted mean of Poisson distribution in the forecast horizon, we set the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
 
-\subsubsection{Simulation results 2}
+\subsubsection{Simulation results}
 
-Table~\ref{tab:sim_temporal_res_point} summarizes the point forecast performance of the stepwise reconciliation model, compared with base forecasts and bottom-up method.
+Table~\ref{tab:sim_temporal_res_point} summarizes the point forecast performance of the stepwise reconciliation model, compared with base forecasts, bottom-up method and top-down method.
 
 \begin{table}[h]
 \centering
 \caption{\label{tab:sim_temporal_res_point} Point forecast performance summary of temporal setting.}
-\begin{tabular}{lcccc}
+\begin{tabular}{rrrrrrrr}
 \toprule
-& \multicolumn{2}{c}{RMSE} & \multicolumn{2}{c}{MAE} \\ 
-& Bottom Level & Total Level & Bottom Level & Total Level\\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}
-Base      & $0.498$ & $2.77$ & $\textbf{0.480}$ & $2.71$\\
-Bottom-Up & $0.498$ & $2.80$ & $\textbf{0.480}$ & $2.70$\\
-SDFR      & $\textbf{0.493}$ & $\textbf{2.71}$ & $0.482$ & $\textbf{2.66}$\\
+ \multicolumn{4}{c}{MAE}  & \multicolumn{4}{c}{RMSE}\\ 
+Base & Bottom-Up & Top-Down & SDFR & 
+Base & Bottom-Up & Top-Down & SDFR \\ \cmidrule(1-4){4}
+127.88 & 126.23 & 127.88 & 126.74 \\
+ 39.24 &  39.24 &  49.26 &  41.28 \\
+ 39.30 &  39.30 &  49.34 &  41.79 \\
+ 39.92 &  39.92 &  49.46 &  42.26 \\
+ 40.97 &  40.97 &  49.54 &  42.84 \\
+ 41.66 &  41.66 &  49.64 &  43.07 \\
+ 42.04 &  42.04 &  49.67 &  43.30 \\
+ 42.12 &  42.12 &  49.70 &  43.88 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of stepwise reconciliation model, compared with base forecasts and bottom-up method.
+Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of stepwise reconciliation model, compared with base forecasts, bottom-up method and top-down method.
 The performance of bottom level and total level is computed by averaging the brier score of all series in corresponding level. For our stepwise reconciliation model, brier score for each series is computed using marginal distribution of the series, while for other two methods, brier scores are computed using independent base forecasts. 
 The brier score of total level for the bottom up method is computed using the sum of distributions of bottom levels assuming independence.
 \begin{table}[h]
 \centering
 \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting.}
-\begin{tabular}{lccc}
+\begin{tabular}{cccc}
 \toprule
-& \multicolumn{3}{c}{Brier Score} \\ 
-& Bottom Level & Total Level & Hierarchy \\
-\cmidrule(lr){2-4}
-Base      & $0.498$ & $\textbf{0.821}$ &  $-$ \\
-Bottom-Up & $0.498$ & $0.836$ &  $0.991$ \\
-SDFR      & $\textbf{0.488}$ & $0.825$ & $\textbf{0.989}$ \\
+\multicolumn{4}{c}{Brier Score ($\times 10^{-3}$)}\\ 
+Base & Bottom-Up & Top-Down & SDFR \\\midrule
+825.801 & 834.506 & 825.801& 830.988\\
+408.248 & 408.248 & 494.052 & 409.941 \\
+414.325 & 414.325 & 496.121 & 415.764\\
+420.951 & 420.951 & 498.599 & 421.005\\
+430.332& 430.332& 500.372 & 427.922\\
+435.492 & 435.492 & 502.199 & 430.912 \\
+440.001& 440.001& 502.632 & 433.226 \\
+442.969 & 442.969 & 502.906& 438.921 \\
+
+
 \bottomrule
 \end{tabular}
 \end{table}
+
+We also perform MCB tests (\Citealp{koningM3CompetitionStatistical2005}) to test the significance of the stepwise reconciliation model. 
+The testing results of point forecasts and probabilistic forecasts are shown in Figure~\ref{fig:sim_temporal_mcb_point} and Figure~\ref{fig:sim_temporal_mcb_prob}, respectively.
+
+\begin{figure}
+  \centering
+  \caption{\label{fig:sim_temporal_mcb_point}MCB test of point forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
+  \includegraphics[width=\textwidth]{figures/mcb_rmse_level.pdf}
+  \includegraphics[width=\textwidth]{figures/mcb_mae_level.pdf}
+\end{figure}
+
+\begin{figure}
+  \caption{\label{fig:sim_temporal_mcb_prob}MCB test of probabilistic forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
+  \includegraphics[width=\textwidth]{figures/mcb_bs.pdf}
+\end{figure}
 
 \bibliographystyle{agsm}
 \bibliography{references.bib}
