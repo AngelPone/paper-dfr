@@ -4,6 +4,7 @@
 \usepackage{amsfonts,amsmath,bm,xcolor, booktabs}
 \usepackage[ruled]{algorithm2e}
 \usepackage{geometry}
+\usepackage{subfig}
 \geometry{a4paper,scale=0.8}
 \usepackage{setspace}
 \setstretch{1.5}
@@ -382,17 +383,19 @@ Table~\ref{tab:sim_temporal_res_point} summarizes the point forecast performance
 \caption{\label{tab:sim_temporal_res_point} Point forecast performance summary of temporal setting.}
 \begin{tabular}{rrrrrrrr}
 \toprule
- \multicolumn{4}{c}{MAE}  & \multicolumn{4}{c}{RMSE}\\ 
+\multicolumn{4}{c}{MAE($10^{-3}$)}  & 
+\multicolumn{4}{c}{RMSE($10^{-3}$)}\\ 
 Base & Bottom-Up & Top-Down & SDFR & 
-Base & Bottom-Up & Top-Down & SDFR \\ \cmidrule(1-4){4}
-127.88 & 126.23 & 127.88 & 126.74 \\
- 39.24 &  39.24 &  49.26 &  41.28 \\
- 39.30 &  39.30 &  49.34 &  41.79 \\
- 39.92 &  39.92 &  49.46 &  42.26 \\
- 40.97 &  40.97 &  49.54 &  42.84 \\
- 41.66 &  41.66 &  49.64 &  43.07 \\
- 42.04 &  42.04 &  49.67 &  43.30 \\
- 42.12 &  42.12 &  49.70 &  43.88 \\
+Base & Bottom-Up & Top-Down & SDFR \\
+\cmidrule(lr){1-4} \cmidrule(lr){5-8}
+127.88 & 126.23 & 127.88 & 126.74 & 150.34 & 151.57 & 150.34 & 150.37\\
+ 39.24 &  39.24 &  49.26 &  41.28 & 44.95 & 44.95 & 49.68 & 45.11\\
+ 39.30 &  39.30 &  49.34 &  41.79 & 45.24 & 45.24 & 49.78 & 45.42\\
+ 39.92 &  39.92 &  49.46 &  42.26 & 45.61 & 45.61 & 49.90 & 45.71\\
+ 40.97 &  40.97 &  49.54 &  42.84 & 46.13 & 46.13 & 49.99 & 46.10\\
+ 41.66 &  41.66 &  49.64 &  43.07 & 46.43 & 46.43 & 50.08 & 46.27\\
+ 42.04 &  42.04 &  49.67 &  43.30 & 46.67 & 46.67 & 50.10 & 46.39\\
+ 42.12 &  42.12 &  49.70 &  43.88 & 46.82 & 46.82 & 50.11 & 46.70\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -427,13 +430,20 @@ The testing results of point forecasts and probabilistic forecasts are shown in 
 \begin{figure}
   \centering
   \caption{\label{fig:sim_temporal_mcb_point}MCB test of point forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
-  \includegraphics[width=\textwidth]{figures/mcb_rmse_level.pdf}
-  \includegraphics[width=\textwidth]{figures/mcb_mae_level.pdf}
+  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_bottom.pdf}}
+  \qquad
+  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_total.pdf}} \\
+
+  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_bottom.pdf}}
+  \qquad
+  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_total.pdf}}
 \end{figure}
 
 \begin{figure}
   \caption{\label{fig:sim_temporal_mcb_prob}MCB test of probabilistic forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
-  \includegraphics[width=\textwidth]{figures/mcb_bs.pdf}
+  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_hierarchy.pdf}} \qquad
+  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_total.pdf}} \qquad
+  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
 \end{figure}
 
 \bibliographystyle{agsm}
