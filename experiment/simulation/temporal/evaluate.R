@@ -46,17 +46,56 @@ lst_rmse$td <- t(sapply(tdres, function(x){point_metric(x$dist, x$y, rmse)},simp
 
 lst_bs$td <- lapply(tdres, function(x){brier_score(x$dist, x$y)})
 
-### rec ###
+### rec ######
 lst_mae$sfr <- t(sapply(res, function(x){point_metric(x$dist, x$y, mae)},simplify="array"))
 lst_rmse$sfr <- t(sapply(res, function(x){point_metric(x$dist, x$y, rmse)},simplify="array"))
 
 lst_bs$sfr <- lapply(res, function(x){brier_score(x$dist, x$y)})
 
 
-### summarize ###
+### summarize ######
 ns <- c("base", "bu", "td", "sfr")
 output_mae <- sapply(ns, function(x){colMeans(lst_mae[[x]])})
 output_rmse <- sapply(ns, function(x){colMeans(lst_rmse[[x]])})
 output_bs_series <- sapply(ns, function(x){rowMeans(sapply(lst_bs[[x]], function(x){x$series}))})
 output_bs_hierarchy <- sapply(ns, function(x){mean(sapply(lst_bs[[x]], function(x){sum(x$hierarchy)}))})
+
+
+### MCB Test #####
+library(tsutils)
+library(dplyr)
+mcb_plot <- function(dat, metric, level){
+  if (level == "total") dat[,"td"] = dat[, "base"]
+  if (level == "bottom") dat[,"bu"] = dat[, "base"]
+  level_name <- level
+  if (level != "hierarchy") level <- paste0(level, " level")
+  metric_name <- metric
+  if (metric == "Brier Score") metric_name <- "BS"
+  pdf(sprintf("figures/temporal_mcb_%s_%s.pdf", metric_name, level_name),
+      width = 5, height = 4, pointsize = 10)
+  nemenyi(dat, plottype="vmcb", 
+          labels=c("Base", "Bottom-Up", "Top-Down", "SDFR"),
+          main = sprintf("MCB Test on %s of %s", metric, level))
+  dev.off()
+}
+
+
+sapply(ns, function(x){lst_mae[[x]][,1]}, simplify = "array") %>%
+  mcb_plot("MAE", "total")
+sapply(ns, function(x){as.vector(lst_mae[[x]][,2:8])}, simplify = "array") %>%
+  mcb_plot("MAE", "bottom")
+
+sapply(ns, function(x){lst_rmse[[x]][,1]}, simplify = "array") %>%
+  mcb_plot("RMSE", "total")
+sapply(ns, function(x){as.vector(lst_rmse[[x]][,2:8])}, simplify = "array") %>%
+  mcb_plot("RMSE", "bottom")
+
+
+sapply(ns, function(x){sapply(lst_bs[[x]], function(x){sum(x$hierarchy)})}, simplify = "array") %>%
+  mcb_plot("Brier Score", "hierarchy")
+sapply(ns, function(x){sapply(lst_bs[[x]], function(x){x$series[1]})}, simplify = "array") %>%
+  mcb_plot("Brier Score", "total")
+sapply(ns, function(x){as.vector(sapply(lst_bs[[x]], function(x){x$series[2:8]}))}, simplify = "array") %>%
+  mcb_plot("Brier Score", "bottom")
+
 
