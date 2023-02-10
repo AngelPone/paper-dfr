@@ -1,7 +1,7 @@
 \documentclass[a4paper,review,11pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
-\usepackage{amsfonts,amsmath,bm,xcolor, booktabs}
+\usepackage{amsfonts,amsmath,bm,xcolor, booktabs,hyperref}
 \usepackage[ruled]{algorithm2e}
 \usepackage{geometry}
 \usepackage{subfig}
@@ -18,7 +18,7 @@
 \newcommand{\bpi}{\bm{\pi}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
-\author{Anastasios Panagiotelis, Bohan Zhang, Yanfei Kang, Feng li}
+\author{Bohan Zhang, Anastasios Panagiotelis, Yanfei Kang, Feng li}
 
 \begin{document}
 
@@ -418,8 +418,6 @@ Base & Bottom-Up & Top-Down & SDFR \\\midrule
 435.492 & 435.492 & 502.199 & 430.912 \\
 440.001& 440.001& 502.632 & 433.226 \\
 442.969 & 442.969 & 502.906& 438.921 \\
-
-
 \bottomrule
 \end{tabular}
 \end{table}
@@ -445,6 +443,93 @@ The testing results of point forecasts and probabilistic forecasts are shown in 
   \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_total.pdf}} \qquad
   \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
 \end{figure}
+
+
+\section{Application: forecasting crime in Washington D.C.}
+
+We apply our method to forecast offense crime case number in Washington D.C. The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}} containing all crimes cases from 2014 to 2022 in Washington D.C. is aggregated into weekly time series according to location and crime type of the crime cases. 
+Considering the domain of the crime number, we perform experiment on all time series whose location type is census tract and crime type is offense.
+The resulted dataset includes $231$ weekly time series; each corresponds to the number of offense crimes at one census tract.
+
+The crime time series is potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). Thus, we aim to obtain coherent probabilistic crime number forecasts for next four weeks, by constructing a two-level temporal hierarchy, i.e., weekly and four-weekly, for each census tract. These two levels are referred to bottom level and total level in the rest of this section. We also constrain the maximum of the domain. For each census tract, if the max observation is $1$, then the domain is set to $[0, 1]$. Otherwise, the domain is set to $[0, 1, 2]$. The observation bigger than $2$ is set to $2$. We notice that there are less than $1\%$ of observations bigger than $2$. The modification thus has little impact on the final results.
+
+We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model. Beginning with a time series of $53$ weeks, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4). Then we increase the training data by one observation and produce new probabilistic forecasts. 
+For each window, the probabilistic forecasts for total level are obtained by first aggregating weekly series into four-weekly time series, and then producing one-step-ahead forecast using INGARCH(2, 2).
+The windows whose forecast horizon starts before $2022$ are used as train samples. Other windows are used to evaluate the performance.
+
+The procedure above is repeated for each census tract. Finally, we obtain $3696$ ($231$ census tracts $\times$ $16$ test samples for each census tract) temporal hierarchies and their reconciled forecasts to evaluate the performance. The mean and median of Brier Score for total level, bottom level and the hierarchy are shown in Table~\ref{tab:crime_bs}. We also perform the MCB Test to indicate the significance of the difference.
+
+
+\begin{table}[h]
+  \centering
+  \caption{\label{tab:crime_bs} Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
+  \begin{tabular}{ccccccccc}
+  \toprule
+  &\multicolumn{4}{c}{Mean} 
+  & \multicolumn{4}{c}{Median} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+  Series & Base & Bottom-Up & Top-Down & DFR &  Base & Bottom-Up & Top-Down & DFR \\\midrule
+  Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.65 & \textbf{64.75} \\
+  Bottom & 34.41 & 34.41 & 34.80 & \textbf{34.30} & 13.73 & 13.73 & 13.28 & \textbf{10.82}\\
+  Hierarchy & 73.87 & \textbf{67.87} & 68.33 & 67.97 & 97.66 & 92.70 & 93.08 & \textbf{92.42}\\
+  \bottomrule
+  \end{tabular}
+  \end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{figures/dc_crime_bs.pdf}
+\end{figure}
+
+\section{Application: mortality}
+
+The dataset contains yearly mortality data of Australia from 1921 to 2020.
+
+\begin{enumerate}
+  \item Compute the ``expected death rate'' (threshold) by asumming it decreases linearly. $l_1 - (l_{11} - l_1)/10$. (Setting2: threshold = $1.005 \times (l_1 - (l_{11} - l_1) / 10)$)
+  \item If the death rate of this year is smaller than ``expected death rate'', $y$ is set to $1$.
+  \item Construct the total series through aggregation.
+  \item Forecast the count time series and build reconciliation model.
+  \item Rolling origin strategy constructs 69 samples (1952-2020). 59 of them are used to train the model and 10 of them are used for testing.
+\end{enumerate}
+
+\begin{table}[h]
+  \centering
+  \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of age hierarchy.}
+  \begin{tabular}{ccccc}
+  \toprule
+  \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
+  Serier & Base & Bottom-Up & Top-Down & DFR \\\midrule
+  Total & 771.2 & 766.1 & 771.2 & \textbf{739.8} \\
+  55-65 & 557.9 & 557.9 & 596.3 & \textbf{554.8} \\
+  65-74 & 389.9 & 389.9 & \textbf{226.7} & 238.7\\
+  75-84 & 536.6 & 536.6 & 693.3 & \textbf{311.3}\\
+  85+ & \textbf{452.8}& \textbf{452.8} & 512.3 & 486.8\\
+  Hierarchy & 985.3 & 936.7 & 1005.6 & \textbf{918.6} \\
+  \bottomrule
+  \end{tabular}
+\end{table}
+
+
+\begin{table}[h]
+  \centering
+  \caption{\label{tab:mortality_age2} Probabilistic forecast performance summary of age hierarchy (Setting 2).}
+  \begin{tabular}{ccccc}
+  \toprule
+  \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
+  Serier & Base & Bottom-Up & Top-Down & DFR \\\midrule
+  Total & 638.0 & 626.7 & 638.0 & \textbf{590.8} \\
+  55-65 & \textbf{174.5} & \textbf{174.5} & 203.3 & 175.1 \\
+  65-74 & 138.3 & 138.3 & 142.9 & 128.9\\
+  75-84 & 205.5 & 205.5 & 324.4 & \textbf{160.4}\\
+  85+ & 495.3 & 495.3 & \textbf{444.2} & 521.6\\
+  Hierarchy & 882.4 & 697.0 & 736.7 & \textbf{675.2} \\
+  \bottomrule
+  \end{tabular}
+\end{table}
+
+
+
+\pagebreak
 
 \bibliographystyle{agsm}
 \bibliography{references.bib}

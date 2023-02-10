@@ -1,4 +1,5 @@
 .vscode
+*.out
 *.Rproj
 *.rds
 .DS_Store
