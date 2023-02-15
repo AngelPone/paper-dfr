@@ -14,3 +14,5 @@
 .Rproj.user
 .Rdata
 .Rhistory*
+
+!*/figures/*.pdf
