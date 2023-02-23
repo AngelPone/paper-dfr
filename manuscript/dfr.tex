@@ -1,4 +1,4 @@
-\documentclass[a4paper,review,11pt,authoryear]{elsarticle}
+\documentclass[a4paper,review,12pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
 \usepackage{amsfonts,amsmath,bm,xcolor, booktabs,hyperref}
@@ -10,7 +10,6 @@
 \setstretch{1.5}
 \let\code=\texttt
 \let\proglang=\textsf
-\title{Discrete Forecast Reconciliation}
 
 
 
@@ -18,12 +17,54 @@
 \newcommand{\bpi}{\bm{\pi}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
-\author{Bohan Zhang, Anastasios Panagiotelis, Yanfei Kang, Feng li}
 
 \begin{document}
 
-	\maketitle
-  \section{Methodology}
+\begin{frontmatter}
+
+  \title{Discrete forecast reconciliation}
+
+  \author[label1]{Bohan Zhang}
+  \address[label1]{School of Economics and Management, Beihang University, Beijing, China}
+  
+  \author[label1]{Yanfei Kang}
+  \author[label2]{Anastasios Panagiotelis}
+  
+  \author[label3]{Feng Li\corref{cor1}}
+  \ead{feng.li@cufe.edu.cn}
+
+  \cortext[cor1]{Correspondance: Feng Li, School of Statistics and Mathematics, Central University of Finance and Economics, Shahe Higher Education Park, Changping District, Beijing 102206, China.}
+  \address[label2]{The University of Sydney Business School, NSW 2006, Australia}
+  \address[label3]{School of Statistics and Mathematics, Central University of Finance and Economics, Beijing, China}
+
+  \begin{abstract}
+    Placeholder for abstract.
+  \end{abstract}
+
+  \begin{keyword}
+  Forecasting\sep
+  Hierarchical time series \sep
+  Count data
+  \end{keyword}
+  
+\end{frontmatter}
+
+\newpage
+
+\section{Introduction}
+
+Forecasting hierarchical time series is of great concern in many applications, such as retail demand forecasting (\citealp{babaiDemandForecastingSupply2022}), tourism forecasting (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), elecricity load forecasting (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality forecasting (\citealp{liHierarchicalMortalityForecasting2022}).
+Recently, the optimal reconciliation approaches, also known as forecast reconciliation, have attracted great attention from researchers (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019,zhangOptimalReconciliationImmutable2022a}). 
+Forecast reconciliation approaches are able to give coherent forecasts across both cross-sectional and temporal domains, and also improve the overall accuracies.
+
+// do not suitable for count data
+
+
+
+\section{Related Work}
+\section{Methodology}
+
+
 	\subsection{Preliminaries}
 	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables. Let $\bY$ be partitioned so that the first $m$ elements are `bottom-level' variables the remaining $(n-m)$ variables are `top-level' series. The `top-level' variables are some deterministic linear function of the `bottom-level' variables, usually aggregates. Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
 	
@@ -524,12 +565,11 @@ The dataset contains yearly mortality data of Australia from 1921 to 2020.
   85+ & 495.3 & 495.3 & \textbf{444.2} & 521.6\\
   Hierarchy & 882.4 & 697.0 & 736.7 & \textbf{675.2} \\
   \bottomrule
-  \end{tabular}
+ \end{tabular}
 \end{table}
 
 
-
-\pagebreak
+\newpage
 
 \bibliographystyle{agsm}
 \bibliography{references.bib}
