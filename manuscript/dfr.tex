@@ -77,7 +77,7 @@ Historically, this was achieved by first producing forecasts in one level,
 and then aggregating or disaggregating the forecasts into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, et al, 
 first independently generate \textit{base} forecasts for each time series, 
-which are then `optimally' reconciled to produce coherent forecasts.
+which are then ``optimally'' reconciled to produce coherent forecasts.
 
 While the reconciliation framework was initially proposed to reconcile point forecasts, it has been extended to probabilistic forecasting. 
 The earlier approaches construct coherent probabilistic forecasts by reconciling samples drawn from base forecasts. 
@@ -87,16 +87,46 @@ They then use three alternative approaches, i.e., stacking, ranking and permutat
 The base forecasts are then reconciled using the reconciliation matrix obtained through cross-validation. 
 On the other hand, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
 where the dependence among bottom time series is restored using empirical copula modelling.
+Furthermore, \cite{panagiotelisProbabilisticForecastReconciliation2022} propose a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence. 
+They also propose an efficient algorithm to compute reconciliation weights by optimising a proper scoring rule. 
+
+The forecast reconciliation framework has been proven to enhance forecasting accuracy in various scenarios. 
+One of the critical elements of its superior performance should be forecast combination (\citealp{hollymanUnderstandingForecastReconciliation2021}). 
+Every reconciled forecast is the weighted combination of all base forecasts,
+which could incorporate any external information using arbitrary forecasting methods.
+More importantly, the reconciliation process avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence.
+Against this backdrop, the reconciliation framework is a reasonable choice for forecasting hierarchical count time series,
+allowing for the employment of existing forecasting approaches for univariate counts in the literature.
+
+To the best of our knowledge, little literature deals with hierarchical count time series forecasting, and none of them is tailored for low-count time series.
+\cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach by conditioning base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
+The reconciled forecasts are obtained through a generalisation of Bayes’ rule and Monte Carlo samplings.
+\cite{zambonEfficientProbabilisticReconciliation2022} further generalise this idea to apply for both count time series and real-valued time series.
+Although this novel approach produces coherent probabilistic forecasts, 
+the conditional manner used is unable to restore the dependence structure within hierarchical time series.
+Incorporating correlation requires joint distributions of disaggregated time series, which, as explained above, is challenging to obtain in practice.
+
+In this paper, we seek to address the hierarchical forecasting problem for count time series, especially for low-count time series.
+First, we propose the concept of ``coherence'' for hierarchical counts, 
+which is similar in some ways to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
+Second, we utilise these concepts to construct a formal reconciliation framework for hierarchical counts, which generally reconciles the forecasts by moving probabilities from incoherent domains to coherent domains.
+Third, we show a metric that can be used to evaluate the forecasts and propose an algorithm to optimise this metric. 
+To speed up the computation, we further propose a step-wise algorithm based on some reasonable assumptions.
+We also show how this algorithm can be solved through quadratic programming.
+Fourth, two simulation experiments are performed to verify the applicability 
+in both temporal and cross-sectional settings.
+Finally, we conduct two empirical experiments to validate its usability in practice further. The first experiment uses a temporal crime dataset, and the other is performed on cross-sectional mortality data.
+
+The remainder of this paper is organised as follows. 
+Section \ref{sec:notation} introduce the notation and the concept of coherence for hierarchical counts.
+Section \ref{sec:method} describes the proposed discrete reconciliation framework, the metric used to evaluate the forecasts and the algorithm to reconcile the probabilistic forecasts. 
+The step-wise algorithm is also introduced in this section.
+Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:applications}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
 
 
-// idea: 1. ERM  2. forecast combination 3. definition
-
-// hierarchical count paper.
-
-\section{Related Work}
 \section{Methodology}
-
+\label{sec:notation}
 
 	\subsection{Preliminaries}
 	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables. Let $\bY$ be partitioned so that the first $m$ elements are `bottom-level' variables the remaining $(n-m)$ variables are `top-level' series. The `top-level' variables are some deterministic linear function of the `bottom-level' variables, usually aggregates. Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
@@ -169,6 +199,9 @@ where the dependence among bottom time series is restored using empirical copula
     \]
     where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique although this does not affect the proposed algorithms.
     
+\section{Method}
+\label{sec:method}
+
     \subsection{Naive methods}
 
     \subsubsection*{Bottom-Up}
@@ -347,7 +380,7 @@ where the dependence among bottom time series is restored using empirical copula
 
 
 \section{Simulation}
-
+\label{sec:simulation}
 To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different context. 
 In the first cross-sectional setting, we use the simplest three-node hierarchy. 
 While in the temporal setting, we simulate daily time series and use eight-node hierarchy.
@@ -520,6 +553,7 @@ The testing results of point forecasts and probabilistic forecasts are shown in 
 
 
 \section{Application: forecasting crime in Washington D.C.}
+\label{sec:applications}
 
 We apply our method to forecast offense crime case number in Washington D.C. The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}} containing all crimes cases from 2014 to 2022 in Washington D.C. is aggregated into weekly time series according to location and crime type of the crime cases. 
 Considering the domain of the crime number, we perform experiment on all time series whose location type is census tract and crime type is offense.
@@ -600,6 +634,9 @@ The dataset contains yearly mortality data of Australia from 1921 to 2020.
   \bottomrule
  \end{tabular}
 \end{table}
+
+\section{Conclusion}
+\label{sec:conclusion}
 
 
 \newpage
