@@ -54,26 +54,26 @@
 \section{Introduction}
 
 Hierarchical time series is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
-In the past decades, hierarchical forecasting has attracted great attention from forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}), deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
+In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}), deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
-Non-negative count time series, especially low count time series, naturally arise in various areas. 
-Examples include intermittent demand in retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), the number of 'black swan' events in a period (\citealp{nikolopoulosWeNeedTalk2020}) and violent crimes in one block.
-Hierarchical count time seres are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels need to be made.
-However, most of the existing hierarchical approaches are intrinsically designed for time series taking continuous values, and can not be applied to non-negative low count time series directly. 
-In this paper, we aim to fill this gap and propose a discrete reconciliation approach to produce coherent forecasts for low count hierarchical time series.
+Non-negative count time series, especially low-count ones, naturally arise in various areas. 
+Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), the number of 'black swan' events in a period (\citealp{nikolopoulosWeNeedTalk2020}) and violent crimes in one block.
+Hierarchical count time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
+However, most existing hierarchical approaches are intrinsically designed for time series taking continuous values and can not be directly applied to non-negative low-count time series. 
+This paper aims to fill this gap and propose a discrete reconciliation approach to produce coherent forecasts for low-count hierarchical time series.
 
 While point and interval forecasts are most widely applied in practice, 
 the probability distribution that describes the full uncertainty of future events plays a critical role in optimal decision making. (\citealp{gneitingProbabilisticForecasting2014}) 
 With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
-The pmfs can provide probability for each point in their discrete support,
-which is especially crucial for low count time series. (\citealp{petropoulosForecastingTheoryPractice2022a})
-By utilizing pmfs, we build a solid fundmental, which is used to define the coherence and incoherence of hierarchical forecasts, for the proposed discrete reconciliation framework.
+The pmfs can provide probabilities for each point in their discrete support,
+which is especially crucial for low-count time series. (\citealp{petropoulosForecastingTheoryPractice2022a})
+By utilizing pmfs, we build a solid fundamental for the proposed discrete reconciliation framework, which is used to define the coherence and incoherence of hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
-in the sense that point forecasts of a parent series should be equal to sum of the point forecasts of associated children series. 
-The same discipline is applied to each point in the support of hierarchical joint distribution when referring to probabilistic forecasts.
-Historically, this was achieved by first producing in forecasts one level, 
+in the sense that point forecasts of a parent series should equal the sum of the point forecasts of associated children series. 
+Regarding probabilistic forecasts, the same discipline is applied to each point in the support of hierarchical joint distribution.
+Historically, this was achieved by first producing forecasts in one level, 
 and then aggregating or disaggregating the forecasts into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, et al, 
 first independently generate \textit{base} forecasts for each time series, 
@@ -82,12 +82,12 @@ which are then `optimally' reconciled to produce coherent forecasts.
 While the reconciliation framework was initially proposed to reconcile point forecasts, it has been extended to probabilistic forecasting. 
 The earlier approaches construct coherent probabilistic forecasts by reconciling samples drawn from base forecasts. 
 The generated empirical distribution is hence coherent because all the samples are coherent.
-\cite{jeonProbabilisticForecastReconciliation2019} propose a method that first draw samples from independently modelled predictive distribution. 
-They then use three alternative approaches, i.e., stacking, ranking and permutation to construct base forecasts. 
-The base forecasts are then reconciled using reconciliation matrix obtained through cross valiation. 
-On the other hand, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through bottom-up approach, 
-where the dependence among bottom time series is restored using empirical coupla modelling.
-  
+\cite{jeonProbabilisticForecastReconciliation2019} propose a method that first draws samples from the independently modelled predictive distribution. 
+They then use three alternative approaches, i.e., stacking, ranking and permutation, to construct base forecasts. 
+The base forecasts are then reconciled using the reconciliation matrix obtained through cross-validation. 
+On the other hand, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
+where the dependence among bottom time series is restored using empirical copula modelling.
+
 
 
 // idea: 1. ERM  2. forecast combination 3. definition
