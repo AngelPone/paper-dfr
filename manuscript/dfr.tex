@@ -118,27 +118,34 @@ in both temporal and cross-sectional settings.
 Finally, we conduct two empirical experiments to validate its usability in practice further. The first experiment uses a temporal crime dataset, and the other is performed on cross-sectional mortality data.
 
 The remainder of this paper is organised as follows. 
-Section \ref{sec:notation} introduce the notation and the concept of coherence for hierarchical counts.
+Section \ref{sec:coherence} introduce the notation and the concept of coherence for hierarchical counts.
 Section \ref{sec:method} describes the proposed discrete reconciliation framework, the metric used to evaluate the forecasts and the algorithm to reconcile the probabilistic forecasts. 
 The step-wise algorithm is also introduced in this section.
 Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:applications}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
 
 
-\section{Methodology}
-\label{sec:notation}
+\section{Coherence of probabilistic hierarchical count forecasts}
+
+\label{sec:coherence}
 
 	\subsection{Preliminaries}
-	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables. Let $\bY$ be partitioned so that the first $m$ elements are `bottom-level' variables the remaining $(n-m)$ variables are `top-level' series. The `top-level' variables are some deterministic linear function of the `bottom-level' variables, usually aggregates. Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
+	Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables.
+  Let $\bY$ be partitioned so that the first $m$ elements are \textit{base} variables the remaining $(n-m)$ elements are \textit{determined} variables.
+  The determined variables are some deterministic linear function of the base variables, usually aggregations. 
+  Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
 	
-	\subsection{Incoherent and Incoherent Domain}
+	\subsection{Incoherent and Coherent Domain}
 	The \textit{incoherent domain} of $\bY$ is given by
 	\[
 	\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\}\,,
 	\] 
-    where products are set products. The cardinality of the incoherent domain $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. The incoherent domain is analogous to $\mathbb{R}^n$ is the continuous case.
+  where products are set products. The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
+  The incoherent domain is analogous to $\mathbb{R}^n$ is the continuous case.
     
-    The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D}(\bY)$ for which aggregation constraints hold.  The coherent domain has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$. This will be denoted as $r$.  The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case.
+  The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D}(\bY)$ for which aggregation constraints hold.  
+  The coherent domain has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$. This will be denoted as $r$. 
+  The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
     
     \subsubsection*{Example}
     
@@ -159,11 +166,19 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
         \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
     \]
     
-    \subsection{Probabilistic Forecasts}
+    \subsection{Coherence of Probabilistic Forecasts}
 
-    Suppose a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$. Let $\hat{\bpi}^{t+h|t}$ be a $q$-vector of probabilities where each element in $\hat{\bpi}^{t+h|t}$ corresponds to one point in the incoherent domain. Two notational conventions will be used for the elements of $\hat{\bpi}^{t+h|t}$. First, $\hat{\pi}_j^{t+h|t}$ will be used to denote the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$.  Second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\hat{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$. The two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. Using the small example in the previous section $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+    Suppose a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$. 
+    Let $\hat{\bpi}^{t+h|t}$ be a $q$-vector of probabilities where each element in $\hat{\bpi}^{t+h|t}$ corresponds to one point in the incoherent domain. 
+    Two notational conventions will be used for the elements of $\hat{\bpi}^{t+h|t}$. 
+    First, $\hat{\pi}_j^{t+h|t}$ will be used to denote the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$.  
+    Second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\hat{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$. The two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. 
+    Using the small example in the previous section $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
     
-    This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some point for which the aggregation constraints do not hold. This can happen quite easily in practice. Suppose probabilistic forecasts are generated for each variable independently and the joint forecast is then constructed assuming independence. Such forecasts will in general be incoherent. For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$. We are assigning non-zero probability to an incoherent point.
+    This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some points for which the aggregation constraints do not hold. 
+    This can happen quite easily in practice. Suppose probabilistic forecasts are generated for each variable independently and the joint forecast is then constructed assuming independence. 
+    Such forecasts will in general be incoherent. 
+    For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$. We are assigning non-zero probability to an incoherent point.
     
     A coherent probabilistic function can be defined in a similar fashion. Now $\tilde{\bpi}^{t+h|t}$ is an $r$-vector of probabilities where each element in $\tilde{\bpi}^{t+h|t}$ corresponds to one point in the coherent domain. The notation $\tilde{\pi}_k^{t+h|t}$ is used to denote the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\tilde{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$ where this value must be coherent. The analogue to $\hat{h}(j)$ is a function a function $\tilde{h}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$ which maps each index $k$ to a coherent configuration of values that $\bY$ can take. Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc.
     
@@ -202,24 +217,23 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
 \section{Method}
 \label{sec:method}
 
-    \subsection{Naive methods}
-
-    \subsubsection*{Bottom-Up}
-
-    \subsubsection*{Top-Down}
-    \subsection{Reconciliation}
+    \subsection{The discrete forecast reconciliation framework}
     
-    The idea is to `move' probability from $\hat{\bpi}$ to $\tilde{\bpi}$ with the superscript $t+h|t$ dropped for convenience.  Let
-    
+    The idea is to `move' probability from $\hat{\bpi}$ to $\tilde{\bpi}$ with the superscript $t+h|t$ dropped for convenience.  
+    Let $\tilde{\bpi} = \psi(\hat{\bpi})$, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is the reconciliation function that maps a probability vector of incoherent point to another vector of coherent point. 
+    This framework is similar to the one defined in \cite{anagiotelisForecastReconciliationGeometric2021} which maps values in $\mathbb{R}^n$ into coherent subspace $\mathfrak{s}$.
+
+    In this paper we focus on the following linear reconciliation function.
+    Let
     \[
-    \tilde{\bpi}=\bm{A}\hat{\bpi}
+    \tilde{\bpi}=\bm{A}\hat{\bpi},
     \] 
-    
-    where $\bm{A}$ is a matrix of assignment weights. Letting, $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
+    where $\bm{A}$ is a matrix of assignment weights. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
     \[
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
-    for all $k$. Each $a_{kj}$ tells us how much probability is shifted from the (possibly) incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\hat{\bpi}$). We know that $a_{kj}$ must meet the following constraints
+    for all $k$. 
+    Each $a_{kj}$ tells us how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\hat{\bpi}$). We know that $a_{kj}$ must meet the following constraints
     \begin{align*}
     &0\leq a_{kj} \leq 1 \,\forall k, j\\ 
     &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j 
@@ -261,43 +275,7 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
     &0\leq a_{kj}\leq 1\\
     &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j
     \end{align*}
-    This is a fairly standard problem in quadratic programming.
-
-    \subsection{Matrix form of the optimisation problem}
-
-    The optimisation priblem can be formulated into matrix form.
-    \begin{align*}
-      \min\limits_{A \in \mathbb{R}^{r\times q}} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(A)' Q \text{vec}(A) &+ \left[\lambda \text{vec}(c)' - \frac{2}{|\mathcal{T}_{\textrm{window}}|}\text{vec}(Z)'D\right]\text{vec}(A) \\&+ \frac{1}{|\mathcal{T}_{\textrm{window}}|} \text{vec}(Z)'\text{vec}(Z),
-    \end{align*}
-    subject to \begin{align*}
-      0 \leq A \leq 1\\
-      E A = \mathbf{1}
-    \end{align*}
-    where
-    \[
-    Q = \left[\begin{matrix}
-      Q_1  & \\
-       &\ddots \\
-       &  & Q_r
-
-    \end{matrix}  \right]
-    D = \left[\begin{matrix}
-      D_1 \\ \vdots \\ D_T
-    \end{matrix}\right] 
-    D_t = \left[\begin{matrix}
-      \hat\pi_{t}' & \\
-      & \ddots & \\
-      & & \hat\pi_{t}'
-    \end{matrix}\right]_{r\times (rq)}
-    \]
-
-    and
-    \[\textrm{vec}(c) = \left[c_1' \dots c_r'\right]',\]
-    \[\textrm{vec}(Z) = \left[Z_1' \dots Z_{|\mathcal{T}_{\textrm{window}}|}'\right]',\]
-    \[E = [I_q \quad I_q  \quad \dots \quad I_q]_{q\times rq},\]
-    \[Q_1 =\dots =Q_r = \hat{\boldsymbol{\pi}}\hat{\boldsymbol{\pi}}^\prime.\] $\hat{\boldsymbol{\pi}}$ is the matrix of $q \times |\mathcal{T}_{\textrm{window}}|$ that contains base probabilistic forecasts in the rolling window. If \[A = \left[\begin{matrix}
-      A_1' \\ \vdots \\ A_r'
-    \end{matrix}\right],\] then $\textrm{vec}(A) = [A_1' \cdots A_r']'$.    
+    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solver such as the Operator Splitting Solver (OSQP, \citealp{stellatoOSQPOperatorSplitting2020}).   
 
     
     \subsection{Computational considerations}
@@ -378,6 +356,11 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
    When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
    Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
 
+   \subsection{Naive methods}
+
+   \subsubsection*{Bottom-Up}
+
+   \subsubsection*{Top-Down}
 
 \section{Simulation}
 \label{sec:simulation}
