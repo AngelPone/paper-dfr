@@ -264,6 +264,7 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
     This is a quadratic function of the $a_{kj}$ with smaller values indicating a better coherent forecast.
     
     \subsection{The optimisation problem}
+    \label{sec:optimisation}
     
     Putting everything together, the optimisation problem is to 
     
@@ -286,79 +287,66 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
     \]  
     This implies that probability can only be moved to one of the nearest points. In the three variable example it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
 
-   \subsection{Step-wise reconciliation}
+   \subsection{Stepwise discrete reconciliation}
 
-   Although forcing corresponding parameters of the non-nearest points to 0 reduce the dimension, there can still be a large amount of unknown parameters to estimate when handling high-dimensional hierarchy. 
-   
-   Consider a two-hierarchy with one root node and $k$ children nodes. 
-   The children nodes have the same domain $\{0, 1\}$, and thus the root node hierarchies domain $\{0, 1, \dots, k\}$.
-   The cardinality of coherent domain would be $2^k$, and the cardinality of incoherent domain would be $2^k\cdot (k+1)$. 
-   The dimension of the parameter space of $A$ would be at least $2^k$, when we simply assume each incoherent point has two nearest neighbors. Actually, there may be $k$ nearest neighbors and even more. For example, when $k=4$, the nearest neighbors of $00001$ contain $00000, 10001, 01001, 00101, 00011$.
-
-   By destructing the high-dimensional hierarchy into multiple simplest two-level hierarchies with three nodes and averaging the reconciled marginal distribution, we can avoid the problem caused by exponentially growth of the parameter space. 
-  
-
-   Denote the root node as $y_0$ and children nodes as $y_1, \dots, y_k$. 
-   Denote the marginal distribution of node $y_1$ as $p(y_1)$ and the joint distribution of node $y_1$ and $y_2$ as $p(y_1, y_2)$. 
-   Denote the reconciled marginal distribution of $y_1$ as $\tilde p(y_1)$.
+   Although forcing parameters of the non-nearest points to 0 reduce the dimension, there can still be a large amount of unknown parameters to estimate when handling high-dimensional hierarchy.
+   We further propose a stepwise discrete reconciliation (SDFR) algorithm.
+   Instead of reconciling forecasts of all series together,  the algorithm
+   decomposes the high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step.
+   Given some reasonable assumptions, the reconciled forecasts of these sub-hierarchies are then adjusted  to construct the joint forecasts of the hierarchy.
 
    \begin{algorithm}[H]
-    \caption{Step-wise reconciliation}
-    \SetKwFunction{reconcile}{reconcile}
-    \SetKwFunction{calculus}{calculus}
-    \SetKwFunction{alignDistribution}{alignDistribution}
-    \SetKwFunction{calJointDistribution}{calJointDistribution}
-    \SetKwFunction{forecast}{forecast}
-    \SetKwInOut{Input}{input}
-    \SetKwInOut{Output}{output}
-    \Input{Time series $\bm{y} = (y_1,\dots,y_k)'$}
-    $y_{U_1} \leftarrow \sum\limits_{j=2}^k y_j$\;
-    $y_T \leftarrow y_1 + y_{U_1}$ \;
-    $\hat p(y_1) \leftarrow$ \forecast{$y_1$}\;
-    $\hat p(y_{U_1}) \leftarrow$ \forecast{$y_{U_1}$}\;
-    $\hat p(y_{T}) \leftarrow$ \forecast{$y_{T}$}\;
-    $\tilde p(y_1, y_{U_1}) \leftarrow $ \reconcile{$\hat p_1(y_1)$, $\hat p_1(y_{U_1})$,$\hat p_1(y_T)$}\;
-    $\tilde p_1(y_{U_1}) \leftarrow$ \calculus{$\tilde p_1(y_1, y_{U_1})$}\;
-    \For {$i=2,\dots,k-1$}{
-      $y_{U_{i}} \leftarrow \sum\limits_{j=i+1}^k y_j$\;
-      $\hat p(y_i) \leftarrow$ \forecast{$y_i$}\;
-      $\hat p(y_{U_i}) \leftarrow$ \forecast{$y_{U_i}$}\;
-      $\tilde p(y_i, y_{U_i}) \leftarrow $ \reconcile{$\hat p(y_i)$, $\hat p(y_{U_i})$, $\hat p(y_{U_{i-1}})$} \;
-      $\tilde p_i(y_{U_{i-1}}) \leftarrow$ \calculus{$\tilde p(y_i, y_{U_i})$} \; 
-      $\tilde p(y_{U_{i-1}}) \leftarrow \frac{1}{2}(\tilde p_{i-1}(y_{U_{i-1}}) + \tilde p_i(y_{U_{i-1}}))$\;
-      $\tilde p'(y_i, y_{U_i}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(y_i, y_{U_i})$}\;
-      $\bm{y}_{i-1} \leftarrow (y_1,\dots,y_{i-1})'$\;
-      $\tilde p'(\bm{y}_{i-1}, y_{U_{i-1}}) \leftarrow$ \alignDistribution{$\tilde p(y_{U_{i-1}}), \tilde p(\bm{y}_{i-1}, y_{U_{i-1}})$}\;
-      $\tilde p(\bm{y}_{i-1}, y_{i}, y_{U_i}) \leftarrow$ \calJointDistribution{$\tilde p'(\bm{y}_{i-1}, y_{U_{i-1}}), \tilde p'(y_i, y_{U_i}), \tilde p(y_{U_{i-1}})$}\;
+    \label{alg:stepwise}
+    \caption{Stepwise discrete reconciliation}
+    \SetKwFunction{reconcile}{DFR$_i$}
+    \SetKwFunction{bu}{BottomUp}
+    \SetKwFunction{adjust}{Adjust}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \Input{$\hat{\pi}_0,\dots,\hat{\pi}_k$} 
+    \For {$i=1,\dots,k-1$}{
+      $\hat{\pi}_{\mathbf{S}_{k-i}} \leftarrow$ \bu($\hat\pi_{i+1},\dots,\hat\pi_k$)\;
+      \uIf{ i = 1}{
+        $\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \hat\pi_0$ \;
+      } 
+      \Else{$\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\mathbf{S}_{k-i+2}, y_{i-1}}\tilde{\bpi}(\mathbf{S}_{k-i+2}, y_{i-1}, \mathbf{S}_{k-i+1})$\;
+      }
+      
+      $\tilde{\pi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \reconcile{$\hat{\pi}_{\mathbf{S}_{k-i + 1}}, \hat\pi_{i}, \hat\pi_{\mathbf{S}_{k-i}}$}
+    } 
     
+    \For {$i=2,\dots,k-1$} {
+      $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1})$ \;
+      $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i})$ \;
+      $\tilde\pi'_{\mathbf{S}_{k-1+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$) \;
+      $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ 
     }
-    \Output{$\tilde p(\bm{y})$}
+    \Output{$\tilde \bpi(\bY_k)$}
     
    \end{algorithm}
 
-   By reordering $\bm{y}$, we can obtain multiple $\tilde p(\bm{y})$ and average them to obtain final reconciled joint distribution.
-
-  Given reconciled joint distribution $p(A, B)$ and $p(C,D)$, where $B=C+D$, we can obtain joint distribution of $A,C,D$ by assuming $C,D \independent{A}$:
-
+  Taking a hierarchy with one total series and $k$ bottom series as an example, algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when hierarchy is large. 
+  Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$. 
+  Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.
   \[
-      \begin{aligned}
-        p(A,B,C,D) &= p(C, D|A,B)p(A,B) \\ 
-          &= p(C,D|B)p(A,B)  \:\: \textrm{assume}\:\: C,D \independent {A}\\
-          &= \frac{p(B,C,D)}{p(B)}p(A,B) \\
-          &= \frac{p(C,D)}{p(B)}p(A,B);
-     \end{aligned}
-     \]
-     \[
-       p(A,C,D) = \int P(A,B,C,D) \textrm{d}B.
-      \]
+   \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
+  \] 
+  In general, the hierarchy is splitted into $k-1$ three-nodes hierarchy.  
+  For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy and the other bottom-series corresponds to sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
+  In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section \ref{sec:optimisation} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$,and each model takes the output of last model as input.
+  The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
+  In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
+  Adjacent hierarchies share a same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e, $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
+  We take averages of the two marginal forecasts and pass it into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which constructs coherent forecasts based on inputs.
 
-
-   When handling hierarchy with more aggregated series, we can repeat above procedure for each aggregated series. 
-   Or we can repeat the above procedure in a top-down or bottom-up manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base root forecasts (top-down) to reconcile next level. One drawback of discussed approaches is that they can not consider the hierarchy as a whole.
+   When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series, in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
 
    \subsection{Naive methods}
 
+   
    \subsubsection*{Bottom-Up}
+   \label{sec:bottomup}
+   
 
    \subsubsection*{Top-Down}
 
@@ -620,6 +608,12 @@ The dataset contains yearly mortality data of Australia from 1921 to 2020.
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+\newpage
+
+\appendix
+\section{Adjust algorithm}
+\label{appendix:adjust}
 
 
 \newpage
