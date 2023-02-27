@@ -10,7 +10,7 @@
 \setstretch{1.5}
 \let\code=\texttt
 \let\proglang=\textsf
-
+\setcounter{MaxMatrixCols}{20}
 
 
 \newcommand{\bY}{\mathbf{Y}}
@@ -148,6 +148,7 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
   The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
     
     \subsubsection*{Example}
+    \label{sec:example}
     
     Let $Y_1$ and $Y_2$ be binary variables and $Y_3=Y_1+Y_2$. In this case the domain of each variable is
     \begin{align*}
@@ -225,9 +226,10 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
 
     In this paper we focus on the following linear reconciliation function.
     Let
-    \[
+    \begin{equation}
+      \label{eq:framework}
     \tilde{\bpi}=\bm{A}\hat{\bpi},
-    \] 
+    \end{equation}
     where $\bm{A}$ is a matrix of assignment weights. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
     \[
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
@@ -343,12 +345,34 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
 
    \subsection{Naive methods}
 
-   
-   \subsubsection*{Bottom-Up}
+   Top-down and bottom-up are classical and easy to implement approaches for point hierarchical forecasting. 
+   They only need forecasts in one level and obtain forecasts in other levels through disaggregation (top-down) or aggregation (bottom-up).
+   In this section, we propose alternatives that can be used to obtain coherent probabilistic forecasts for counts.
+   \subsubsection*{Bottom-up}
    \label{sec:bottomup}
-   
+   Bottom-up method obtain the joint distribution by only considering the joint distribution of bottom-level series, e.g., $\tilde\pi^{\text{bu}}_{(000)} = \hat\pi_{(00)}$. 
+   This approach is a special case of Equation (\ref{eq:framework}) where elements of $\mathbf{A}$ only take $0$ and $1$. 
+   Using the example in Section\ref{sec:example},
+   \[
+    \mathbf{A} = [\mathbf{I}_4\quad \mathbf{I}_4 \quad \mathbf{I}_4 ],
+  \]
+   which marginalizes the base joint distribution over the total variable.
 
-   \subsubsection*{Top-Down}
+   \subsubsection*{Top-down}
+
+   Top-down approaches proportionally disaggregate the distribution of total series into all possible coherent points. 
+   The ratio is computed by the ratio of historical occurrences.
+   For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed, and the forecasted probability of the total series taking $1$ is $0.4$, the probabilities of possible coherent points would be $\tilde \pi_{(011)} = 0.16$ and $\tilde \pi_{(101)} = 0.24$.
+   This method can also be a special case of Equation (\ref{eq:framework}).
+   Using the example in Section\ref{sec:example},
+   \[
+    \mathbf{A} = \left[\begin{matrix}
+      1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0.4 & 0.4 & 0.4 & 0.4 & 0 & 0 & 0 & 0 \\      
+      0 & 0 & 0 & 0 & 0.6 & 0.6 & 0.6 & 0.6 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1  
+    \end{matrix}\right].
+   \]
 
 \section{Simulation}
 \label{sec:simulation}
