@@ -376,70 +376,96 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
 
 \section{Simulation}
 \label{sec:simulation}
-To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different context. 
-In the first cross-sectional setting, we use the simplest three-node hierarchy. 
-While in the temporal setting, we simulate daily time series and use eight-node hierarchy.
-
-\subsubsection*{Evaluation Metrics}
-
-To evaluate the reconciled forecasts, we track $4$ metrics, the Mean Absolute Error(MAE), the Root Mean Squared Error(RMSE), and the Brier Score (BS). 
-
+To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different contexts, one for cross-sectional setting and another for temporal settings. 
 
 \subsection{Cross-sectional hierarchy}
+\label{sec:cross-sectional_simu}
+\subsubsection{Simulation setup}
+In this subsection, we consider the simple hierarchy shown in Section~\ref{sec:example}.
+The binomial counts of bottom level are generated based on the underlying probability series, which is assumed to be a bivariate var(1) process
+\[\mathbf{z}_t = \mathbf{\Phi}\mathbf{z}_{t-1}+\boldsymbol{\eta}_t,\]
+where
+\[
+  \mathbf{\Phi} = \left[\begin{matrix}
+    \alpha & 0 \\
+    0 & \beta
+  \end{matrix}\right], \boldsymbol{\eta} \sim \mathcal{N}\left(\mathbf{0}, \left[\begin{matrix}
+    0.1 & 0.05 \\
+    0.05 & 0.1 
+  \end{matrix}\right]\right)
+\]
+and $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
+The generated series are then transformed into probability series through sigma function 
+\[
+\sigma(x) = \frac{\exp(x)}{1+\exp(x)}.
+\]
+If the generated probability is bigger than $0.5$, the count series take $1$, and otherwise take $0$.
+
+The procedure were repeated $1000$ times. 
+For each binomial series, $480$ observations were generated,
+and rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size $150$ was adopted to construct samples. 
+The first $300$ samples were used to train the DFR model and the remaining $30$ samples were used to test the performance.
+
+The base probabilistic forecasts are obtained independently using the binomial AR(1) models(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
+Brier scores of the joint forecasts of the hierarchy and the marginal forecasts of each series on the $30$ testing samples are used to evaluate the performance. 
+
+\subsection{Simulation results}
+Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average brier scores of the $1000$ samples, compaired with base forecasts, bottom-up method and top-down method.
+The bold text in each row indicate the best average performance out of the four approaches.
+DFR performs the best for both single series and the hierarchy. 
+The top-down method is beat by bottom-up in both total level and bottom level, showing the inferiority of the base forecasts of the total series.
+However, DFR shows the biggest improvement in accuracy of total series, implying the ability to mitigate the risk of model misspecification.
+Similar results are obtained from forecast reconciliation for continuous variables.
+
+We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of the accuracy difference between these approaches. 
+This testing approach computes the mean ranks of the four approaches across the whole simulation set and does not impose any distributional assumptions.
+Nonoverlapping of the gray intervals in the figures indicates the method is statistically more significant than others.
+DFR performs more significant than all other approaches, as shown in Figure~\ref{fig:sim_temporal_mcb_prob}.
+
+
+
+\begin{figure}
+  \centering
+  \label{fig:mcb_crosssectional}
+  \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
+  \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
+\end{figure}
+
+
+\begin{table}
+  \centering
+  \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary of cross-sectional setting.}
+  \begin{tabular}{lcccc}
+  \toprule
+  \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\ 
+   & Base & Bottom-Up & Top-Down & DFR \\\midrule
+  $y_0$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
+  $y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
+  $y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
+  $\bY$ & 74.4 & 47.8 & 56.1 & \textbf{44.0} \\
+  \bottomrule
+  \end{tabular} 
+\end{table}
+
 
 \subsection{Temporal hierarchy}
 
-We now consider a daily temporal setting with one total level and $m=7$ bottom-level series. The bottom-level time series can only take values of $0$ and $1$. 
-Even though, the domain of the hierarchy is still quite large, so it is challenging to estimate a full reconciliation matrix given limited observations in practice. 
-To avoid the curse of dimensionality, we use the proposed step-wise reconciliation algorithm. 
-
-% \subsubsection{Simulation setup} 
-
-% The time series were simulated using function \code{simID} in package \code{tsintermittent} for \proglang{R}. 
-% The simulation algorithm is designed for simulating intermittent demand series, which is particularly suitable in our context.
-% We can control the algorithm by three parameters, which are average intermittent demand interval (\code{idi}), variation of the non-zero demands (\code{cv2}) and mean level of the non-zero demands (\code{level}) (\Citealp{petropoulosHorsesCoursesDemand2014}). We set \code{idi}$=2$, \code{level} $\:=1.5$ and \code{cv2} $\:=0.5$ in this experiment.
-% The simulated time series are not guaranteed to take only $0$ and $1$, so we set values bigger than one to be one. 
-
-% We repeated the simulation process $1000$ times. For each series, $T=827$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $k=300$. 
-% For each rolling timestamp, latest $300$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
-% In total, we had $521$ windows, thus $521$ samples.
-% The first $500$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
-
-
-% Base forecasts of daily time series were generated using autoregressive logistic model. 
-% More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations as regressors to predict the next observation. 
-% To generate forecasts in the final $7$ days, for each step, we took the predicted value of last step as regressor to recursively predict the next step. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
-
-% Base forecasts of weekly time series were generated using integer-valued GARCH model, in short $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
-% Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
-% For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
-% We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
-% Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
-
-% \subsubsection{Simulation results}
-
-% We compare the average brier score of our model and bottom-up method.
-
-% \begin{table}[h]
-%   \centering
-%   \caption{}
-  
-%   \begin{tabular}{cc}
-%     \hline
-%     Stepwise reconciliation & Bottom up \\\hline
-%     0.9936770 & 0.9938859 \\\hline
-%   \end{tabular}
-% \end{table}
-
 \subsubsection{Simulation setup}
 
-We simulated the daily time series in a top-down manner. 
+We now consider a daily temporal setting with one total level and $7$ bottom-level series. 
+This setting is commonly seen in supply chain management where daily and weekly forecasts are needed to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
+The bottom-level time series can only take values of $0$ and $1$. 
+Even though, the domain of the hierarchy is still large, so it is challenging to estimate a full reconciliation matrix given limited observations in practice. 
+We use the stepwise reconciliation algorithm in Section \ref{alg:stepwise}. 
+
+
+
 While the intermittent series are characterized by variable demand interval and demand size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
-Following this intuition, we first simulated weekly time series with seasonal period $4$, which were then disaggregated as daily time series.
+Following this intuition, we first simulated weekly time series with seasonal period $4$, which were then disaggregated into daily time series.
 
 Assuming the weekly time series were Poisson distributed, we first simulated the conditional mean series based on autoregressive integrated moving average(ARIMA)  process. This procedure was implemented using the \code{gratis} package for \proglang{R}. 
 The controlled parameters are shown in Table~\ref{tab:parameters}. Other parameters were randomly generated by the package to enable diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}). 
-The first $100$ generated samples were removed.
+The first $100$ generated samples were removed as warmups.
 Considering that the domain of the weekly time series in our setting was finite (i.e., $\leq 7$), we linearly mapped the generated conditional mean series into $[2.5, 4.5]$. 
 Then we simulated the Poisson distributed series based on the conditional mean series. Values bigger than $7$ were set to $7$.
 
@@ -458,10 +484,10 @@ Then we simulated the Poisson distributed series based on the conditional mean s
 
 The weekly time series were then disaggregated into daily time series by randomly choosing days taking $1$ and ensuring coherence. 
 We first simulated $7$ probabilities based on $7$ independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of taking $1$ from Monday to Sunday. 
-Values of the $k$ days with the largest probabilities were set to $1$, and others were set to $0$. $k$ is the value of corresponding weekly observation.
-$\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$. This allows the probabilities of taking $1$ increasing gradually from $i=1$ to $i=7$, implying potential seasonality.
+Values of the $w$ days with the largest probabilities were set to $1$, and others were set to $1$. $w$ is the value of corresponding weekly observation.
+$\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$. This allows the probabilities of taking $1$ to increase gradually from $i=1$ to $i=7$, implying potential seasonality.
 
-We repeated the simulation process $1000$ times. For each daily time series, $T=903$ observations were generated. We employed the rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed look back window size $350$. 
+We repeated the simulation process $1000$ times. For each daily time series, $903$ observations were generated. Similar to Section~\ref{sec:cross-sectional_simu}, we employed the rolling origin strategy  with fixed look back window size $350$. 
 For each rolling timestamp, latest $350$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
 In total, we had $547$ windows, thus $547$ samples.
 The first $526$ samples were used to train the reconciliation model, and the last $21$ samples were used to evaluate the forecasting performance.
@@ -474,76 +500,57 @@ Base forecasts of weekly time series were generated using integer-valued GARCH m
 Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
 For simplicity, we built a $\textrm{INGARCH}(3, 3)$ which takes conditional mean and observations of latest $3$ steps as regressors. 
 We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
-Given the predicted mean of Poisson distribution in the forecast horizon, we set the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
+Given the predicted mean of Poisson distribution in the forecast horizon, we added the probability of the series taking values bigger than its maximum up to the probability of taking its maximum.
 
 \subsubsection{Simulation results}
 
-Table~\ref{tab:sim_temporal_res_point} summarizes the point forecast performance of the stepwise reconciliation model, compared with base forecasts, bottom-up method and top-down method.
+Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of the stepwise reconciliation model, compared with base forecasts, bottom-up and top-down.
+While SDFR does not improve forecast accuracies of all series, the results
+show a compromise between top-down and bottom-up. 
+One interesting point is that the forecasting accuracies are improved for the last several series. 
+It may be because we implement the SDFR stepping from $y_1$ to $y_7$, and the coherent forecasts of previous series have to be adjusted many times to construct the final joint distribution.
+Another explanation is the effective utilization of forecast combination, where the series at the rear of the process combines more forecasts.
+Surprisingly, forecast accuracies of the total series donot show large deviation,  even though it is adjusted most of times, showing the robustness of SDFR.
+We also perform MCB tests to test the significance of the performance. 
+The testing results are shown in Figure~\ref{fig:sim_temporal_mcb_prob}. 
+MCB tests give the similar conclusions to Table~\ref{tab:sim_temporal_res_dist}. 
 
-\begin{table}[h]
-\centering
-\caption{\label{tab:sim_temporal_res_point} Point forecast performance summary of temporal setting.}
-\begin{tabular}{rrrrrrrr}
-\toprule
-\multicolumn{4}{c}{MAE($10^{-3}$)}  & 
-\multicolumn{4}{c}{RMSE($10^{-3}$)}\\ 
-Base & Bottom-Up & Top-Down & SDFR & 
-Base & Bottom-Up & Top-Down & SDFR \\
-\cmidrule(lr){1-4} \cmidrule(lr){5-8}
-127.88 & 126.23 & 127.88 & 126.74 & 150.34 & 151.57 & 150.34 & 150.37\\
- 39.24 &  39.24 &  49.26 &  41.28 & 44.95 & 44.95 & 49.68 & 45.11\\
- 39.30 &  39.30 &  49.34 &  41.79 & 45.24 & 45.24 & 49.78 & 45.42\\
- 39.92 &  39.92 &  49.46 &  42.26 & 45.61 & 45.61 & 49.90 & 45.71\\
- 40.97 &  40.97 &  49.54 &  42.84 & 46.13 & 46.13 & 49.99 & 46.10\\
- 41.66 &  41.66 &  49.64 &  43.07 & 46.43 & 46.43 & 50.08 & 46.27\\
- 42.04 &  42.04 &  49.67 &  43.30 & 46.67 & 46.67 & 50.10 & 46.39\\
- 42.12 &  42.12 &  49.70 &  43.88 & 46.82 & 46.82 & 50.11 & 46.70\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of stepwise reconciliation model, compared with base forecasts, bottom-up method and top-down method.
-The performance of bottom level and total level is computed by averaging the brier score of all series in corresponding level. For our stepwise reconciliation model, brier score for each series is computed using marginal distribution of the series, while for other two methods, brier scores are computed using independent base forecasts. 
-The brier score of total level for the bottom up method is computed using the sum of distributions of bottom levels assuming independence.
-\begin{table}[h]
+\begin{table}
 \centering
 \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting.}
-\begin{tabular}{cccc}
+\begin{tabular}{lcccc}
 \toprule
-\multicolumn{4}{c}{Brier Score ($\times 10^{-3}$)}\\ 
-Base & Bottom-Up & Top-Down & SDFR \\\midrule
-825.801 & 834.506 & 825.801& 830.988\\
-408.248 & 408.248 & 494.052 & 409.941 \\
-414.325 & 414.325 & 496.121 & 415.764\\
-420.951 & 420.951 & 498.599 & 421.005\\
-430.332& 430.332& 500.372 & 427.922\\
-435.492 & 435.492 & 502.199 & 430.912 \\
-440.001& 440.001& 502.632 & 433.226 \\
-442.969 & 442.969 & 502.906& 438.921 \\
+\multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
+ & Base & Bottom-Up & Top-Down & SDFR \\\midrule
+$y_0$ & \textbf{825.8} & 834.5          & \textbf{825.8} & 831.0\\
+$y_1$ & \textbf{408.2} & \textbf{408.2} & 494.1 & 409.9 \\
+$y_2$ & \textbf{414.3} & \textbf{414.3} & 496.1 & 415.8\\
+$y_3$ & \textbf{420.9} & \textbf{420.9} & 498.6 & 421.0\\
+$y_4$ & 430.3 & 430.3  & 500.4          & \textbf{427.9}\\
+$y_5$ & 435.5 & 435.5  & 502.2          & \textbf{430.9} \\
+$y_6$ & 440.0 & 440.0  & 502.6          & \textbf{433.2} \\
+$y_7$ & 443.0 & 443.0  & 502.9          & \textbf{438.9} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-We also perform MCB tests (\Citealp{koningM3CompetitionStatistical2005}) to test the significance of the stepwise reconciliation model. 
-The testing results of point forecasts and probabilistic forecasts are shown in Figure~\ref{fig:sim_temporal_mcb_point} and Figure~\ref{fig:sim_temporal_mcb_prob}, respectively.
+% \begin{figure}
+%   \centering
+%   \caption{\label{fig:sim_temporal_mcb_point}MCB test of point forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
+%   \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_bottom.pdf}}
+%   \qquad
+%   \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_total.pdf}} \\
+
+%   \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_bottom.pdf}}
+%   \qquad
+%   \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_total.pdf}}
+% \end{figure}
 
 \begin{figure}
-  \centering
-  \caption{\label{fig:sim_temporal_mcb_point}MCB test of point forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
-  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_bottom.pdf}}
-  \qquad
-  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_MAE_total.pdf}} \\
-
-  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_bottom.pdf}}
-  \qquad
-  \subfloat{\includegraphics[width=0.45\textwidth]{figures/temporal_mcb_RMSE_total.pdf}}
-\end{figure}
-
-\begin{figure}
-  \caption{\label{fig:sim_temporal_mcb_prob}MCB test of probabilistic forecasts conducted on stepwise reconciliation model in temporal setting. A 95\% confidence level is used.}
-  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_hierarchy.pdf}} \qquad
-  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_total.pdf}} \qquad
-  \subfloat{\includegraphics[width=0.32\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
+  \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
+  \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_hierarchy.pdf}} \qquad
+  \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_total.pdf}} \qquad
+  \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
 \end{figure}
 
 
