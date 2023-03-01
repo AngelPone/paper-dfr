@@ -26,9 +26,8 @@
 
   \author[label1]{Bohan Zhang}
   \address[label1]{School of Economics and Management, Beihang University, Beijing, China}
-  
-  \author[label1]{Yanfei Kang}
   \author[label2]{Anastasios Panagiotelis}
+  \author[label1]{Yanfei Kang}
   
   \author[label3]{Feng Li\corref{cor1}}
   \ead{feng.li@cufe.edu.cn}
@@ -38,7 +37,14 @@
   \address[label3]{School of Statistics and Mathematics, Central University of Finance and Economics, Beijing, China}
 
   \begin{abstract}
-    Placeholder for abstract.
+
+    Count hierarchical time series forecasting is an insteresting open issue in the literature.
+    In this paper, we develop a formal discrete forecast reconciliation framework that coherently produces joint probabilistic forecasts for count hierarchical time series.
+    Two discrete reconciliation algorithms and the discrete probabilistic extensions to the top-down and bottom-up approaches are proposed.
+    Two simulation experiemnts are conducted to validate the usefulness of these algorithms.
+    We also apply the proposed algorithms to forecast offense crime number in Washington D.C., and to forecast mortality threshold exceedance in Australia.
+    The proposed framework shows superior performance in both simulations and empirical studies, compared to the top-down and bottom-up approaches.
+    
   \end{abstract}
 
   \begin{keyword}
@@ -543,7 +549,7 @@ $y_7$ & 443.0 & 443.0  & 502.9          & \textbf{438.9} \\
 \end{figure}
 
 \section{Empirical study}
-
+\label{sec:application}
 In this section, we apply the proposed DFR algorithm to two publicly available real-world datasets.
 Section~\ref{sec:application_crime} focus on temporal hierarchy and forecasts the weekly offense crime number in Washington D.C.
 Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hts based on some arbitrary mortality thresholds. 
