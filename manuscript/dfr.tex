@@ -50,7 +50,8 @@
   \begin{keyword}
   Forecasting\sep
   Hierarchical time series \sep
-  Count data
+  Count data \sep
+  Forecast reconciliation 
   \end{keyword}
   
 \end{frontmatter}
@@ -127,7 +128,7 @@ The remainder of this paper is organised as follows.
 Section \ref{sec:coherence} introduce the notation and the concept of coherence for hierarchical counts.
 Section \ref{sec:method} describes the proposed discrete reconciliation framework, the metric used to evaluate the forecasts and the algorithm to reconcile the probabilistic forecasts. 
 The step-wise algorithm is also introduced in this section.
-Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:applications}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
+Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
 
 
@@ -310,6 +311,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
       \SetKwFunction{reconcile}{DFR$_i$}
       \SetKwFunction{bu}{BottomUp}
       \SetKwFunction{adjust}{Adjust}
+      \SetKwFunction{construct}{ConstructJointDist}
       \SetKwInOut{Input}{Input}
       \SetKwInOut{Output}{Output}
       \Input{$\hat{\pi}_0,\dots,\hat{\pi}_k$} 
@@ -328,7 +330,9 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
         $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1})$ \;
         $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i})$ \;
         $\tilde\pi'_{\mathbf{S}_{k-1+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$) \;
-        $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ 
+        $\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
+        $\tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\mathbf{S}_{k-i+1}, \mathbf{S}_{k-i+1}), y_i, \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
+        $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \construct($\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) $)\; 
       }
       \Output{$\tilde \bpi(\bY_k)$}
       
@@ -342,11 +346,12 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
     \] 
     In general, the hierarchy is split into $k-1$ three-node hierarchy.  
     For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy, and the other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
-    In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section \ref{sec: optimisation} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
+    In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:optimisation} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
     The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
     In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
     Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
-    We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which constructs coherent forecasts based on inputs.
+    We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginalisation same as the averaged forecasts.
+    The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   
      When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
   
@@ -416,7 +421,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      The base probabilistic forecasts are obtained independently using the binomial AR(1) models(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
      Brier scores of the joint forecasts of the hierarchy and the marginal forecasts of each series on the $30$ testing samples are used to evaluate the performance. 
      
-     \subsection{Simulation results}
+     \subsubsection{Simulation results}
      Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average brier scores of the $1000$ samples, compared with base forecasts, bottom-up method and top-down method.
      The bold text in each row indicates the best average performance out of the four approaches.
      DFR performs the best for both the single series and the hierarchy. 
@@ -549,6 +554,8 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
      \end{figure}     
 
+     \section{Empirical study}
+     \label{sec:application}
      In this section, we apply the proposed DFR algorithm to two publicly available real-world datasets.
      Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts Washington D.C's weekly offence crime number.
      Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hts based on some arbitrary mortality thresholds. 
@@ -693,9 +700,48 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \newpage
 
 \appendix
-\section{Adjust algorithm}
+
+\section{Algorithms}
 \label{appendix:adjust}
 
+The \code{Adjust} algorithm is used to adjust an existing multivariate joint distribution to make its marginalisation over one of the variables same as the new given distribution.
+
+\begin{algorithm}[H]
+  \label{alg:adjust}
+  \caption{Adjust}
+  \SetKwInOut{Input}{Input}
+  \SetKwInOut{Output}{Output}
+  \Input{$\bpi(y_0,y_1,\dots,y_i), \tilde\pi_i, y_i \in \{0,1,\dots,k_i\}$}
+
+  $\bpi(y_0,\dots,y_{i-1}) = \sum_{y_i}\bpi(y_0,\dots,y_i)$\;
+  $\pi_i = \sum_{y_0,\dots,y_{i-1}}\bpi(y_0,\dots,y_i)$ \;
+  \For { $j = 0,\dots,k_i$} {
+    $\bpi'(y_0,\dots,y_{i-1}, y_i=j) = \bpi(y_0,\dots,y_{i-1}) \times \frac{\tilde\pi_i}{\pi_i}$ \;
+  }
+
+  \Output{$\bpi'(y_0,\dots,y_i)$}
+  
+ \end{algorithm}
+
+
+ The \code{ConstructJointDist} algorithm constructs a new joint construct given two joint distributions. 
+ Consider variables $y_1, \bY_2, y_3, y_4, \bY_5$, where $\bY_2$ and $\bY_5$ are vectors and $y_1, y_3, y_4$ are scalars. 
+ They have the following relations
+ \[
+  y_1 = |\bY_2|_1 + y_3, \quad y_3 = y_4 + |\bY_5|_1,
+ \]
+ where $|\cdot|_1$ represents the sum of all the variables in the vector.
+ The given distributions are $\bpi(y_1, \bY_2, y_3)$ and $\bpi(y_3, y_4, \bY_5)$.
+ The marginal distributions of $y_3$ derived from the two distribution are same, i.e.,
+ \[
+  \sum_{y_3} \bpi(y_1, \bY_2, y_3) = \sum_{y_3}\bpi(y_3, y_4, \bY_5)
+\]
+ Assuming the joint distribution of $y_1$ and $\bY_2$ is independent of the joint distribution of $y_4$ and $\bY_5$ given $y_3$, we can obtain the probability of one ponit in the new joint distribution using the following equation: \[
+   \begin{aligned}
+  &\text{Pr}(y_1=a_1,\bY_2=\mathbf{a}_2, y_4=a_4, \bY_5 = \mathbf{a}_5) =\\ &\text{Pr} (y_1=a_1,\bY_2=\mathbf{a}_2,y_3=a_3) \times \text{Pr}(y_4=y_4,\bY_5=y_5|y_3=a_3).
+   \end{aligned}
+ \]
+ The equation constructs the joint distribution of $y_1, \bY_2, y_4, \bY_5$ by eliminating the shared variable $y_3$ of the two distributions.
 
 \newpage
 
