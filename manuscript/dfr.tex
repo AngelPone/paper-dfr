@@ -155,7 +155,7 @@ The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D
 The coherent domain has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which will be denoted as $r$. 
 The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
   
-  \subsubsection*{Example}
+  \subsubsection*{\textbf{Example}}
   \label{sec:example}
   
   Let $Y_1$ and $Y_2$ be binary variables and $Y_3=Y_1+Y_2$. In this case, the domain of each variable is
@@ -191,36 +191,35 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
   A coherent probabilistic function can be defined in a similar fashion. Now $\tilde{\bpi}^{t+h|t}$ is an $r$-vector of probabilities where each element in $\tilde{\bpi}^{t+h|t}$ corresponds to one point in the coherent domain. The notation $\tilde{\pi}_k^{t+h|t}$ is used to denote the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\tilde{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$ where this value must be coherent. The analogue to $\hat{h}(j)$ is a function a function $\tilde{h}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$ which maps each index $k$ to a coherent configuration of values that $\bY$ can take. Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc.
   
-  \subsubsection*{Example}
+  \subsubsection*{\textbf{Example}}
   
   Consider the earlier example, with binary $y_1$ and $y_2$ and $y_1+y_2=y_3$. The incoherent probabilistic forecast is given by
   \[
-    \hat{\bpi}^{t+h|t}=\begin{pmatrix}
-       \hat{\pi}^{t+h|t}_{(000)}\\
-       \hat{\pi}^{t+h|t}_{(010)}\\
-       \hat{\pi}^{t+h|t}_{(100)}\\
-       \hat{\pi}^{t+h|t}_{(110)}\\
-       \hat{\pi}^{t+h|t}_{(001)}\\
-       \hat{\pi}^{t+h|t}_{(011)}\\
-       \hat{\pi}^{t+h|t}_{(101)}\\
-       \hat{\pi}^{t+h|t}_{(111)}\\
-       \hat{\pi}^{t+h|t}_{(002)}\\
-       \hat{\pi}^{t+h|t}_{(012)}\\
-       \hat{\pi}^{t+h|t}_{(102)}\\
-       \hat{\pi}^{t+h|t}_{(112)}\\
-    \end{pmatrix}
+    \hat{\bpi}^{t+h|t}= \left[       
+      \hat{\pi}^{t+h|t}_{(000)},
+       \hat{\pi}^{t+h|t}_{(010)},
+       \hat{\pi}^{t+h|t}_{(100)},
+       \hat{\pi}^{t+h|t}_{(110)},
+       \hat{\pi}^{t+h|t}_{(001)},
+       \hat{\pi}^{t+h|t}_{(011)},
+       \hat{\pi}^{t+h|t}_{(101)},
+       \hat{\pi}^{t+h|t}_{(111)},
+       \hat{\pi}^{t+h|t}_{(002)},
+       \hat{\pi}^{t+h|t}_{(012)},
+       \hat{\pi}^{t+h|t}_{(102)},
+       \hat{\pi}^{t+h|t}_{(112)},
+       \right]'
   \]
   where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{h}$ is defined so that $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
   
   The coherent probabilistic forecast is given by
   \[
-  \tilde{\bpi}^{t+h|t}=\begin{pmatrix}
-  \tilde{\pi}^{t+h|t}_{(000)}\\
-  \tilde{\pi}^{t+h|t}_{(011)}\\
-  \tilde{\pi}^{t+h|t}_{(101)}\\
-  \tilde{\pi}^{t+h|t}_{(112)}\\
-  \end{pmatrix}
-  \]
+  \tilde{\bpi}^{t+h|t}=\left[
+  \tilde{\pi}^{t+h|t}_{(000)},
+  \tilde{\pi}^{t+h|t}_{(011)},
+  \tilde{\pi}^{t+h|t}_{(101)},
+  \tilde{\pi}^{t+h|t}_{(112)},
+  \right]'\]
   where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, although this does not affect the proposed algorithms.
 
   \section{Method}
