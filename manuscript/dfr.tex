@@ -38,20 +38,17 @@
 
   \begin{abstract}
 
-    Count hierarchical time series forecasting is an interesting open issue in the literature.
-    In this paper, we develop a formal discrete forecast reconciliation framework that coherently produces joint probabilistic forecasts for count hierarchical time series.
-    Two discrete reconciliation algorithms and the discrete probabilistic extensions to the top-down and bottom-up approaches are proposed.
-    Two simulation experiments are conducted to validate the usefulness of these algorithms.
-    We also apply the proposed algorithms to forecast offence crime numbers in Washington D.C. and to forecast mortality threshold exceedance in Australia.
-    Compared to the top-down and bottom-up approaches, the proposed framework shows superior performance in both simulations and empirical studies.
+    While forecast reconciliation has seen great success for real valued data, the method has not yet been comprehensively extended to the discrete case. This paper defines and develops a formal discrete forecast reconciliation framework based on optimising scoring rules that produces coherent joint probabilistic forecasts for count hierarchical time series.
+    Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast  criminal offences in Washington D.C. and the exceedance of thresholds in age-specific mortality rates in Australia. Compared to the top-down and bottom-up approaches, the proposed framework shows superior performance in both simulations and empirical studies.
     
   \end{abstract}
 
   \begin{keyword}
-  Forecasting\sep
-  Hierarchical time series \sep
+  Forecasting \sep
   Count data \sep
-  Forecast reconciliation 
+  Hierarchical time series \sep
+  Brier score \sep
+  Quadratic programming
   \end{keyword}
   
 \end{frontmatter}
@@ -61,7 +58,7 @@
 \section{Introduction}
 
 Hierarchical time series is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
-In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}), deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
+In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
 Non-negative count time series, especially low-count ones, naturally arise in various areas. 
@@ -74,12 +71,12 @@ While point and interval forecasts are most widely applied in practice,
 the probability distribution that describes the full uncertainty of future events plays a critical role in optimal decision making. (\citealp{gneitingProbabilisticForecasting2014}) 
 With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
 The pmfs can provide probabilities for each point in their discrete support,
-which is especially crucial for low-count time series. (\citealp{petropoulosForecastingTheoryPractice2022a})
-By utilizing pmfs, we build a solid fundamental for the proposed discrete reconciliation framework, which is used to define the coherence and incoherence of hierarchical forecasts.
+which is especially crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a})
+By utilizing joint pmfs, we build a discrete reconciliation framework, which is used to define the coherence and incoherence of hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
 in the sense that point forecasts of a parent series should equal the sum of the point forecasts of associated children series. 
-Regarding probabilistic forecasts, the same discipline is applied to each point in the support of hierarchical joint distribution.
+Regarding probabilistic forecasts, the same principle is applied to each point in the support of hierarchical joint distribution.
 Historically, this was achieved by first producing forecasts in one level, 
 and then aggregating or disaggregating the forecasts into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, et al, 
@@ -97,7 +94,7 @@ where the dependence among bottom time series is restored using empirical copula
 Furthermore, \cite{panagiotelisProbabilisticForecastReconciliation2022} propose a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence. 
 They also propose an efficient algorithm to compute reconciliation weights by optimising a proper scoring rule. 
 
-The forecast reconciliation framework has been proven to enhance forecasting accuracy in various scenarios. 
+The forecast reconciliation framework has been proven to enhance forecast accuracy in various scenarios. 
 One of the critical elements of its superior performance should be forecast combination (\citealp{hollymanUnderstandingForecastReconciliation2021}). 
 Every reconciled forecast is the weighted combination of all base forecasts,
 which could incorporate any external information using arbitrary forecasting methods.
@@ -105,9 +102,9 @@ More importantly, the reconciliation process avoids the requirement for complex 
 Against this backdrop, the reconciliation framework is a reasonable choice for forecasting hierarchical count time series,
 allowing for the employment of existing forecasting approaches for univariate counts in the literature.
 
-To the best of our knowledge, little literature deals with hierarchical count time series forecasting, and none of them is tailored for low-count time series.
+To the best of our knowledge, the literature dealing with hierarchical count time series forecasting is limited, and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach by conditioning base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
-The reconciled forecasts are obtained through a generalisation of Bayes’ rule and Monte Carlo samplings.
+The reconciled forecasts are obtained through a generalisation of Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further generalise this idea to apply for both count time series and real-valued time series.
 Although this novel approach produces coherent probabilistic forecasts, 
 the conditional manner used is unable to restore the dependence structure within hierarchical time series.
@@ -116,19 +113,12 @@ Incorporating correlation requires joint distributions of disaggregated time ser
 In this paper, we seek to address the hierarchical forecasting problem for count time series, especially for low-count time series.
 First, we propose the concept of ``coherence'' for hierarchical counts, 
 which is similar in some ways to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
-Second, we utilise these concepts to construct a formal reconciliation framework for hierarchical counts, which generally reconciles the forecasts by moving probabilities from incoherent domains to coherent domains.
-Third, we show a metric that can be used to evaluate the forecasts and propose an algorithm to optimise this metric. 
-To speed up the computation, we further propose a step-wise algorithm based on some reasonable assumptions.
-We also show how this algorithm can be solved through quadratic programming.
-Fourth, two simulation experiments are performed to verify the applicability 
-in both temporal and cross-sectional settings.
-Finally, we conduct two empirical experiments to validate its usability in practice further. The first experiment uses a temporal crime dataset, and the other is performed on cross-sectional mortality data.
+Second, we utilise these concepts to construct a formal reconciliation framework for hierarchical counts, which generally reconciles the forecasts by moving probability from incoherent domain points to coherent domain points.
+Third, we adopt the Brier score as a metric used to evaluate forecasts and propose an reconciliation algorithm that optimises this metric. We also show how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second step-wise algorithm. Fourth, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings.Finally, we conduct two empirical experiments using real data. The first experiment crime dataset with a temporal hierarchy, and the other is performed on cross-sectional mortality data.
 
 The remainder of this paper is organised as follows. 
-Section \ref{sec:coherence} introduce the notation and the concept of coherence for hierarchical counts.
-Section \ref{sec:method} describes the proposed discrete reconciliation framework, the metric used to evaluate the forecasts and the algorithm to reconcile the probabilistic forecasts. 
-The step-wise algorithm is also introduced in this section.
-Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
+Section \ref{sec:coherence} introduces the notation and the concept of coherence for hierarchical counts.
+Section \ref{sec:method} describes the proposed discrete reconciliation framework, based on optimising the Brier score through Quadratic programming. The step-wise algorithm is also introduced in this section. Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
 
 
@@ -139,8 +129,8 @@ Section \ref{sec:simulation} performs two simulation experiments in cross-sectio
 	
 \subsection{Preliminaries}
 Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables.
-Let $\bY$ be partitioned so that the first $m$ elements are \textit{base} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic linear function of the base variables, usually aggregations. 
+Let $\bY$ be partitioned so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
+The determined variables are some deterministic linear function of the basis variables. Usually the basis variables are the bottom level or most disaggregated data, while the determined variables are obtained from aggregating the bottom level variables in different ways. 
 Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
 
 \subsection{Incoherent and Coherent Domain}
@@ -148,14 +138,14 @@ The \textit{incoherent domain} of $\bY$ is given by
 \[
 \hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\}\,,
 \] 
-where products are set products. The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
+where products are Cartesian products taken over sets. The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
 The incoherent domain is analogous to $\mathbb{R}^n$ is the continuous case.
   
 The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D}(\bY)$ for which aggregation constraints hold.  
 The coherent domain has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which will be denoted as $r$. 
 The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
   
-  \subsubsection*{Example}
+  \subsubsection*{\textbf{Example}}
   \label{sec:example}
   
   Let $Y_1$ and $Y_2$ be binary variables and $Y_3=Y_1+Y_2$. In this case, the domain of each variable is
@@ -166,11 +156,11 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \end{align*}  
   the incoherent domain is
   \begin{align*}
-  \hat{\mathcal D}(\bY)=&\left\{\textcolor{blue}{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
-  &\left.(0,0,1)',\textcolor{blue}{(0,1,1)'},\textcolor{blue}{(1,0,1)'},(1,1,1)',\right.\\
-  &\left.(0,0,2)',(0,1,2)',(1,0,2)',\textcolor{blue}{(1,1,2)'}\right\}\,,
+  \hat{\mathcal D}(\bY)=&\left\{\mathbf{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
+  &\left.(0,0,1)',\mathbf{(0,1,1)'},\mathbf{(1,0,1)'},(1,1,1)',\right.\\
+  &\left.(0,0,2)',(0,1,2)',(1,0,2)',\mathbf{(1,1,2)'}\right\}\,,
   \end{align*}
-  and the coherent domain is given by those points for which $y_1+y_2=y_3$, highlighted in blue above, i.e
+  and the coherent domain is given by those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
   \[
       \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
   \]
@@ -187,40 +177,39 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some points for which the aggregation constraints do not hold. 
   This can happen easily in practice. Suppose probabilistic forecasts are generated for each variable independently, and the joint forecast is then constructed assuming independence. 
   Such forecasts will, in general, be incoherent. 
-  For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$. We are assigning a non-zero probability to an incoherent point.
+  For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$ and a non-zero probability is assigned to an incoherent point.
   
   A coherent probabilistic function can be defined in a similar fashion. Now $\tilde{\bpi}^{t+h|t}$ is an $r$-vector of probabilities where each element in $\tilde{\bpi}^{t+h|t}$ corresponds to one point in the coherent domain. The notation $\tilde{\pi}_k^{t+h|t}$ is used to denote the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\tilde{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$ where this value must be coherent. The analogue to $\hat{h}(j)$ is a function a function $\tilde{h}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$ which maps each index $k$ to a coherent configuration of values that $\bY$ can take. Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc.
   
-  \subsubsection*{Example}
+  \subsubsection*{\textbf{Example}}
   
   Consider the earlier example, with binary $y_1$ and $y_2$ and $y_1+y_2=y_3$. The incoherent probabilistic forecast is given by
   \[
-    \hat{\bpi}^{t+h|t}=\begin{pmatrix}
-       \hat{\pi}^{t+h|t}_{(000)}\\
-       \hat{\pi}^{t+h|t}_{(010)}\\
-       \hat{\pi}^{t+h|t}_{(100)}\\
-       \hat{\pi}^{t+h|t}_{(110)}\\
-       \hat{\pi}^{t+h|t}_{(001)}\\
-       \hat{\pi}^{t+h|t}_{(011)}\\
-       \hat{\pi}^{t+h|t}_{(101)}\\
-       \hat{\pi}^{t+h|t}_{(111)}\\
-       \hat{\pi}^{t+h|t}_{(002)}\\
-       \hat{\pi}^{t+h|t}_{(012)}\\
-       \hat{\pi}^{t+h|t}_{(102)}\\
-       \hat{\pi}^{t+h|t}_{(112)}\\
-    \end{pmatrix}
+    \hat{\bpi}^{t+h|t}= \left[       
+      \hat{\pi}^{t+h|t}_{(000)},
+       \hat{\pi}^{t+h|t}_{(010)},
+       \hat{\pi}^{t+h|t}_{(100)},
+       \hat{\pi}^{t+h|t}_{(110)},
+       \hat{\pi}^{t+h|t}_{(001)},
+       \hat{\pi}^{t+h|t}_{(011)},
+       \hat{\pi}^{t+h|t}_{(101)},
+       \hat{\pi}^{t+h|t}_{(111)},
+       \hat{\pi}^{t+h|t}_{(002)},
+       \hat{\pi}^{t+h|t}_{(012)},
+       \hat{\pi}^{t+h|t}_{(102)},
+       \hat{\pi}^{t+h|t}_{(112)},
+       \right]'
   \]
   where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{h}$ is defined so that $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
   
   The coherent probabilistic forecast is given by
   \[
-  \tilde{\bpi}^{t+h|t}=\begin{pmatrix}
-  \tilde{\pi}^{t+h|t}_{(000)}\\
-  \tilde{\pi}^{t+h|t}_{(011)}\\
-  \tilde{\pi}^{t+h|t}_{(101)}\\
-  \tilde{\pi}^{t+h|t}_{(112)}\\
-  \end{pmatrix}
-  \]
+  \tilde{\bpi}^{t+h|t}=\left[
+  \tilde{\pi}^{t+h|t}_{(000)},
+  \tilde{\pi}^{t+h|t}_{(011)},
+  \tilde{\pi}^{t+h|t}_{(101)},
+  \tilde{\pi}^{t+h|t}_{(112)},
+  \right]'\]
   where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, although this does not affect the proposed algorithms.
 
   \section{Method}
@@ -250,7 +239,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
       \end{align*}
       The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
       
-      The next thing to consider is what would make a `good' candidate for $\bm{A}$. One property is that we move probability from incoherent points to coherent points that are  `nearby' in some sense. Another is that the resulting coherent forecasts perform well. Since we are using probabilistic forecasts, some scoring rules can be used to measure performance.
+      The next thing to consider is what would make a `good' candidate for $\bm{A}$. One property is that we move probability from incoherent points to coherent points that are  `nearby' in some sense. Another is that the resulting coherent forecasts perform well. Since we are using probabilistic forecasts, scoring rules can be used to measure performance.
       
       \subsection{Costs}
       
@@ -300,7 +289,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      \subsection{Stepwise discrete reconciliation}
   
      Although forcing parameters of the non-nearest points to 0 reduces the dimension, there can still be a large number of unknown parameters to estimate when handling high-dimensional hierarchy.
-     We further propose a stepwise discrete reconciliation (SDFR) algorithm.
+     We further propose a stepwise discrete forecast reconciliation (SDFR) algorithm.
      Instead of reconciling forecasts of all series together,  the algorithm
      decomposes the high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step.
      Given some reasonable assumptions, the reconciled forecasts of these sub-hierarchies are then adjusted to construct the joint forecasts of the hierarchy.
@@ -338,19 +327,19 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
       
      \end{algorithm}
   
-    Taking a hierarchy with one total series and $k$ bottom series as an example, algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when the hierarchy is large. 
+    Taking a hierarchy with one total series and $k$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when the hierarchy is large. 
     Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$. 
     Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.
     \[
      \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
     \] 
-    In general, the hierarchy is split into $k-1$ three-node hierarchy.  
+    In general, the hierarchy is split into $k-1$ three-node hierarchies.  
     For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy, and the other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
     In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:optimisation} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
     The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
     In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
     Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
-    We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginalisation same as the averaged forecasts.
+    We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginals equivalent to the averaged forecasts.
     The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   
      When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
@@ -394,7 +383,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      \label{sec:cross-sectional_simu}
      \subsubsection{Simulation setup}
      This subsection considers the simple hierarchy shown in Section~\ref{sec:example}.
-     The binomial counts of the bottom level are generated based on the underlying probability series, which is assumed to be a bivariate var(1) process
+     The binomial counts of the bottom level are generated based on underlying latent variables, assumed to follow a bivariate VAR(1) process
      \[\mathbf{z}_t = \mathbf{\Phi}\mathbf{z}_{t-1}+\boldsymbol{\eta}_t,\]
      where
      \[
@@ -407,29 +396,29 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \end{matrix}\right]\right)
      \]
      and $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
-     The generated series are then transformed into probability series through the sigma function 
+     The generated series are then transformed into probability series through the sigmoid function 
      \[
      \sigma(x) = \frac{\exp(x)}{1+\exp(x)}.
      \]
-     If the generated probability is bigger than $0.5$, the count series takes $1$ and, otherwise, $0$.
+     If the generated probability is bigger than $0.5$, the count series takes a value of $1$ and, otherwise, $0$.
      
      The procedure was repeated $1000$ times. 
      For each binomial series, $480$ observations were generated,
-     and rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size $150$ was adopted to construct samples. 
+     and a rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size of $150$ was adopted to construct samples. 
      The first $300$ samples were used to train the DFR model, and the remaining $30$ samples were used to test the performance.
      
      The base probabilistic forecasts are obtained independently using the binomial AR(1) models(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
      Brier scores of the joint forecasts of the hierarchy and the marginal forecasts of each series on the $30$ testing samples are used to evaluate the performance. 
      
      \subsubsection{Simulation results}
-     Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average brier scores of the $1000$ samples, compared with base forecasts, bottom-up method and top-down method.
+     Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier scores of the $1000$ samples, compared with base forecasts, bottom-up method and top-down method.
      The bold text in each row indicates the best average performance out of the four approaches.
      DFR performs the best for both the single series and the hierarchy. 
      The top-down method is beaten by the bottom-up method in both the total and bottom levels, showing the inferiority of the base forecasts of the total series.
      However, DFR shows the most considerable improvement in the accuracy of the total series, implying the ability to mitigate the risk of model misspecification.
      Similar results are obtained from forecast reconciliation for continuous variables.
      
-     We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of the accuracy difference between these approaches. 
+     We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy between these approaches. 
      This testing approach computes the mean ranks of the four approaches across the whole simulation set and does not impose any distributional assumptions.
      The nonoverlapping of the grey intervals in the figures indicates that the method is statistically more significant than others.
      DFR performs more significantly than all other approaches, as shown in Figure~\ref{fig:sim_temporal_mcb_prob}.
@@ -439,7 +428,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      \begin{figure}
        \centering
        \label{fig:mcb_crosssectional}
-       \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
+       \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
        \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
      \end{figure}
      
@@ -472,7 +461,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      
      
      
-     While the intermittent series are characterized by variable demand interval and size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
+     While the intermittent series are characterized by variable demand intervals and size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
      Following this intuition, we first simulated weekly time series with seasonal period $4$, which were then disaggregated into daily time series.
      
      Assuming the weekly time series were Poisson distributed, we first simulated the conditional mean series based on the autoregressive integrated moving average(ARIMA)  process. This procedure was implemented using the \code{gratis} package for \proglang{R}. 
@@ -494,10 +483,10 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \end{tabular}
      \end{table}
      
-     The weekly time series were then disaggregated into daily time series by randomly choosing days taking $1$ and ensuring coherence. 
-     We first simulated $7$ probabilities based on $7$ independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of taking $1$ from Monday to Sunday. 
+     The weekly time series were then disaggregated into daily time series by randomly choosing days for which $Y=1$ and ensuring coherence. 
+     We first simulated $7$ probabilities based on $7$ independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of $Y=1$ from Monday to Sunday. 
      Values of the $w$ days with the largest probabilities were set to $1$, and others were set to $1$. $w$ is the value of the corresponding weekly observation.
-     $\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$, which allows the probabilities of taking $1$ to increase gradually from $i=1$ to $i=7$, implying potential seasonality.
+     $\alpha$ was set to $\alpha_i = i, i=1,\dots,7$. $\beta$ was set to $4$, which allows the probabilities of $Y=1$ increasing gradually from $i=1$ to $i=7$, implying potential seasonality.
      
      We repeated the simulation process $1000$ times. For each daily time series, $903$ observations were generated. Similar to Section~\ref{sec:cross-sectional_simu}, we employed the rolling origin strategy with a fixed look-back window size of $350$. 
      For each rolling timestamp, the latest $350$ observations were taken as input to generate probabilistic forecasts in the next $7$ days. 
@@ -508,7 +497,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      More specifically, for each origin, we built a separate logistic model which uses the past $6$ observations and weekly dummies as regressors to predict the following observation. 
      To generate forecasts in the final $7$ days, for each step, we took the predicted value of the last step as a regressor to predict the next step recursively. We implemented the logistic regression model using \code{glm} function in \proglang{R}.
      
-     Base forecasts of weekly time series were generated using integer-valued GARCH model, in short, $\textrm{INGARCH}$(\Citealp{fokianosPoissonAutoregression2009}). 
+     Base forecasts of weekly time series were generated using am integer-valued GARCH $(\textrm{INGARCH})$ model (\Citealp{fokianosPoissonAutoregression2009}). 
      Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model uses past observations and conditional mean to fit the conditional mean of current observation.
      For simplicity, we built a $\textrm{INGARCH}(3, 3)$, which takes conditional mean and observations of the latest $3$ steps as regressors. 
      We implemented the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
@@ -519,13 +508,11 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of the stepwise reconciliation model, compared with base forecasts, bottom-up and top-down.
      While SDFR does not improve forecast accuracies of all series, the results
      show a compromise between top-down and bottom-up. 
-     One interesting point is that the forecasting accuracies are improved for the last several series. 
-     It may be because we implement the SDFR stepping from $y_1$ to $y_7$. The coherent forecasts of the previous series must be adjusted many times to construct the final joint distribution.
-     Another explanation is the effective utilization of forecast combination, where the series at the rear of the process combines more forecasts than previous ones.
-     Surprisingly, forecast accuracies of the total series do not show significant deviation,  even though it is adjusted most of the time, showing the robustness of SDFR.
-     We also perform MCB tests to test the significance of the performance. 
-     The testing results are shown in Figure~\ref{fig:sim_temporal_mcb_prob}. 
-     MCB tests give similar conclusions to Table~\ref{tab:sim_temporal_res_dist}. 
+     One interesting point is that forecasting accuracy is improved for the $y_4$ through to $y_7$. 
+     This may be due to the stepwise implementation of SDFR stepping from $y_1$ to $y_7$. The coherent forecasts of the previous series must be adjusted many times to construct the final joint distribution.
+     Another explanation is the effective utilization of forecast combination, where the bottom level series corresponding to the end of the week combine more forecasts than previous ones.
+     Surprisingly, forecast accuracy of the total series does not show significant deviation,  even though it is adjusted most of the time, showing the robustness of SDFR.
+     Figure~\ref{fig:sim_temporal_mcb_prob} shows the results of MCB tests of differences in forecast performance. The results lead to similar conclusions to those drawn from Table~\ref{tab:sim_temporal_res_dist}. 
      
      \begin{table}
      \centering
@@ -557,32 +544,29 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      \section{Empirical study}
      \label{sec:application}
      In this section, we apply the proposed DFR algorithm to two publicly available real-world datasets.
-     Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts Washington D.C's weekly offence crime number.
-     Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hts based on some arbitrary mortality thresholds. 
+     Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count heirarchical time series based on mortality thresholds. 
      
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
      
      Forecasting crime numbers in a specific area is crucial for public health and police resource management.
      Crime numbers become smaller, more sparse and more challenging to forecast when the area becomes small.
-     In this subsection, we apply our DFR to forecast offence crime case numbers of census tracks in Washington, D.C. 
-     The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}} containing all crimes cases from 2014 to 2022 in Washington D.C. is aggregated into weekly time series according to location and crime type of the crime cases. 
-     Considering the domain of the crime number, we perform experiments on all time series whose location type is census tract and crime type is offence.
-     The resulting dataset includes a $231$ weekly time series; each corresponds to the number of offence crimes at one census tract.
+     In this subsection, we apply our DFR to forecast offence crime case numbers of census tracts in Washington, D.C. 
+     The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}} and contains all crimes reported from 2014 to 2022 in Washington D.C. It is aggregated into weekly time series according to location and crime type. 
+     Considering the domain of the number of crimes, we perform experiments on all time series whose location type is census tract and crime type is offence.
+     The resulting dataset includes $231$ weekly time series; each corresponding to the number of offence crimes in one census tract.
      
      The crime number time series is potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). 
-     We aim to obtain coherent probabilistic crime number forecasts for the next four weeks by constructing a two-level temporal hierarchy for each census tract, i.e., weekly and four-weekly. 
+     We aim to obtain coherent probabilistic crime forecasts for the next four weeks by constructing a two-level temporal hierarchy for each census tract, i.e., weekly and four-weekly. 
      These two levels are referred to as the bottom and total levels in this section. 
-     We also constrain the maximum of the domain. 
-     For each census tract, if the max observation is $1$, then the domain is set to $[0, 1]$. Otherwise, the domain is set to $[0, 1, 2]$. The observation bigger than $2$ is set to $2$. 
-     We notice less than $1\%$ of observations bigger than $2$. The modification thus has little impact on the final results.
+     We also constrain the maximum of the domain for each census tract, if the maximum observation is $1$, then the domain is set to $[0, 1]$. Otherwise, the domain is set to $[0, 1, 2]$. The observation bigger than $2$ is set to $2$. 
+     We notice less than $1\%$ of observations are greater than $2$ so that the modification thus has little impact on the final results.
      
      We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model. 
      Beginning with a time series of $53$ weeks, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4). 
      Then we increase the training data by one observation and produce new probabilistic forecasts. 
      For each step, the probabilistic forecasts for the total level are obtained by first aggregating the weekly series into four-weekly time series and then producing one-step-ahead forecasts using INGARCH(2, 2).
-     The windows whose forecast horizon starts before $2022$ are used as train samples. 
-     Other windows are used to evaluate the performance.
+     The windows whose forecast horizon starts before $2022$ are used as training samples remaining windows are used to evaluate the performance.
      
      The procedure above is repeated for each census tract. 
      Finally, we obtain $3696$ ($231$ census tracts $\times$ $16$ test samples for each census tract) samples and their reconciled forecasts to evaluate the performance. 
@@ -641,9 +625,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      
      In this experiment, we also employ the rolling origin strategy with a starting window size of $20$, resulting in $69$ samples.
      The first $59$ of them are used to train the DFR model, and others are used to test forecast performances.
-     The base forecasts of all series are generated using INGARCH(3, 5) models.
-     
-     Table~\ref{tab:mortality_age} summarizes the average brier score over the $10$ testing samples. 
+     The base forecasts of all series are generated using INGARCH(3, 5) models. Table~\ref{tab:mortality_age} summarizes the average Brier score over the $10$ testing samples. 
      DFR approach outperforms other approaches in most single series and the hierarchy. 
      
      
@@ -668,28 +650,28 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
      \label{sec:conclusion}
      
      This paper develops a novel forecast reconciliation framework for count hierarchical time series. 
-     The framework is based on the idea of moving probability from incoherent points to coherent points in analogue to the mapping approach for continuous time series.
+     The framework is based on the idea of assigning probability from incoherent points to coherent points in analogue to the mapping approach for continuous time series.
      We further propose a linear reconciliation algorithm to minimize the penalized brier score of reconciled probabilistic forecasts.
      Considering the exponential growth of the domain, we also propose a stepwise discrete reconciliation algorithm by decomposing a large hierarchy into multiple small hierarchies.
      
-     Our DFR and SDFR algorithms can produce coherent probabilistic forecasts and improve forecasting accuracy. 
-     To illustrate that, we apply DFR and SDFR in simulation experiments for cross-sectional and temporal hierarchies, respectively.
+     Our DFR and SDFR algorithms can produce coherent probabilistic forecasts and improve forecast accuracy. 
+     To illustrate this, we apply DFR and SDFR in simulation experiments for cross-sectional and temporal hierarchies, respectively.
      We find that our algorithms considerably enhance the forecast performance compared with top-down and bottom-up approaches, which are extensions of classical top-down and bottom-up approaches for point forecasts.
      We also apply the DFR algorithm to forecast offence crime numbers in Washington D.C. and to forecast mortality threshold exceedance of elder groups in Australia. 
      The results indicate the potential of the proposed algorithms to be applied in reality.
      
-     One of the critical elements of the decent results shown in simulation and empirical study is the utilization of forecast combinations.
-     Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information behind forecasts.
+     One of the critical elements of the strong results shown in simulation and empirical study is the utilization of forecast combinations.
+     Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
      Also of importance is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results. 
      
-     One area for improvement of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computation resources due to the curse of dimensionality.
+     One area for improvement of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty. 
      We suggest applying the proposed algorithm to a small hierarchy with finite domains. 
      When applying to large hierarchies, the bottom-level series should be low-count, such as binary.
      
      In this paper, we mainly discuss the application of our approaches in forecasting count time series. 
      However, the discrete nature allows it to be applied to any structure with determined constraints and nodes being discrete variables.
-     In other words, they can apply as long as the incoherent and coherent domain exists. 
+     In other words, they can be applied whenever discrete incoherent and coherent domain exist. 
      
      Our work is an explanatory attempt at discrete hierarchical time series forecasting. 
      Future work will focus more on discrete cases associated with real-world management problems.
@@ -704,7 +686,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \section{Algorithms}
 \label{appendix:adjust}
 
-The \code{Adjust} algorithm is used to adjust an existing multivariate joint distribution to make its marginalisation over one of the variables same as the new given distribution.
+The \code{Adjust} algorithm is used to adjust an existing multivariate joint distribution to make its marginalisation over one of the variables equal to that given by a reconciled distribution is a single step of the stepwise procedure.
 
 \begin{algorithm}[H]
   \label{alg:adjust}
