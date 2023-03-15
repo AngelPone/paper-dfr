@@ -57,26 +57,28 @@
 
 \section{Introduction}
 
-Hierarchical time series is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
+Hierarchical time series(hts) is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
 In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
 Non-negative count time series, especially low-count ones, naturally arise in various areas. 
-Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), the number of ``black swan" events in a period (\citealp{nikolopoulosWeNeedTalk2020}) and violent crimes in one block.
-Hierarchical count time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
+Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), the number of ``black swan" events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and violent crimes in one block.
+Count hierarchical time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
 However, most existing hierarchical approaches are intrinsically designed for time series taking continuous values and can not be directly applied to non-negative low-count time series. 
-This paper aims to fill this gap and propose a discrete reconciliation approach to produce coherent forecasts for low-count hierarchical time series.
+This paper aims to fill this gap and propose a discrete reconciliation approach to produce coherent forecasts for low-count hts. 
+More generally, the approach can be applied to any multivariate random variable that is imposed some deterministic constraints takes discrete values.  
+Considering their popularity, we use low-count hierarchical time series as illustrative examples in this paper.
 
 While point and interval forecasts are most widely applied in practice, 
-the probability distribution that describes the full uncertainty of future events plays a critical role in optimal decision making. (\citealp{gneitingProbabilisticForecasting2014}) 
+the probability distribution that describes the full uncertainty of future events plays a critical role in optimal decision making (\citealp{gneitingProbabilisticForecasting2014}).
 With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
 The pmfs can provide probabilities for each point in their discrete support,
-which is especially crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a})
-By utilizing joint pmfs, we build a discrete reconciliation framework, which is used to define the coherence and incoherence of hierarchical forecasts.
+which is especially crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
+By utilizing joint pmfs, we develop the definitons of coherency and incoherency for count hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
 in the sense that point forecasts of a parent series should equal the sum of the point forecasts of associated children series. 
-Regarding probabilistic forecasts, the same principle is applied to each point in the support of hierarchical joint distribution.
+Regarding probabilistic forecasts, the same principle is applied to each point in the support of the hierarchically joint distribution.
 Historically, this was achieved by first producing forecasts in one level, 
 and then aggregating or disaggregating the forecasts into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, et al, 
@@ -102,19 +104,19 @@ More importantly, the reconciliation process avoids the requirement for complex 
 Against this backdrop, the reconciliation framework is a reasonable choice for forecasting hierarchical count time series,
 allowing for the employment of existing forecasting approaches for univariate counts in the literature.
 
-To the best of our knowledge, the literature dealing with hierarchical count time series forecasting is limited, and not tailored for low-count time series.
+To the best of our knowledge, the literature dealing with count hts forecasting is limited, and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach by conditioning base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
 The reconciled forecasts are obtained through a generalisation of Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further generalise this idea to apply for both count time series and real-valued time series.
 Although this novel approach produces coherent probabilistic forecasts, 
 the conditional manner used is unable to restore the dependence structure within hierarchical time series.
-Incorporating correlation requires joint distributions of disaggregated time series, which, as explained above, is challenging to obtain in practice.
+Incorporating correlation requires base predictive distribution obtained through multivariate base models or post copula modelling, which, as mentioned above, is challenging to obtain in practice.
 
 In this paper, we seek to address the hierarchical forecasting problem for count time series, especially for low-count time series.
 First, we propose the concept of ``coherence'' for hierarchical counts, 
 which is similar in some ways to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
 Second, we utilise these concepts to construct a formal reconciliation framework for hierarchical counts, which generally reconciles the forecasts by moving probability from incoherent domain points to coherent domain points.
-Third, we adopt the Brier score as a metric used to evaluate forecasts and propose an reconciliation algorithm that optimises this metric. We also show how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second step-wise algorithm. Fourth, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings.Finally, we conduct two empirical experiments using real data. The first experiment crime dataset with a temporal hierarchy, and the other is performed on cross-sectional mortality data.
+Third, we adopt the Brier score as a metric used to evaluate forecasts and propose an reconciliation algorithm that optimises this metric. We also show how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second step-wise algorithm. Fourth, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings. Finally, we conduct two empirical experiments using real data. The first experiment crime dataset with a temporal hierarchy, and the other is performed on cross-sectional mortality data.
 
 The remainder of this paper is organised as follows. 
 Section \ref{sec:coherence} introduces the notation and the concept of coherence for hierarchical counts.
@@ -130,7 +132,7 @@ Section \ref{sec:method} describes the proposed discrete reconciliation framewor
 \subsection{Preliminaries}
 Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables.
 Let $\bY$ be partitioned so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic linear function of the basis variables. Usually the basis variables are the bottom level or most disaggregated data, while the determined variables are obtained from aggregating the bottom level variables in different ways. 
+The determined variables are some deterministic function of the basis variables. Usually the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
 Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
 
 \subsection{Incoherent and Coherent Domain}
