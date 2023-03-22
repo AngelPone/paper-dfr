@@ -57,70 +57,70 @@
 
 \section{Introduction}
 
-Hierarchical time series(hts) is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
+Hierarchical time series(HTS) is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
 In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
-Non-negative count time series, especially low-count ones, naturally arise in various areas. 
-Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), the number of ``black swan" events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and violent crimes in one block.
+Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields. 
+Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan" events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
 Count hierarchical time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
-However, most existing hierarchical approaches are intrinsically designed for time series taking continuous values and can not be directly applied to non-negative low-count time series. 
-This paper aims to fill this gap and propose a discrete reconciliation approach to produce coherent forecasts for low-count hts. 
-More generally, the approach can be applied to any multivariate random variable that is imposed some deterministic constraints takes discrete values.  
-Considering their popularity, we use low-count hierarchical time series as illustrative examples in this paper.
+However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued ones. 
+This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS. 
+Moreover, the approach can be applied to any discrete-valued multivariate random variable that is imposed some deterministic constraints.  
+In this paper, we use low-count HTSs as illustrative examples due to their popularity.
 
-While point and interval forecasts are most widely applied in practice, 
-the probability distribution that describes the full uncertainty of future events plays a critical role in optimal decision making (\citealp{gneitingProbabilisticForecasting2014}).
+While point and interval forecasts are most widely applied in practice, it is important to consider the probability distribution that describes the full uncertainty of future events for optimal decision making (\citealp{gneitingProbabilisticForecasting2014}).
 With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
-The pmfs can provide probabilities for each point in their discrete support,
-which is especially crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
+Pmfs provide probabilities for each point in their discrete support,
+which is particularly crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
 By utilizing joint pmfs, we develop the definitons of coherency and incoherency for count hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
-in the sense that point forecasts of a parent series should equal the sum of the point forecasts of associated children series. 
+in the sense that the point forecast for a parent series should equal the sum of the point forecasts for associated child series. 
 Regarding probabilistic forecasts, the same principle is applied to each point in the support of the hierarchically joint distribution.
-Historically, this was achieved by first producing forecasts in one level, 
-and then aggregating or disaggregating the forecasts into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
-An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, et al, 
-first independently generate \textit{base} forecasts for each time series, 
+Historically, this was accomplished by producing forecasts at one level 
+and then aggregating or disaggregating them into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
+An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, and others involves 
+first generating independent \textit{base} forecasts for each time series, 
 which are then ``optimally'' reconciled to produce coherent forecasts.
 
-While the reconciliation framework was initially proposed to reconcile point forecasts, it has been extended to probabilistic forecasting. 
-The earlier approaches construct coherent probabilistic forecasts by reconciling samples drawn from base forecasts. 
-The generated empirical distribution is hence coherent because all the samples are coherent.
-\cite{jeonProbabilisticForecastReconciliation2019} propose a method that first draws samples from the independently modelled predictive distribution. 
-They then use three alternative approaches, i.e., stacking, ranking and permutation, to construct base forecasts. 
-The base forecasts are then reconciled using the reconciliation matrix obtained through cross-validation. 
-On the other hand, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
+The reconciliation framework was initially designed to reconcile point forecasts, but it has since been extended to probabilistic forecasting. 
+Earlier approaches created coherent probabilistic forecasts by reconciling samples drawn from base forecasts, resulting in a coherent empirical distribution.
+\cite{jeonProbabilisticForecastReconciliation2019} propose a method that draws samples from the independently modelled predictive distributions and construct base forecasts using stacking, ranking, or permutation techniques before reconciling them with the reconciliation matrix obtained through cross-validation.
+In contrast, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
 where the dependence among bottom time series is restored using empirical copula modelling.
-Furthermore, \cite{panagiotelisProbabilisticForecastReconciliation2022} propose a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence. 
-They also propose an efficient algorithm to compute reconciliation weights by optimising a proper scoring rule. 
+Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence. 
+They also propose an efficient algorithm to compute reconciliation weights by optimising proper scoring rules. 
 
 The forecast reconciliation framework has been proven to enhance forecast accuracy in various scenarios. 
-One of the critical elements of its superior performance should be forecast combination (\citealp{hollymanUnderstandingForecastReconciliation2021}). 
-Every reconciled forecast is the weighted combination of all base forecasts,
-which could incorporate any external information using arbitrary forecasting methods.
-More importantly, the reconciliation process avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence.
-Against this backdrop, the reconciliation framework is a reasonable choice for forecasting hierarchical count time series,
-allowing for the employment of existing forecasting approaches for univariate counts in the literature.
+Forecast combination is one of the critical elements contributing to its superior performance(\citealp{hollymanUnderstandingForecastReconciliation2021}). 
+Every reconciled forecast is a weighted combination of all base forecasts that
+can incorporate external information using arbitrary forecasting methods.
+More importantly, the reconciliation process avoids the requirement for complex models that  capture hierarchical constraints, external information, and serial dependence simultaneously.
+Given these advantages, the reconciliation framework is a reasonable choice for forecasting discrete-valued HTSs while allowing existing univariate count forecasting approaches in literature to be employed effectively.
 
-To the best of our knowledge, the literature dealing with count hts forecasting is limited, and not tailored for low-count time series.
-\cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach by conditioning base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
-The reconciled forecasts are obtained through a generalisation of Bayes’ rule and Monte Carlo sampling.
-\cite{zambonEfficientProbabilisticReconciliation2022} further generalise this idea to apply for both count time series and real-valued time series.
-Although this novel approach produces coherent probabilistic forecasts, 
-the conditional manner used is unable to restore the dependence structure within hierarchical time series.
-Incorporating correlation requires base predictive distribution obtained through multivariate base models or post copula modelling, which, as mentioned above, is challenging to obtain in practice.
+To the best of our knowledge, existing literature on count HTS forecasting is limited, and not tailored for low-count time series.
+\cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
+The reconciled forecasts are derived through a generalisation of Bayes’ rule and Monte Carlo sampling.
+\cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
+Although this innovative approach yields coherent probabilistic forecasts, 
+the conditional manner employed fails to restore the dependence structure within hierarchical time series.
+Incorporating correlation necessitates base predictive distribution obtained through multivariate base models or post copula modelling, which is challenging to achieve in practice.
 
-In this paper, we seek to address the hierarchical forecasting problem for count time series, especially for low-count time series.
-First, we propose the concept of ``coherence'' for hierarchical counts, 
-which is similar in some ways to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
-Second, we utilise these concepts to construct a formal reconciliation framework for hierarchical counts, which generally reconciles the forecasts by moving probability from incoherent domain points to coherent domain points.
-Third, we adopt the Brier score as a metric used to evaluate forecasts and propose an reconciliation algorithm that optimises this metric. We also show how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second step-wise algorithm. Fourth, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings. Finally, we conduct two empirical experiments using real data. The first experiment crime dataset with a temporal hierarchy, and the other is performed on cross-sectional mortality data.
+In this paper, we seek to address the hierarchical forecasting problem for discrete-valued time series, particularly focusing on low-count time series.
+Firstly, we introduce the notion of ``coherence'' for hierarchical counts, 
+bearing resemblance to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
+Secondly, we utilise these concepts to establish a formal reconciliation framework for count HTSs, which generally reconciles the forecasts by moving probability from incoherent to coherent domain points.
+Thirdly, we adopt the Brier score as a metric for evaluating forecasts and present a reconciliation algorithm that optimises this metric. 
+We also demonstrate how this algorithm can be solved through quadratic programming and, to speed up the computation, we develop a second stepwise algorithm. 
+Fourthly, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings. 
+Lastly, we conduct two empirical experiments using real data. The first experiment a crime dataset with a temporal hierarchy, and the other employs cross-sectional mortality data.
 
 The remainder of this paper is organised as follows. 
-Section \ref{sec:coherence} introduces the notation and the concept of coherence for hierarchical counts.
-Section \ref{sec:method} describes the proposed discrete reconciliation framework, based on optimising the Brier score through Quadratic programming. The step-wise algorithm is also introduced in this section. Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
+Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
+Section \ref{sec:method} details the proposed discrete reconciliation framework, based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section. 
+Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. 
+Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
 
 
@@ -130,56 +130,57 @@ Section \ref{sec:method} describes the proposed discrete reconciliation framewor
 
 	
 \subsection{Preliminaries}
-Let $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ be an $n$-vector of discrete random variables.
-Let $\bY$ be partitioned so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic function of the basis variables. Usually the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
-Let the domain of each element of $\bY$ be given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $D_i$ is finite.
+Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
+We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
+The determined variables are some deterministic functions of the basis variables. Us
+ually the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
+Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$.
 
-\subsection{Incoherent and Coherent Domain}
+\subsection{Incoherent and coherent domain}
 The \textit{incoherent domain} of $\bY$ is given by
 \[
 \hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\}\,,
 \] 
-where products are Cartesian products taken over sets. The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
+where products are Cartesian products taken over sets. 
+The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
 The incoherent domain is analogous to $\mathbb{R}^n$ is the continuous case.
   
 The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D}(\bY)$ for which aggregation constraints hold.  
-The coherent domain has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which will be denoted as $r$. 
+It has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which we denote as $r$. 
 The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
   
   \subsubsection*{\textbf{Example}.}
   \label{sec:example}
   
   Let $Y_1$ and $Y_2$ be binary variables and $Y_3=Y_1+Y_2$. In this case, the domain of each variable is
-  \begin{align*}
-    \mathcal{D}(Y_1)=&\left\{0,1\right\}\\
-    \mathcal{D}(Y_2)=&\left\{0,1\right\}\\
-    \mathcal{D}(Y_3)=&\left\{0,1,2\right\}\,,
-  \end{align*}  
-  the incoherent domain is
+  \[
+    \mathcal{D}(Y_1)=\left\{0,1\right\},\quad
+    \mathcal{D}(Y_2)=\left\{0,1\right\},\quad
+    \mathcal{D}(Y_3)=\left\{0,1,2\right\}.
+  \]   
+  The incoherent domain is
   \begin{align*}
   \hat{\mathcal D}(\bY)=&\left\{\mathbf{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
   &\left.(0,0,1)',\mathbf{(0,1,1)'},\mathbf{(1,0,1)'},(1,1,1)',\right.\\
   &\left.(0,0,2)',(0,1,2)',(1,0,2)',\mathbf{(1,1,2)'}\right\}\,,
   \end{align*}
-  and the coherent domain is given by those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
+  and the coherent domain is consisted of those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
   \[
       \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
   \]
     
-  \subsection{Coherence of Probabilistic Forecasts}
+  \subsection{Coherency of predictive distribution for discrete-valued HTS}
 
-  Suppose a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$. 
-  Let $\hat{\bpi}^{t+h|t}$ be a $q$-vector of probabilities where each element in $\hat{\bpi}^{t+h|t}$ corresponds to one point in the incoherent domain. 
-  Two notational conventions will be used for the elements of $\hat{\bpi}^{t+h|t}$. 
-  First, $\hat{\pi}_j^{t+h|t}$ will be used to denote the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$.  
-  Second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\hat{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$. The two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. 
-  Using the small example in the previous section $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+  Assuming a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$, the resulting probability vector will be denoted as $\hat{\bpi}^{t+h|t}$ where each element corresponds to the probability of one discrete point in the incoherent domain. 
+  Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
+  First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;  
+  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. 
+  Using the small example in the previous section: $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
   
-  This probabilistic forecast is incoherent as long as there is some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some points for which the aggregation constraints do not hold. 
-  This can happen easily in practice. Suppose probabilistic forecasts are generated for each variable independently, and the joint forecast is then constructed assuming independence. 
-  Such forecasts will, in general, be incoherent. 
-  For example suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$ and a non-zero probability is assigned to an incoherent point.
+  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat h$ construct an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some points for which the aggregation constraints do not hold. 
+  This situation can occur easily in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence. 
+  Such forecasts will generally be incoherent. 
+  For instance, if we suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$, which assigns non-zero probability to an incoherent point.
   
   A coherent probabilistic forecast can be defined in a similar fashion. Now $\tilde{\bpi}^{t+h|t}$ is an $r$-vector of probabilities where each element in $\tilde{\bpi}^{t+h|t}$ corresponds to one point in the coherent domain. The notation $\tilde{\pi}_k^{t+h|t}$ is used to denote the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ will be used to denote that the specific element of $\tilde{\bpi}^{t+h|t}$, corresponds to the forecast probability that the $\bY$ takes a value $(y_1,y_2,\dots,y_n)'$ that must be coherent. The analogue to $\hat{h}(j)$ is a function  C$\tilde{h}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$ which maps each index $k$ to a coherent configuration of values that $\bY$ can take. Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc.
   
