@@ -170,6 +170,8 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \]
     
   \subsection{Coherency of predictive distribution for discrete-valued HTS}
+  
+  \label{sec:coherent_df}
 
   Assuming a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$, the resulting probability vector will be denoted as $\hat{\bpi}^{t+h|t}$ where each element corresponds to the probability of one discrete point in the incoherent domain. 
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
@@ -219,181 +221,199 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \right]'\]
   where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, although this does not affect the proposed algorithms.
 
-  \section{Method}
-  \label{sec:method}
-  
-      \subsection{The discrete forecast reconciliation framework}
-      
-      The idea is to `move' probability from $\hat{\bpi}$ to $\tilde{\bpi}$ with the superscript $t+h|t$ dropped for convenience.  
-      Let $\tilde{\bpi} = \psi(\hat{\bpi})$, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is the reconciliation function that maps the incoherent joint pmf to the coherent one. 
-      This framework is similar to the one defined in \cite{panagiotelisProbabilisticForecastReconciliation2022}, which maps the incoherent probability measure on $\mathbb{R}^n$ into another probability measure on coherent subspace $\mathfrak{s}$.
-  
-      The mapping $\psi$ can be any linear or non-linear function that ensures the probabilistic output. 
-      However in this paper, we focus on the following linear reconciliation function.
-      Let
-      \begin{equation}
-        \label{eq:framework}
-      \tilde{\bpi}=\bm{A}\hat{\bpi},
-      \end{equation}
-      where $\bm{A}$ is a matrix of assignment weights. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
-      \[
-        \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
-      \]
-      for all $k$. 
-      Each $a_{kj}$ tells us how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
-      \begin{align*}
-      &0\leq a_{kj} \leq 1 \,\forall k, j\\ 
-      &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j 
-      \end{align*}
-      The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
-      
-      \subsection{Score optimal reconciliation}
+\section{Method}
+\label{sec:method}
 
-      We now present an algorithm for finding the optimal reconciliation matrix $\mathbf{A}$ by optimizing an objective function based on proper scoring rules.
-      
-      \subsubsection*{\textbf{Brier Score}}
-      
-      {\color{red} reference here}
+In this section, we introduces a formal framework for discrete forecast reconciliation based on the distributional coherence proposed in Section~\ref{sec:coherence}.
+We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm1}.
+To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that destructs the hierarchy in Section~\ref{sec:algorithm2}.
+Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-down approaches to the discrete case and demonstrate how they can be incorporated into our framework .
 
-      Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, were $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $z^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{h}(k)=\bm{y}^{t+h}$ and $0$ otherwise where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. The Brier score is a proper scoring rule and can be averaged over the rolling window as
-      \begin{align*}
-      \textrm{Av. Brier Sc.}=&\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
-      =&\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
-      \end{align*}
-      This is a quadratic function of the $a_{kj}$ with smaller values indicating a better coherent forecast.
-      \label{sec:optimisation}
-      \subsubsection*{\textbf{Costs}}
-      One property to consider is that we move probability from incoherent points to coherent points that are  `nearby' in some sense. 
-      This idea is inspired by the use (and success) of projections in the reconciliation literature for continuous forecasts. 
-      We define a `cost' of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
-      \[
-      c_{kj}=||\hat{h}(j)-\tilde{h}(k)||_1\,,
-      \]
-      where $||.||_1$ is the L1 norm. To illustrate a single cost in the three variable examples is given by
-      \[
-      c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
-      \]
-      Note that in contrast to the continuous case, the `nearest' coherent point is not unique; for example, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, both of which are coherent. For this reason, we cannot base discrete reconciliation on a discrete analogue to projections alone.
+    \subsection{The discrete reconciliation framework}
+    
+    In general, the discrete reconciliation framework constructs the coherent distribution by redistributing the incoherent predictive distribution. 
+    Let $\tilde{\bpi} = \psi(\hat{\bpi})$ with the superscript $t+h|t$ dropped for convenience, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is an reconciliation function that maps the incoherent joint pmf to a coherent one. 
+    This framework is similar to that described in \cite{panagiotelisProbabilisticForecastReconciliation2022}, where an incoherent probability measure on $\mathbb{R}^n$ is mapped onto the coherent subspace $\mathfrak{s}$.
 
-      
-
-      Putting everything together, the optimisation problem is to 
-      
-      \[
-      \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
-      \]
-      subject to
-      \begin{align*}
-      &0\leq a_{kj}\leq 1\\
-      &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j
-      \end{align*}
-      This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver (OSQP, \citealp{stellatoOSQPOperatorSplitting2020}).  
-
-      {\color{red} $c_{kj}a_{kj}$}
-
-      
-
-      \subsection{Implementation considerations}
-      
-      As $m$, $n$ and $d_i$ increase $q$ and $r$ grow exponentially resulting in too many $a_{kj}$. An idea to simplify the optimisation is to force $a_{kj}=0$ if 
-      \[
-       c_{kj}>\underset{j}{\min}\,c_{kj}\,.
-      \]  
-      This implies that probability can only be moved to one of the nearest points. In the three variable examples, it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
-
-      {\color{red} relationship between  $c_{kj}a_{kj}$ and computational consideration}
-
-      {\color{red} DFR}
-      {\color{red} Construction of incoherent base forecast}
-  
-     \subsection{Stepwise discrete reconciliation}
-  
-     Although forcing parameters of the non-nearest points to 0 reduces the dimension, there can still be a large number of unknown parameters to estimate when handling high-dimensional hierarchy.
-     We further propose a stepwise discrete forecast reconciliation (SDFR) algorithm.
-     Instead of reconciling forecasts of all series together,  the algorithm
-     decomposes the high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step.
-     Given some reasonable assumptions, the reconciled forecasts of these sub-hierarchies are then adjusted to construct the joint forecasts of the hierarchy.
-  
-     \begin{algorithm}[H]
-      \label{alg:stepwise}
-      \caption{Stepwise discrete reconciliation}
-      \SetKwFunction{reconcile}{DFR$_i$}
-      \SetKwFunction{bu}{BottomUp}
-      \SetKwFunction{adjust}{Adjust}
-      \SetKwFunction{construct}{ConstructJointDist}
-      \SetKwInOut{Input}{Input}
-      \SetKwInOut{Output}{Output}
-      \Input{$\hat{\pi}_0,\dots,\hat{\pi}_k$} 
-      \For {$i=1,\dots,k-1$}{
-        $\hat{\pi}_{\mathbf{S}_{k-i}} \leftarrow$ \bu($\hat\pi_{i+1},\dots,\hat\pi_k$)\;
-        \uIf{ i = 1}{
-          $\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \hat\pi_0$ \;
-        } 
-        \Else{$\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\mathbf{S}_{k-i+2}, y_{i-1}}\tilde{\bpi}(\mathbf{S}_{k-i+2}, y_{i-1}, \mathbf{S}_{k-i+1})$\;
-        }
-        
-        $\tilde{\pi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \reconcile{$\hat{\pi}_{\mathbf{S}_{k-i + 1}}, \hat\pi_{i}, \hat\pi_{\mathbf{S}_{k-i}}$}
-      } 
-      
-      \For {$i=2,\dots,k-1$} {
-        $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1})$ \;
-        $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i})$ \;
-        $\tilde\pi'_{\mathbf{S}_{k-1+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$) \;
-        $\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
-        $\tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\mathbf{S}_{k-i+1}, \mathbf{S}_{k-i+1}), y_i, \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
-        $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \construct($\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) $)\; 
-      }
-      \Output{$\tilde \bpi(\bY_k)$}
-      
-     \end{algorithm}
-  
-    Taking a hierarchy with one total series and $k$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when the hierarchy is large. 
-    Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$. 
-    Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.
+    The mapping function $\psi$ can be linear or non-linear, as long as it ensures probabilistic output. 
+    However in this paper, we focus on the linear reconciliation function given by
+    \begin{equation}
+      \label{eq:framework}
+    \tilde{\bpi}=\bm{A}\hat{\bpi},
+    \end{equation}
+    where $\tilde{\bpi}$ is obtained by multiplying the matrix of reconciliation weights $\bm{A}$ with the incoherent probability vector $\hat{\bpi}$. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
     \[
-     \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
-    \] 
-    In general, the hierarchy is split into $k-1$ three-node hierarchies.  
-    For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy, and the other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
-    In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:optimisation} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
-    The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
-    In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
-    Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
-    We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginals equivalent to the averaged forecasts.
-    The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
-  
-     When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
-  
-     \subsection{Naive methods}
-  
-     Top-down and bottom-up are classical and easy-to-implement approaches for hierarchical point forecasting. 
-     They only need forecasts in one level and obtain forecasts in other levels through disaggregation (top-down) or aggregation (bottom-up).
-     In this section, we propose alternatives that can be used to obtain coherent probabilistic forecasts for counts.
-     \subsubsection*{Bottom-up}
-     \label{sec:bottomup}
-     The bottom-up method obtains the joint distribution by only considering the joint distribution of bottom-level series, e.g., $\tilde\pi^{\text{bu}}_{(000)} = \hat\pi_{(00)}$. 
-     This approach is a special case of Equation (\ref{eq:framework}) where elements of $\mathbf{A}$ only take $0$ and $1$. 
-     Using the example in Section\ref{sec:example},
-     \[
-      \mathbf{A} = [\mathbf{I}_4\quad \mathbf{I}_4 \quad \mathbf{I}_4 ],
+      \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
-     which marginalises the base joint distribution over the total variable.
-  
-     \subsubsection*{Top-down}
-  
-     Top-down approaches proportionally disaggregate the distribution of the total series into all possible coherent points. 
-     The ratio is computed by the ratio of historical occurrences.
-     For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed, and the forecasted probability of the total series taking $1$ is $0.4$, the probabilities of possible coherent points would be $\tilde \pi_{(011)} = 0.16$ and $\tilde \pi_{(101)} = 0.24$.
-     This method can also be a special case of Equation (\ref{eq:framework}).
-     Using the example in Section\ref{sec:example},
-     \[
-      \mathbf{A} = \left[\begin{matrix}
-        1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
-        0 & 0 & 0 & 0 & 0.4 & 0.4 & 0.4 & 0.4 & 0 & 0 & 0 & 0 \\      
-        0 & 0 & 0 & 0 & 0.6 & 0.6 & 0.6 & 0.6 & 0 & 0 & 0 & 0 \\
-        0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1  
-      \end{matrix}\right].
-     \]
+    for all $k$. 
+    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
+    \begin{align*}
+    &0\leq a_{kj} \leq 1 \,\forall k, j\\ 
+    &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j 
+    \end{align*}
+    The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
+    Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points  within the coherent domain. 
+    This process resembles the assignment problem commonly encountered in operational research.
+    
+    \subsection{Score optimal reconciliation}
+    \label{sec:algorithm1}
+
+    Before introducing the objective function, we first need to find a way to evaluate the reconciled distribution. 
+    Scoring rules are commonly used for this purpose in probabilistic forecasting. 
+    These rules assign a numerical score based on the predictive distribution and on the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for optimisation procedure.
+    Alternative scoring rules that can be used to evaluate discrete distribution include Brier Score, Spherical Score and Logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for details). 
+    Brier Score was initially proposed by \cite{brier1950verification} and it has the following formulation:
+    \[
+      \text{BS}(\bpi, \mathbf{z}) = -\sum_{i=1}^{m}(z_i - \pi_i)^2,
+    \] where $\bpi$, $\mathbf{z}$ and $i$ are defined similarly as in Section~\ref{sec:coherent_df}. 
+    $i \in \{1,\dots,m\}$ is the index that can be mapped into the potential outcomes of an event through link function $h$.
+    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if ${h}(k) = \mathbf{y}$ and otherwise $0$.  
+    Brier score is a strictly proper scoring rule that is easy to implement. 
+    More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
+
+    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{h}(k)=\bm{y}^{t+h}$ and $0$ otherwise where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. 
+    The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ rolling windows as
+    \begin{align*}
+    \textrm{Av. BS}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
+    =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
+    =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
+    \end{align*}
+    This is a quadratic function of the $a_{kj}$ with larger values indicating a better coherent forecast.
+    
+    \subsubsection*{\textbf{Costs}}
+    One property to consider is that we move probability from incoherent points to coherent points that are  `nearby' in some sense. 
+    This idea is inspired by the use (and success) of projections in the reconciliation literature for continuous forecasts. 
+    We define a `cost' of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
+    \[
+    c_{kj}=||\hat{h}(j)-\tilde{h}(k)||_1\,,
+    \]
+    where $||.||_1$ is the L1 norm. To illustrate a single cost in the three variable examples is given by
+    \[
+    c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
+    \]
+    Note that in contrast to the continuous case, the `nearest' coherent point is not unique; for example, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, both of which are coherent. For this reason, we cannot base discrete reconciliation on a discrete analogue to projections alone.
+
+    
+    \subsubsection*{\textbf{Objective}}
+
+    Putting everything together, the optimisation problem is to 
+    
+    \[
+    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
+    \]
+    subject to
+    \begin{align*}
+    &0\leq a_{kj}\leq 1\\
+    &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j
+    \end{align*}
+    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver (OSQP, \citealp{stellatoOSQPOperatorSplitting2020}).  
+
+    {\color{red} $c_{kj}a_{kj}$}
+
+    
+
+    \subsection{Implementation considerations}
+    
+    As $m$, $n$ and $d_i$ increase $q$ and $r$ grow exponentially resulting in too many $a_{kj}$. An idea to simplify the optimisation is to force $a_{kj}=0$ if 
+    \[
+      c_{kj}>\underset{j}{\min}\,c_{kj}\,.
+    \]  
+    This implies that probability can only be moved to one of the nearest points. In the three variable examples, it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
+
+    {\color{red} relationship between  $c_{kj}a_{kj}$ and computational consideration}
+
+    {\color{red} DFR}
+    {\color{red} Construction of incoherent base forecast}
+
+    \subsection{Stepwise discrete reconciliation}
+    \label{sec:algorithm2}
+
+    Although forcing parameters of the non-nearest points to 0 reduces the dimension, there can still be a large number of unknown parameters to estimate when handling high-dimensional hierarchy.
+    We further propose a stepwise discrete forecast reconciliation (SDFR) algorithm.
+    Instead of reconciling forecasts of all series together,  the algorithm
+    decomposes the high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step.
+    Given some reasonable assumptions, the reconciled forecasts of these sub-hierarchies are then adjusted to construct the joint forecasts of the hierarchy.
+
+    \begin{algorithm}[H]
+    \label{alg:stepwise}
+    \caption{Stepwise discrete reconciliation}
+    \SetKwFunction{reconcile}{DFR$_i$}
+    \SetKwFunction{bu}{BottomUp}
+    \SetKwFunction{adjust}{Adjust}
+    \SetKwFunction{construct}{ConstructJointDist}
+    \SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+    \Input{$\hat{\pi}_0,\dots,\hat{\pi}_k$} 
+    \For {$i=1,\dots,k-1$}{
+      $\hat{\pi}_{\mathbf{S}_{k-i}} \leftarrow$ \bu($\hat\pi_{i+1},\dots,\hat\pi_k$)\;
+      \uIf{ i = 1}{
+        $\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \hat\pi_0$ \;
+      } 
+      \Else{$\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\mathbf{S}_{k-i+2}, y_{i-1}}\tilde{\bpi}(\mathbf{S}_{k-i+2}, y_{i-1}, \mathbf{S}_{k-i+1})$\;
+      }
+      
+      $\tilde{\pi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \reconcile{$\hat{\pi}_{\mathbf{S}_{k-i + 1}}, \hat\pi_{i}, \hat\pi_{\mathbf{S}_{k-i}}$}
+    } 
+    
+    \For {$i=2,\dots,k-1$} {
+      $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1})$ \;
+      $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i})$ \;
+      $\tilde\pi'_{\mathbf{S}_{k-1+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$) \;
+      $\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
+      $\tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\mathbf{S}_{k-i+1}, \mathbf{S}_{k-i+1}), y_i, \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
+      $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \construct($\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) $)\; 
+    }
+    \Output{$\tilde \bpi(\bY_k)$}
+    
+    \end{algorithm}
+
+  Taking a hierarchy with one total series and $k$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when the hierarchy is large. 
+  Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$. 
+  Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.
+  \[
+    \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
+  \] 
+  In general, the hierarchy is split into $k-1$ three-node hierarchies.  
+  For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy, and the other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
+  In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:algorithm1} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
+  The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
+  In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
+  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
+  We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginals equivalent to the averaged forecasts.
+  The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
+
+    When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
+
+    \subsection{Naive methods}
+
+    Top-down and bottom-up are classical and easy-to-implement approaches for hierarchical point forecasting. 
+    They only need forecasts in one level and obtain forecasts in other levels through disaggregation (top-down) or aggregation (bottom-up).
+    In this section, we propose alternatives that can be used to obtain coherent probabilistic forecasts for counts.
+    \subsubsection*{Bottom-up}
+    \label{sec:bottomup}
+    The bottom-up method obtains the joint distribution by only considering the joint distribution of bottom-level series, e.g., $\tilde\pi^{\text{bu}}_{(000)} = \hat\pi_{(00)}$. 
+    This approach is a special case of Equation (\ref{eq:framework}) where elements of $\mathbf{A}$ only take $0$ and $1$. 
+    Using the example in Section\ref{sec:example},
+    \[
+    \mathbf{A} = [\mathbf{I}_4\quad \mathbf{I}_4 \quad \mathbf{I}_4 ],
+  \]
+    which marginalises the base joint distribution over the total variable.
+
+    \subsubsection*{Top-down}
+
+    Top-down approaches proportionally disaggregate the distribution of the total series into all possible coherent points. 
+    The ratio is computed by the ratio of historical occurrences.
+    For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed, and the forecasted probability of the total series taking $1$ is $0.4$, the probabilities of possible coherent points would be $\tilde \pi_{(011)} = 0.16$ and $\tilde \pi_{(101)} = 0.24$.
+    This method can also be a special case of Equation (\ref{eq:framework}).
+    Using the example in Section\ref{sec:example},
+    \[
+    \mathbf{A} = \left[\begin{matrix}
+      1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0.4 & 0.4 & 0.4 & 0.4 & 0 & 0 & 0 & 0 \\      
+      0 & 0 & 0 & 0 & 0.6 & 0.6 & 0.6 & 0.6 & 0 & 0 & 0 & 0 \\
+      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1  
+    \end{matrix}\right].
+    \]
 
      \section{Simulation}
      \label{sec:simulation}
