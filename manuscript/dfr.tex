@@ -73,11 +73,11 @@ While point and interval forecasts are most widely applied in practice, it is im
 With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
 Pmfs provide probabilities for each point in their discrete support,
 which is particularly crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
-By utilizing joint pmfs, we develop the definitons of coherency and incoherency for count hierarchical forecasts.
+By utilizing joint pmfs, we develop the definitions of coherency and incoherency for count hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
-in the sense that the point forecast for a parent series should equal the sum of the point forecasts for associated child series. 
-Regarding probabilistic forecasts, the same principle is applied to each point in the support of the hierarchically joint distribution.
+in the sense that the point forecast for a parent series should equal the sum of the point forecasts for the associated child series. 
+Regarding probabilistic forecasts, the same principle is applied to each point to support the hierarchically joint distribution.
 Historically, this was accomplished by producing forecasts at one level 
 and then aggregating or disaggregating them into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}). 
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, and others involves 
@@ -86,7 +86,7 @@ which are then ``optimally'' reconciled to produce coherent forecasts.
 
 The reconciliation framework was initially designed to reconcile point forecasts, but it has since been extended to probabilistic forecasting. 
 Earlier approaches created coherent probabilistic forecasts by reconciling samples drawn from base forecasts, resulting in a coherent empirical distribution.
-\cite{jeonProbabilisticForecastReconciliation2019} propose a method that draws samples from the independently modelled predictive distributions and construct base forecasts using stacking, ranking, or permutation techniques before reconciling them with the reconciliation matrix obtained through cross-validation.
+\cite{jeonProbabilisticForecastReconciliation2019} propose a method that draws samples from the independently modelled predictive distributions and constructs base forecasts using stacking, ranking, or permutation techniques before reconciling them with the reconciliation matrix obtained through cross-validation.
 In contrast, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
 where the dependence among bottom time series is restored using empirical copula modelling.
 Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence. 
@@ -96,12 +96,12 @@ The forecast reconciliation framework has been proven to enhance forecast accura
 Forecast combination is one of the critical elements contributing to its superior performance(\citealp{hollymanUnderstandingForecastReconciliation2021}). 
 Every reconciled forecast is a weighted combination of all base forecasts that
 can incorporate external information using arbitrary forecasting methods.
-More importantly, the reconciliation process avoids the requirement for complex models that  capture hierarchical constraints, external information, and serial dependence simultaneously.
-Given these advantages, the reconciliation framework is a reasonable choice for forecasting discrete-valued HTSs while allowing existing univariate count forecasting approaches in literature to be employed effectively.
+More importantly, the reconciliation process avoids the requirement for complex models that  simultaneously capture hierarchical constraints, external information, and serial dependence.
+Given these advantages, the reconciliation framework is a reasonable choice for forecasting discrete-valued HTSs while allowing existing univariate count forecasting approaches in the literature to be employed effectively.
 
-To the best of our knowledge, existing literature on count HTS forecasting is limited, and not tailored for low-count time series.
+To the best of our knowledge, existing literature on count HTS forecasting is limited and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
-The reconciled forecasts are derived through a generalisation of Bayes’ rule and Monte Carlo sampling.
+The reconciled forecasts are derived by generalising Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
 Although this innovative approach yields coherent probabilistic forecasts, 
 the conditional manner employed fails to restore the dependence structure within hierarchical time series.
@@ -109,16 +109,16 @@ Incorporating correlation necessitates base predictive distribution obtained thr
 
 In this paper, we seek to address the hierarchical forecasting problem for discrete-valued time series, particularly focusing on low-count time series.
 Firstly, we introduce the notion of ``coherence'' for hierarchical counts, 
-bearing resemblance to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
+bearing a resemblance to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
 Secondly, we utilise these concepts to establish a formal reconciliation framework for count HTSs, which generally reconciles the forecasts by moving probability from incoherent to coherent domain points.
 Thirdly, we adopt the Brier score as a metric for evaluating forecasts and present a reconciliation algorithm that optimises this metric. 
-We also demonstrate how this algorithm can be solved through quadratic programming and, to speed up the computation, we develop a second stepwise algorithm. 
+We also demonstrate how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second stepwise algorithm. 
 Fourthly, two simulation experiments are performed to verify the applicability  in both temporal and cross-sectional settings. 
-Lastly, we conduct two empirical experiments using real data. The first experiment a crime dataset with a temporal hierarchy, and the other employs cross-sectional mortality data.
+Lastly, we conduct two empirical experiments using real data. The first experiment analyses a crime dataset with a temporal hierarchy, and the other employs cross-sectional mortality data.
 
 The remainder of this paper is organised as follows. 
 Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
-Section \ref{sec:method} details the proposed discrete reconciliation framework, based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section. 
+Section \ref{sec:method} details the proposed discrete reconciliation framework based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section. 
 Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. 
 Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
 
@@ -133,7 +133,7 @@ Finally, Section \ref{sec:conclusion} concludes with some discussion and thought
 Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
 We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
 The determined variables are some deterministic functions of the basis variables. Us
-ually the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
+Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
 Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$.
 
 \subsection{Incoherent and coherent domain}
@@ -164,7 +164,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   &\left.(0,0,1)',\mathbf{(0,1,1)'},\mathbf{(1,0,1)'},(1,1,1)',\right.\\
   &\left.(0,0,2)',(0,1,2)',(1,0,2)',\mathbf{(1,1,2)'}\right\}\,,
   \end{align*}
-  and the coherent domain is consisted of those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
+  and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
   \[
       \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
   \]
@@ -224,19 +224,19 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \section{Method}
 \label{sec:method}
 
-In this section, we introduces a formal framework for discrete forecast reconciliation based on the distributional coherence proposed in Section~\ref{sec:coherence}.
+This section introduces a formal framework for discrete forecast reconciliation based on the distributional coherence proposed in Section~\ref{sec:coherence}.
 We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm1}.
 To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that destructs the hierarchy in Section~\ref{sec:algorithm2}.
-Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-down approaches to the discrete case and demonstrate how they can be incorporated into our framework .
+Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
 
     \subsection{The discrete reconciliation framework}
     
     In general, the discrete reconciliation framework constructs the coherent distribution by redistributing the incoherent predictive distribution. 
-    Let $\tilde{\bpi} = \psi(\hat{\bpi})$ with the superscript $t+h|t$ dropped for convenience, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is an reconciliation function that maps the incoherent joint pmf to a coherent one. 
+    Let $\tilde{\bpi} = \psi(\hat{\bpi})$ with the superscript $t+h|t$ dropped for convenience, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is a reconciliation function that maps the incoherent joint pmf to a coherent one. 
     This framework is similar to that described in \cite{panagiotelisProbabilisticForecastReconciliation2022}, where an incoherent probability measure on $\mathbb{R}^n$ is mapped onto the coherent subspace $\mathfrak{s}$.
 
     The mapping function $\psi$ can be linear or non-linear, as long as it ensures probabilistic output. 
-    However in this paper, we focus on the linear reconciliation function given by
+    However, in this paper, we focus on the linear reconciliation function given by
     \begin{equation}
       \label{eq:framework}
     \tilde{\bpi}=\bm{A}\hat{\bpi},
@@ -260,9 +260,9 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
 
     Before introducing the objective function, we first need to find a way to evaluate the reconciled distribution. 
     Scoring rules are commonly used for this purpose in probabilistic forecasting. 
-    These rules assign a numerical score based on the predictive distribution and on the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for optimisation procedure.
+    These rules assign a numerical score based on the predictive distribution and on the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for an optimisation procedure.
     Alternative scoring rules that can be used to evaluate discrete distribution include Brier Score, Spherical Score and Logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for details). 
-    Brier Score was initially proposed by \cite{brier1950verification} and it has the following formulation:
+    Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
       \text{BS}(\bpi, \mathbf{z}) = -\sum_{i=1}^{m}(z_i - \pi_i)^2,
     \] where $\bpi$, $\mathbf{z}$ and $i$ are defined similarly as in Section~\ref{sec:coherent_df}. 
@@ -303,10 +303,10 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
     \]
     subject to
     \begin{align*}
-    &0\leq a_{kj}\leq 1\\
-    &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j
+    &0\leq a_{kj}\leq 1,\\
+    &\sum\limits_{k=1}^r a_{kj} = 1,~\forall j.
     \end{align*}
-    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver (OSQP, \citealp{stellatoOSQPOperatorSplitting2020}).  
+    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.  
 
     {\color{red} $c_{kj}a_{kj}$}
 
@@ -374,12 +374,12 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
     \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
   \] 
   In general, the hierarchy is split into $k-1$ three-node hierarchies.  
-  For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy, and the other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
-  In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:algorithm1} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of last model as input.
+  For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy. The other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
+  In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:algorithm1} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of the last model as input.
   The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
   In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
   Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
-  We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from previous step to make its marginals equivalent to the averaged forecasts.
+  We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from the previous step to make its marginals equivalent to the averaged forecasts.
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
 
     When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
@@ -436,7 +436,7 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
        \end{matrix}\right]\right)
      \]
      and $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
-     The generated series are then transformed into probability series through the sigmoid function 
+     The generated series are then transformed into probability series through the sigmoid function
      \[
      \sigma(x) = \frac{\exp(x)}{1+\exp(x)}.
      \]
@@ -551,7 +551,7 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
      One interesting point is that forecasting accuracy is improved for the $y_4$ through to $y_7$. 
      This may be due to the stepwise implementation of SDFR stepping from $y_1$ to $y_7$. The coherent forecasts of the previous series must be adjusted many times to construct the final joint distribution.
      Another explanation is the effective utilization of forecast combination, where the bottom level series corresponding to the end of the week combine more forecasts than previous ones.
-     Surprisingly, forecast accuracy of the total series does not show significant deviation,  even though it is adjusted most of the time, showing the robustness of SDFR.
+     Surprisingly, the forecast accuracy of the total series does not show significant deviation,  even though it is adjusted most of the time, showing the robustness of SDFR.
      Figure~\ref{fig:sim_temporal_mcb_prob} shows the results of MCB tests of differences in forecast performance. The results lead to similar conclusions to those drawn from Table~\ref{tab:sim_temporal_res_dist}. 
      
      \begin{table}
@@ -584,7 +584,7 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
      \section{Empirical study}
      \label{sec:application}
      In this section, we apply the proposed DFR algorithm to two publicly available real-world datasets.
-     Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count heirarchical time series based on mortality thresholds. 
+     Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series based on mortality thresholds. 
      
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
@@ -635,7 +635,7 @@ Additionally, Section~\ref{sec:bottomup} extend the classical bottom-up and top-
        \includegraphics[width=\textwidth]{figures/dc_crime_bs.pdf}
      \end{figure}
      
-     While, on average bottom-up performs slightly better than DFR in both the total level and the whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
+     While on average bottom-up performs slightly better than DFR in both the total level and the whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
      The MCB test plots prove the statistical difference between DFR and other methods. 
      The results imply that DFR outperforms other approaches for more hts.
      
@@ -754,11 +754,11 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
  \]
  where $|\cdot|_1$ represents the sum of all the variables in the vector.
  The given distributions are $\bpi(y_1, \bY_2, y_3)$ and $\bpi(y_3, y_4, \bY_5)$.
- The marginal distributions of $y_3$ derived from the two distribution are same, i.e.,
+ The marginal distributions of $y_3$ derived from the two distributions are the same, i.e.,
  \[
   \sum_{y_3} \bpi(y_1, \bY_2, y_3) = \sum_{y_3}\bpi(y_3, y_4, \bY_5)
 \]
- Assuming the joint distribution of $y_1$ and $\bY_2$ is independent of the joint distribution of $y_4$ and $\bY_5$ given $y_3$, we can obtain the probability of one ponit in the new joint distribution using the following equation: \[
+ Assuming the joint distribution of $y_1$ and $\bY_2$ is independent of the joint distribution of $y_4$ and $\bY_5$ given $y_3$, we can obtain the probability of one point in the new joint distribution using the following equation: \[
    \begin{aligned}
   &\text{Pr}(y_1=a_1,\bY_2=\mathbf{a}_2, y_4=a_4, \bY_5 = \mathbf{a}_5) =\\ &\text{Pr} (y_1=a_1,\bY_2=\mathbf{a}_2,y_3=a_3) \times \text{Pr}(y_4=y_4,\bY_5=y_5|y_3=a_3).
    \end{aligned}
