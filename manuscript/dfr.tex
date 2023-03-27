@@ -271,7 +271,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Brier score is a strictly proper scoring rule that is easy to implement. 
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
 
-    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{h}(k)=\bm{y}^{t+h}$ and $0$ otherwise where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. 
+    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{h}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. 
     The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ rolling windows as
     \begin{align*}
     \textrm{Av. BS}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
@@ -281,49 +281,76 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This is a quadratic function of the $a_{kj}$ with larger values indicating a better coherent forecast.
     
     \subsubsection*{\textbf{Costs}}
-    One property to consider is that we move probability from incoherent points to coherent points that are  `nearby' in some sense. 
-    This idea is inspired by the use (and success) of projections in the reconciliation literature for continuous forecasts. 
-    We define a `cost' of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
+    In addition to minizing the Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are ``nearby'' in some sense. 
+    This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to  a ``nearest'' point on the coherent subspace using a distance metric defined based on weighted squared distance.
+    We define a ``cost'' of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
     c_{kj}=||\hat{h}(j)-\tilde{h}(k)||_1\,,
     \]
-    where $||.||_1$ is the L1 norm. To illustrate a single cost in the three variable examples is given by
+    where $||.||_1$ represents L1 norm. For example, in the three-variable scenario, the cost between $(0, 1, 0)'$ and $(0, 0, 0)$' is
     \[
     c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
     \]
-    Note that in contrast to the continuous case, the `nearest' coherent point is not unique; for example, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, both of which are coherent. For this reason, we cannot base discrete reconciliation on a discrete analogue to projections alone.
+    It should be noted that unlike in continuous cases, there may not be a unique ``nearest'' coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent. 
+    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections.
+    Although it is possible to define costs based on other distance measures such as L2 norm and assign different weights to different series within the hierarchy when defining the costs; this paper keeps things simple by sticking with L1 norm.
 
     
     \subsubsection*{\textbf{Objective}}
 
-    Putting everything together, the optimisation problem is to 
+    The final objective function is defined as follows:
     
     \[
-    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
+    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \lambda\sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
     \]
     subject to
     \begin{align*}
     &0\leq a_{kj}\leq 1,\\
-    &\sum\limits_{k=1}^r a_{kj} = 1,~\forall j.
+    &\sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
     \end{align*}
+    which is the combination of maximizing the average Brier score and a penalty term.
+    The first term is the negative average Brier Score used to form a minimization problem, and the second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with L1 distance $c_{kj}$. 
+    The penalty strength can be adjusted using manually specified coefficient $\lambda$.
     This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.  
 
-    {\color{red} $c_{kj}a_{kj}$}
-
-    
-
-    \subsection{Implementation considerations}
-    
-    As $m$, $n$ and $d_i$ increase $q$ and $r$ grow exponentially resulting in too many $a_{kj}$. An idea to simplify the optimisation is to force $a_{kj}=0$ if 
+    \subsubsection*{\textbf{Movement restriction}}
+    As the number of variables within the hierarchy and their domains increase, the cardinality of coherent and incoherent domains grows exponentially, resulting in too many reconciliation weights to be estimated. 
+    To simplify the optimisation, we force $a_{kj}=0$ if 
     \[
-      c_{kj}>\underset{j}{\min}\,c_{kj}\,.
+      c_{kj}>\underset{j}{\min}\,c_{kj}\,,
     \]  
-    This implies that probability can only be moved to one of the nearest points. In the three variable examples, it implies probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. It also implies that $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. In words, all probability from a coherent point is assigned to the same coherent point.
+    which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. 
+    Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. 
+    In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
 
-    {\color{red} relationship between  $c_{kj}a_{kj}$ and computational consideration}
+    This movement restriction is similar to using moderate penalty strength on the previous penalized problems.
+    Therefore, it is suggested that this strategy replace the penalty term during practical implementation as it yields similar results with an exponential decrease of parameter numbers resulting in faster computation speeds. 
 
-    {\color{red} DFR}
-    {\color{red} Construction of incoherent base forecast}
+    \subsection{The DFR algorithm}
+    
+    The proposed framework accepts an incoherent probabilistic forecast as input, which can be generated using any forecasting algorithm.
+    However, due to limitated research on multivariate count time series forecasting, we recommend constructing an incoherent base distribution from distributions obtained independently using arbitrary univariate forecasting methods. 
+    The dependence structure within the hierarchy is captured during the training of the reconciliation model.
+    This approach enables the use of univariate forecasting techniques tailored for low-count time series found in existing literature.
+    In general, assuming forecasts are made for each variable, the $k$-th element of the resulting probability vector is calculated as follows: \[
+      \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
+    \]
+
+    Combining all the elements considered above, we propose the \textbf{D}iscrete \textbf{F}orecast \textbf{R}econciliation (\text{DFR}) algorithm. 
+    The architecture of the proposed architecture is illustrated in Figure~\ref{fig:dfr}.
+    It consists of two stages: training and forecasting.
+    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}) given an initial window size $T - \mathcal{T}_{\text{window}}-h+1$, where $h$ represents the forecast horizon.
+    For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence. Corresponding realization $\mathbf{z}$ of forecasts is also obtained.
+    Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
+    In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with base incoherent distribution.
+    Furthermore, We obtain multi-step ahead forecasts by building a seperate reconciliation model for each step.
+
+    \begin{figure}
+    \centering
+    \includegraphics[width=\textwidth]{figures/DFR.pdf}
+    \caption{\label{fig:dfr}Flowchart for the DFR algorithm.}
+    \end{figure}
+
 
     \subsection{Stepwise discrete reconciliation}
     \label{sec:algorithm2}
