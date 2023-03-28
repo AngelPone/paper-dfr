@@ -225,7 +225,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \label{sec:method}
 
 This section introduces a formal framework for discrete forecast reconciliation based on the distributional coherence proposed in Section~\ref{sec:coherence}.
-We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm1}.
+We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Secion~\ref{sec:algorithm1}.
 To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that destructs the hierarchy in Section~\ref{sec:algorithm2}.
 Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
 
@@ -256,7 +256,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This process resembles the assignment problem commonly encountered in operational research.
     
     \subsection{Score optimal reconciliation}
-    \label{sec:algorithm1}
+    \label{sec:algorithm}
 
     Before introducing the objective function, we first need to find a way to evaluate the reconciled distribution. 
     Scoring rules are commonly used for this purpose in probabilistic forecasting. 
@@ -327,11 +327,12 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Therefore, it is suggested that this strategy replace the penalty term during practical implementation as it yields similar results with an exponential decrease of parameter numbers resulting in faster computation speeds. 
 
     \subsection{The DFR algorithm}
+    \label{sec:algorithm1}
     
-    The proposed framework accepts an incoherent probabilistic forecast as input, which can be generated using any forecasting algorithm.
+    The proposed framework accepts an incoherent probabilistic forecast as input, which can be generated using any forecasting process.
     However, due to limitated research on multivariate count time series forecasting, we recommend constructing an incoherent base distribution from distributions obtained independently using arbitrary univariate forecasting methods. 
-    The dependence structure within the hierarchy is captured during the training of the reconciliation model.
     This approach enables the use of univariate forecasting techniques tailored for low-count time series found in existing literature.
+    The dependence structure within the hierarchy is captured during the training of the reconciliation model.
     In general, assuming forecasts are made for each variable, the $k$-th element of the resulting probability vector is calculated as follows: \[
       \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
     \]
@@ -355,15 +356,16 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \subsection{Stepwise discrete reconciliation}
     \label{sec:algorithm2}
 
-    Although forcing parameters of the non-nearest points to 0 reduces the dimension, there can still be a large number of unknown parameters to estimate when handling high-dimensional hierarchy.
-    We further propose a stepwise discrete forecast reconciliation (SDFR) algorithm.
-    Instead of reconciling forecasts of all series together,  the algorithm
-    decomposes the high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step.
-    Given some reasonable assumptions, the reconciled forecasts of these sub-hierarchies are then adjusted to construct the joint forecasts of the hierarchy.
-
-    \begin{algorithm}[H]
-    \label{alg:stepwise}
-    \caption{Stepwise discrete reconciliation}
+    Although forcing the parameters of non-nearest points to $0$ reduces the dimension, the exponentially growth of domain cardinalities  still result in an exponentially growth of  number of unknown parameters that need to be estimated.
+    As a result, it is impossible to handle high-dimensional hierarchy using the \textbf{DFR} algorithm alone.
+    To address this issue, we propose a \textbf{S}tepwise \textbf{D}iscrete \textbf{F}orecast \textbf{R}econciliation (\textbf{SDFR}) algorithm that can overcome the curse of dimensionality.
+    Instead of reconciling forecasts of all series at once,  \textbf{SDFR}
+    decomposes a high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step using the $\textbf{DFR}$ algorithm shown in \ref{sec:algorithm1}.
+    This reduces the number of unknown parameters of each reconciliation process to cubic leve.
+    Given some reasonable assumptions, we adjust the reconciled forecasts for these sub-hierarchies to construct joint forecasts for the entire hierarchy.
+    Same as \textbf{DFR} algorithm, \textbf{SDFR} also consists of training stage and forecasting stage. The forecasting stage is shown in Algorithm \ref{alg:stepwise}, while training has a similar procedure.
+    \begin{algorithm}[ht]
+    \caption{\label{alg:stepwise}Stepwise Discrete Forecast Reconciliation (\textbf{SDFR})}
     \SetKwFunction{reconcile}{DFR$_i$}
     \SetKwFunction{bu}{BottomUp}
     \SetKwFunction{adjust}{Adjust}
@@ -394,45 +396,58 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     
     \end{algorithm}
 
-  Taking a hierarchy with one total series and $k$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how dependently generated base forecasts can be reconciled into joint forecasts step by step when the hierarchy is large. 
+  Taking a hierarchy with one total series and $k (k>3)$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how independently generated base forecasts can be reconciled into coherent joint forecasts step-by-step when $k$ is large. 
   Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$. 
   Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.
   \[
     \bY_i = (y_0, \dots, y_i)' \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
   \] 
   In general, the hierarchy is split into $k-1$ three-node hierarchies.  
-  For the $i$-th hierarchy, one bottom series corresponds to the $i$-th node in the original hierarchy. The other bottom series corresponds to the sum of the remaining $k-i$ series, i.e., $\mathbf{S}_{k-i}$.
-  In the training stage, $k-1$ reconciliation models are trained using the algorithm proposed in Section~\ref{sec:algorithm1} step by step, i.e., \code{DFR}$_1,\dots,$\code{DFR}$_{k-1}$, and each model takes the output of the last model as input.
-  The \code{BottomUp} algorithm shown will be discussed in Section \ref{sec:bottomup}.
-  In the forecasting stage, the base forecasts are first stepwise passed into these models, obtaining $k-1$ coherent forecasts.
-  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not same because reconciliation generally changes the input forecasts.
-  We take averages of the two marginal forecasts and pass them into the \code{Adjust} algorithm shown in \ref{appendix:adjust}, which adjusts the joint distribution from the previous step to make its marginals equivalent to the averaged forecasts.
+  For each hierarchy $i$, one bottom series (the left node) corresponds to the node $i+1$ in the original hierarchy, i.e., $y_{i}$. The other bottom series (the right node) corresponds to $\mathbf{S}_{k-i}$, which is the sum of the remaining $k-i$ series; thus making $\mathbf{S}_{k-i+1}$ their total node.
+  In the training stage, reconciliation model \code{DFR}$_i$ is trained for this hierarchy.
+  Base forecasts of the left node are obtained from input, while base forecasts of the right node are obtained using a bottom-up approach that will be discussed in Section~\ref{sec:bottomup}. 
+  The base forecasts for the total node are derived from the marginal distribution of that same node from the coherent distribution obtained in the previous step.
+  One can obtain base forecasts for the right and total node by forecasting directly $\mathbf{S}_{j}, j=2,\dots,k-1$, which is applicable for cross-sectional hierarchies.
+  However in temporal hierarchies, forecasting $\mathbf{S}_{k-i+1}$ means forecasting temporal aggregation of partial time periods, introducingnon-integer frequency problems and making it more challenging to capture time series dynamics.
+  Our approach instead offers simple implementation with no extra expert inervation or modelling and can be applied to both cross-sectional and temporal hierarchies. 
+
+  During the forecasting stage, we first pass the base forecasts stepwise into these models to obtain $k-1$ coherent forecasts.
+  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not identical because reconciliation generally changes input forecasts.
+  We averages these two marginal forecasts and pass their average into the \code{Adjust} algorithm, which adjusts the joint distributions from two adjacent steps to make their marginalisations of the shared node equivalent to the average.
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
+  For space-saving purpose here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
 
-    When handling hierarchy with more aggregation levels, we can repeat the procedure above for each aggregated series in a bottom-up or top-down manner, which means that we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
+  Note that in our proposed algorithm, the order of the bottom-level series does not matter.
+  One can involve forecast model combination technique by averaging multiple results from randomly reordering the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
+  When handling hierarchy with more aggregation levels, we can repeat above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
+  
 
-    \subsection{Naive methods}
+    \subsection{Probabilistic extensions of bottom-up and top-down methods for count series}
 
-    Top-down and bottom-up are classical and easy-to-implement approaches for hierarchical point forecasting. 
-    They only need forecasts in one level and obtain forecasts in other levels through disaggregation (top-down) or aggregation (bottom-up).
-    In this section, we propose alternatives that can be used to obtain coherent probabilistic forecasts for counts.
-    \subsubsection*{Bottom-up}
+    The top-down and bottom-up methods are traditional and straightforward techniques used for hierarchical point forecasting. 
+    These methods requires forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
+    In this section, we extend this idea to discrete cases by introducing the Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods. These approaches can produce distributional forecasts for count time series based on base forecasts from a single level.
+    We also show how these two approaches can be incorporated into the proposed linear reconciliation method.
+
+    \subsubsection*{\textbf{Discrete bottom-up}}
     \label{sec:bottomup}
-    The bottom-up method obtains the joint distribution by only considering the joint distribution of bottom-level series, e.g., $\tilde\pi^{\text{bu}}_{(000)} = \hat\pi_{(00)}$. 
-    This approach is a special case of Equation (\ref{eq:framework}) where elements of $\mathbf{A}$ only take $0$ and $1$. 
-    Using the example in Section\ref{sec:example},
-    \[
+
+    The discrete bottom-up method constructs a coherent distribution by assuming independent bottom-level forecasts.
+    This method follows the same procedure as constructing base forecasts explained in Section~\ref{sec:algorithm1} except that the base forecasts of aggregated series are excluded.
+    Using the three-variables example, $\tilde{\pi}_{(000)} = Pr(Y_1=0)\times Pr(Y_2=0)$. 
+    The linear reconciliation framework can also incorporate this method by marginalising out all aggregated time series from the incoherent base distribution, which yields \[
     \mathbf{A} = [\mathbf{I}_4\quad \mathbf{I}_4 \quad \mathbf{I}_4 ],
-  \]
-    which marginalises the base joint distribution over the total variable.
+    \]
+    Note that the mean point forecasts obtained from this coherent distributionl's marginal distribution of  are identical to the those obtained by directly aggregating mean forecasts of bottom-level series.
+    In other words, discrete bottom-up is compatible with the traditional bottom-up methods.
 
-    \subsubsection*{Top-down}
+    Although it is possible to learn dependence structure between bottom-level time series (e.g., empirical copulas used in \citealp{bentaiebHierarchicalProbabilisticForecasting2020}), we stick to the independence assumption due to its simplicity.
 
-    Top-down approaches proportionally disaggregate the distribution of the total series into all possible coherent points. 
-    The ratio is computed by the ratio of historical occurrences.
-    For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed, and the forecasted probability of the total series taking $1$ is $0.4$, the probabilities of possible coherent points would be $\tilde \pi_{(011)} = 0.16$ and $\tilde \pi_{(101)} = 0.24$.
-    This method can also be a special case of Equation (\ref{eq:framework}).
-    Using the example in Section\ref{sec:example},
+    \subsubsection*{\textbf{Discrete top-down}}
+
+    The discrete top-down method extends the traditional top-down by proportionally disaggregating the probabilities of each point of the total series into all possible coherent points, using a ratio computed from historical occurrences.
+    For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed in the three-variables scenario where $Pr(y_3) = 0.4$, the probabilities of possible coherent points would be calculated as follows: $\tilde \pi_{(011)} = 0.4\times 0.4$ and $\tilde \pi_{(101)} = 0.4\times 0.6$.
+    This method can also be considered as a special case of Equation (\ref{eq:framework}), where
     \[
     \mathbf{A} = \left[\begin{matrix}
       1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
