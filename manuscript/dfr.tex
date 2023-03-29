@@ -460,90 +460,94 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \end{matrix}\right].
     \]
 
-     \section{Simulation}
-     \label{sec:simulation}
-     To demonstrate the usefulness of the proposed framework, we conduct two simulation experiments in different contexts, one for cross-sectional settings and another for temporal settings. 
+\section{Simulation}
+\label{sec:simulation}
+
+To showcase the effectiveness of our proposed framework, we conduct two simulation experiments in distinct contexts: one for cross-sectional settings and another for temporal settings. 
      
-     \subsection{Cross-sectional hierarchy}
-     \label{sec:cross-sectional_simu}
-     \subsubsection{Simulation setup}
-     This subsection considers the simple hierarchy shown in Section~\ref{sec:example}.
-     The binomial counts of the bottom level are generated based on underlying latent variables, assumed to follow a bivariate VAR(1) process
-     \[\mathbf{z}_t = \mathbf{\Phi}\mathbf{z}_{t-1}+\boldsymbol{\eta}_t,\]
-     where
-     \[
-       \mathbf{\Phi} = \left[\begin{matrix}
-         \alpha & 0 \\
-         0 & \beta
-       \end{matrix}\right], \boldsymbol{\eta} \sim \mathcal{N}\left(\mathbf{0}, \left[\begin{matrix}
-         0.1 & 0.05 \\
-         0.05 & 0.1 
-       \end{matrix}\right]\right)
-     \]
-     and $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
-     The generated series are then transformed into probability series through the sigmoid function
-     \[
-     \sigma(x) = \frac{\exp(x)}{1+\exp(x)}.
-     \]
-     If the generated probability is bigger than $0.5$, the count series takes a value of $1$ and, otherwise, $0$.
+  \subsection{Cross-sectional hierarchy}
+  \label{sec:cross-sectional_simu}
+    \subsubsection{Simulation setup}
+    This subsection considers the three-variables hierarchy depicted in Section~\ref{sec:example}.
+    The binary count time series at the bottom level are generated based on underlying latent variables. 
+    We assume that these variables follow a bivariate VAR(1) process
+    \[\mathbf{s}_t = \mathbf{\Phi}\mathbf{s}_{t-1}+\boldsymbol{\eta}_t,\]
+    where
+    \[
+      \mathbf{\Phi} = \left[\begin{matrix}
+        \alpha & 0 \\
+        0 & \beta
+      \end{matrix}\right], \boldsymbol{\eta} \sim \mathcal{N}\left(\mathbf{0}, \left[\begin{matrix}
+        0.1 & 0.05 \\
+        0.05 & 0.1 
+      \end{matrix}\right]\right), \mathbf{s}_{-1} = \left[
+        \begin{matrix}0 \\ 0\end{matrix}
+      \right].
+    \]
+    $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
+    This ensures the stability of the generated time series.
+    The error term $\boldsymbol{\eta}$ implies positive correlation between the two series and ensures reasonable range of the latent state.
+    Observations are transformed from the state series using a sign function:
+    \[
+        Y_i = \mathbb{I}(\sigma(s_i) > 0.5), i\in\{1, 2\},\quad \sigma(s) = \frac{\exp(s)}{1+\exp(s)}.
+    \]
+
+    We produce and evaluate one-step-ahead forecasts in this experiment.
+    For each binary series, we generate $480$ observations; the rolling origin strategy with $150$ observations used to train the base forecasting models is employed, yielding $330$ samples.
+    The first $300$ samples are used to train the \textbf{DFR} model, while remaining $30$ samples are used to test performance.
+    
+    The base probabilistic forecasts are obtained independently using the binomial AR(1) model(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
+    We evaluate the performance based on average brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ testing samples.
      
-     The procedure was repeated $1000$ times. 
-     For each binomial series, $480$ observations were generated,
-     and a rolling origin strategy (\Citealp{hyndmanForecastingPrinciplesPractice2021}) with fixed lookback window size of $150$ was adopted to construct samples. 
-     The first $300$ samples were used to train the DFR model, and the remaining $30$ samples were used to test the performance.
-     
-     The base probabilistic forecasts are obtained independently using the binomial AR(1) models(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
-     Brier scores of the joint forecasts of the hierarchy and the marginal forecasts of each series on the $30$ testing samples are used to evaluate the performance. 
-     
-     \subsubsection{Simulation results}
-     Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier scores of the $1000$ samples, compared with base forecasts, bottom-up method and top-down method.
-     The bold text in each row indicates the best average performance out of the four approaches.
-     DFR performs the best for both the single series and the hierarchy. 
-     The top-down method is beaten by the bottom-up method in both the total and bottom levels, showing the inferiority of the base forecasts of the total series.
-     However, DFR shows the most considerable improvement in the accuracy of the total series, implying the ability to mitigate the risk of model misspecification.
-     Similar results are obtained from forecast reconciliation for continuous variables.
-     
-     We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy between these approaches. 
-     This testing approach computes the mean ranks of the four approaches across the whole simulation set and does not impose any distributional assumptions.
-     The nonoverlapping of the grey intervals in the figures indicates that the method is statistically more significant than others.
-     DFR performs more significantly than all other approaches, as shown in Figure~\ref{fig:sim_temporal_mcb_prob}.
-     
-     
-     
-     \begin{figure}
-       \centering
-       \label{fig:mcb_crosssectional}
-       \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
-       \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
-     \end{figure}
-     
-     
-     \begin{table}
-       \centering
-       \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary of cross-sectional setting.}
-       \begin{tabular}{lcccc}
-       \toprule
-       \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\ 
-        & Base & Bottom-Up & Top-Down & DFR \\\midrule
-       $y_0$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
-       $y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
-       $y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
-       $\bY$ & 74.4 & 47.8 & 56.1 & \textbf{44.0} \\
-       \bottomrule
-       \end{tabular} 
-     \end{table}
+    \subsubsection{Simulation results}
+    The above procedure was repeated $1000$ times. 
+    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discret top-down method.
+    The best average performance out of the four approaches is indicated by bold text in each row.
+    DFR performs the best for both the single series and the hierarchy. 
+    The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
+    However, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
+    Similar results were obtained from forecast reconciliation for continuous variables as well.
+    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of to its incoherency nature.
+    
+    We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy between these approaches. 
+    This testing approach computes the mean ranks of the four approaches across whole simulation set without imposing any distributional assumptions.
+    Non-overlapping grey intervals indicate statistically significant differences between methods.
+    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs more significantly than all other approaches.
+    Please note that MCB tests for bottom series are conducted on all samples at the bottom level.
+  
+    \begin{figure}
+      \centering
+      \label{fig:mcb_crosssectional}
+      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
+      \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
+    \end{figure}
+    
+    
+    \begin{table}
+      \centering
+      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary of cross-sectional setting.}
+      \begin{tabular}{lcccc}
+      \toprule
+      \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\ 
+      & Base & DBU & DTD & DFR \\\midrule
+      $Y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
+      $Y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
+      $Y_3$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
+      $\bY$ & 74.4 & 47.8 & 56.1 & \textbf{44.0} \\
+      \bottomrule
+      \end{tabular} 
+    \end{table}
      
      
      \subsection{Temporal hierarchy}
+
+     We now consider a daily temporal scenario consisting of one total series and $7$ bottom-level series. 
+     This type of setting is frequently encountered in supply chain management, where daily and weekly forecasts are required to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
+     The bottom-level time series are restricted to values of 0 or 1.
+     Despite this limitation, the hierarchy's domain remains extensive, making it difficult to estimate a complete reconciliation matrix with limited observations in practice. 
+     Therefore, we employ the stepwise reconciliation algorithm outlined in Section \ref{sec:algorithm2}. 
      
      \subsubsection{Simulation setup}
-     
-     We now consider a daily temporal setting with one total level and $7$ bottom-level series. 
-     This setting is commonly seen in supply chain management where daily and weekly forecasts are needed to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
-     The bottom-level time series can only take values of $0$ and $1$. 
-     Even so, the domain of the hierarchy is still large, so it is challenging to estimate a full reconciliation matrix given limited observations in practice. 
-     We use the stepwise reconciliation algorithm in Section \ref{alg:stepwise}. 
-     
      
      
      While the intermittent series are characterized by variable demand intervals and size in bottom levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
