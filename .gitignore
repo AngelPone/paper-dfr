@@ -5,6 +5,9 @@
 .DS_Store
 *.spl
 *.aux
+*.fdb_latexmk
+*.xdv
+*.fls
 *.bbl
 *.blg
 *.log

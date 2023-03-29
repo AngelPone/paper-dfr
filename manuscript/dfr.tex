@@ -98,6 +98,9 @@ Every reconciled forecast is a weighted combination of all base forecasts that
 can incorporate external information using arbitrary forecasting methods.
 More importantly, the reconciliation process avoids the requirement for complex models that  simultaneously capture hierarchical constraints, external information, and serial dependence.
 Given these advantages, the reconciliation framework is a reasonable choice for forecasting discrete-valued HTSs while allowing existing univariate count forecasting approaches in the literature to be employed effectively.
+However, existing reconciliation approaches cannot be easily adapted to discrete cases because they are generally built on projection techniques that yield non-integer forecasts when applied to discrete variables.
+From a forecasting perspective, produced forecasts should be ``coherent'' such that their support matches the support of the variable (\citealp{freelandForecastingDiscreteValued2004}). 
+Non-integer forecasts generate additional costs from an operational research perspective since they require transformation into decisions (e.g., \citealp{goltsosInventoryForecastingMind2022}).
 
 To the best of our knowledge, existing literature on count HTS forecasting is limited and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
