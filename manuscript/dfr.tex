@@ -423,6 +423,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
   Note that in our proposed algorithm, the order of the bottom-level series does not matter.
   One can involve forecast model combination technique by averaging multiple results from randomly reordering the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
   When handling hierarchy with more aggregation levels, we can repeat above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile next level.
+
   
 
     \subsection{Probabilistic extensions of bottom-up and top-down methods for count series}
@@ -529,7 +530,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
       \begin{tabular}{lcccc}
       \toprule
       \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\ 
-      & Base & DBU & DTD & DFR \\\midrule
+      & Base & Bottom-Up & Top-Down & DFR \\\midrule
       $Y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
       $Y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
       $Y_3$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
@@ -612,7 +613,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \begin{tabular}{lcccc}
      \toprule
      \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
-      & Base & DBU & DTD & SDFR \\\midrule
+      & Base & Bottom-Up & Top-Down & SDFR \\\midrule
      $Y_1$ & \textbf{408.2} & \textbf{408.2} & 494.1 & 409.9 \\
      $Y_2$ & \textbf{414.3} & \textbf{414.3} & 496.1 & 415.8\\
      $Y_3$ & \textbf{420.9} & \textbf{420.9} & 498.6 & 421.0\\
@@ -636,46 +637,49 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \section{Empirical study}
      \label{sec:application}
-     In this section, we apply the proposed DFR algorithm to two publicly available real-world datasets.
-     Section~\ref{sec:application_crime} focuses on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series based on mortality thresholds. 
+     In this section, we utilize the proposed DFR algorithm to analyse two publicly available real-world datasets.
+     Section~\ref{sec:application_crime} concentrates on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. 
+     Meanwhile, Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series based on mortality thresholds. 
      
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
      
-     Forecasting crime numbers in a specific area is crucial for public health and police resource management.
-     Crime numbers become smaller, more sparse and more challenging to forecast when the area becomes small.
-     In this subsection, we apply our DFR to forecast offence crime case numbers of census tracts in Washington, D.C. 
-     The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}} and contains all crimes reported from 2014 to 2022 in Washington D.C. It is aggregated into weekly time series according to location and crime type. 
-     Considering the domain of the number of crimes, we perform experiments on all time series whose location type is census tract and crime type is offence.
-     The resulting dataset includes $231$ weekly time series; each corresponding to the number of offence crimes in one census tract.
+     Forecasting crime numbers in a specific area is vital for managing public health and police resource.
+     However, forecasting becomes more challenging when dealing with smaller areas where crime numbers are sparse.
+     In this subsection, we apply our DFR algorithm to predict the number of offence crimes in census tracts located in Washington, D.C. 
+     The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}.} contains all reported crimes from 2014 to 2022 in Washington D.C., which have been aggregated into weekly time series according to location and crime type. 
+     Considering the domain of the number of crimes, we perform experiments on all time series whose location type is a census tract and crime type is offence.
+     As a result, we obtain $231$ weekly time series; each representing the number of offence crimes committed within one census tract.
      
-     The crime number time series is potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). 
-     We aim to obtain coherent probabilistic crime forecasts for the next four weeks by constructing a two-level temporal hierarchy for each census tract, i.e., weekly and four-weekly. 
-     These two levels are referred to as the bottom and total levels in this section. 
-     We also constrain the maximum of the domain for each census tract, if the maximum observation is $1$, then the domain is set to $[0, 1]$. Otherwise, the domain is set to $[0, 1, 2]$. The observation bigger than $2$ is set to $2$. 
-     We notice less than $1\%$ of observations are greater than $2$ so that the modification thus has little impact on the final results.
+     The crime numbers time series are potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). 
+     Our objective is to generate coherent probabilistic forecasts for the next four weeks.
+     To achieve this, we construct two-level temporal hierarchies that consists of weekly(bottom level) and four-weekly(total level) frequencies and develop an individual DFR model for each time series.
+     Additionally, we restrict the maximum value (i.e., domain of bottom level in the \textbf{DFR} model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$. 
+     Otherwise, it is set to $[0, 1, 2]$. 
+     Any observation exceeding $2$ is truncated at $2$. 
+     It should be noted that less than one percent of observations surpass $2$, so these adjustments have a negligible impact on our final results.
      
      We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model. 
-     Beginning with a time series of $53$ weeks, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4). 
-     Then we increase the training data by one observation and produce new probabilistic forecasts. 
-     For each step, the probabilistic forecasts for the total level are obtained by first aggregating the weekly series into four-weekly time series and then producing one-step-ahead forecasts using INGARCH(2, 2).
-     The windows whose forecast horizon starts before $2022$ are used as training samples remaining windows are used to evaluate the performance.
+     Initially, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4) from a time series of $53$ weeks. 
+     Subsequently, we augment the training data by one week and produce new probabilistic forecasts. 
+     At each step, to obtain the probabilistic forecasts for the total leve, we first aggregate the weekly series into four-weekly time series and then use INGARCH(2, 2) to produce one-step-ahead forecasts.
+     We only use windows with forecast horizons starting before $2022$ as training samples; all remaining windows are used for performance evaluation purposes.
+     We repeat the above procedure for every census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ test samples per census tract). 
+     These reconciled forecasts are then used to evaluate forecasting performance. 
      
-     The procedure above is repeated for each census tract. 
-     Finally, we obtain $3696$ ($231$ census tracts $\times$ $16$ test samples for each census tract) samples and their reconciled forecasts to evaluate the performance. 
-     The mean and median of the Brier Score for the total level, bottom level and the hierarchy are shown in Table~\ref{tab:crime_bs}. 
+     We calculate Brier Scores for each sample at the total level, the bottom level and entire hierarchy. 
+     Table~\ref{tab:crime_bs} summarises the mean and median negative Brier Score of the $3696$ samples.
      We also perform the MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
-     
      
      \begin{table}[h]
        \centering
-       \caption{\label{tab:crime_bs} Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
+       \caption{\label{tab:crime_bs}Summarised negative Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
        \begin{tabular}{ccccccccc}
        \toprule
        &\multicolumn{4}{c}{Mean} 
        & \multicolumn{4}{c}{Median} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-9}
-       Series & Base & Bottom-Up & Top-Down & DFR &  Base & Bottom-Up & Top-Down & DFR \\\midrule
-       Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.65 & \textbf{64.75} \\
+        & Base & Bottom-Up & Top-Down & DFR &  Base & Bottom-Up & Top-Down & DFR \\\midrule
+       Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.64 & \textbf{64.75} \\
        Bottom & 34.41 & 34.41 & 34.80 & \textbf{34.30} & 13.73 & 13.73 & 13.28 & \textbf{10.82}\\
        Hierarchy & 73.87 & \textbf{67.87} & 68.33 & 67.97 & 97.66 & 92.70 & 93.08 & \textbf{92.42}\\
        \bottomrule
@@ -688,9 +692,14 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \includegraphics[width=\textwidth]{figures/dc_crime_bs.pdf}
      \end{figure}
      
-     While on average bottom-up performs slightly better than DFR in both the total level and the whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
-     The MCB test plots prove the statistical difference between DFR and other methods. 
-     The results imply that DFR outperforms other approaches for more hts.
+     
+     In Table~\ref{tab:crime_bs}, the left panel shows that DFR algorithm outperforms base forecasts for all levels in terms of mean Brier Scores. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy.
+     The discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. 
+     Although on average, the right panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
+     The most significant improvement occurs at the bottom level.
+     The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods.
+     Furthermore, results from testc conducted on all bottom-level series support the conclusion drawn from the right panel of Table~\ref{tab:crime_bs}.
+     These findings imply that DFR is more effective than other approaches for more HTSs. 
      
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
      \label{sec:application_mortality}
@@ -738,7 +747,23 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \bottomrule
       \end{tabular}
      \end{table}
+
+     \section{Discussion}
+
+     // the importance of distributional forecasts in operational research.
+     // the change of focus.
+     // the mean is always coherent. we can get quantile forecasts, median, from 
+
+     // non-linear reconciliation, cross-learning training, classification problem.
+
+     // base forecasts are simple, but need to be good, Bayes based methods, some literature.
+
+     // more real application, the applicaiton in the first application is not a natural domain.
+
+     // code
      
+     // temporal simulation does not represent the same node.
+
      \section{Conclusion}
      \label{sec:conclusion}
      
