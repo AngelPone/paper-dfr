@@ -703,32 +703,39 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
      \label{sec:application_mortality}
-     Population mortality is of great concern. 
-     Practitioners care about risks arising from excessive mortality above a certain threshold. 
-     The classic example is mortality catastrophe bonds such as Vita Capital mortality catastrophe bonds, which cover the excess mortality risks in several areas.
-     When the mortality in one or more areas exceeds certain thresholds, the issuer may have the right not to pay the principals of investors.
-     In such circumstances, joint probabilistic forecasts are important because they offer a complete perspective of the potential outcomes in future.
-     They are even more crucial than independently generated base forecasts when the mortalities of target areas are dependent.
+     The high mortality rate among the population is a major concern for practitioners. 
+     They are particularly worried about risks that arise when mortality exceeds a certain threshold. 
+     One example of this is the Vita Capital mortality catastrophe bonds, which provide coverage for excess mortality risks in various areas. 
+     If the mortality rate in one or more areas surpasses specific thresholds, investors may not receive their principal payments from the issuer.
+     In these situations, joint probabilistic forecasts become essential as they offer a comprehensive view of potential future outcomes. 
+     These forecasts are especially critical when there is dependence between mortalities in target areas.
      
-     We conduct this experiment using the yearly mortality data grouped by age and collected from 1921 to 2020 in Australia.
-     More specifically, we focus on the mortality of elder groups, which are $[55, 64]$, $[65, 74]$, $[75, 84]$, $[85, )$. 
+     We conduct an experiment using yearly mortality data collected from 1921 to 2020 in Australia.
+     The data is grouped by age, and we focus on the mortality of elder groups: $[55, 64]$, $[65, 74]$, $[75, 84]$, $[85, )$. 
      We construct a two-level hierarchy, where the bottom level includes 
-     $4$ binary series whose observations indicate whether the mortality of the corresponding age group in a specific year exceeds the given threshold of this age group in this year.
-     The total series is obtained by aggregating the bottom-level series, indicating the number of groups that exceed thresholds.
+     $4$ binary series that indicates whether the mortality of each corresponding age group exceeds a given threshold for that year.
+     We then aggregate these bottom-level series to obtain a total series indicating how many groups exceed their thresholds.
      
-     There are no ready-to-use thresholds for specific age groups and years. 
-     Therefore, we establish a custom rule for illustrative purposes in this experiment. 
-     Assuming the mortality is linearly decreased in a short period (e.g., ten years) due to the development of technology and medical conditions, we determine the `expected' threshold for a particular age group in a specific year by
+     There are no ready-to-use thresholds available for specific age groups and years. 
+     To address this, we establish a custom rule for illustrative purposes in this experiment. 
+     We assume that mortality decreases linearly over a short period (e.g., ten years) due to the advancements in technology, economy, medical conditions and other factors. 
+     Using this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
      \[
        \text{threshold}_t = 1.005 \times (m_t - (m_{t-11} - m_{t-1})/10),
      \]
-     where $m_t$ is the mortality at year $t$, and $1.005$ is a manually specified excess death coefficient.
-     The mortality series is transformed into binary series according to the `expected' threshold. 
+     where $m_t$ represents the mortality at year $t$, and $1.005$ is an excess death coefficient manually specified by us.
+     We then transform the mortality series into binary series by comparing actual mortality rates to the ``expected'' thresholds.
      
      In this experiment, we also employ the rolling origin strategy with a starting window size of $20$, resulting in $69$ samples.
-     The first $59$ of them are used to train the DFR model, and others are used to test forecast performances.
-     The base forecasts of all series are generated using INGARCH(3, 5) models. Table~\ref{tab:mortality_age} summarizes the average Brier score over the $10$ testing samples. 
-     DFR approach outperforms other approaches in most single series and the hierarchy. 
+     The first $59$ of them are utilised to train the DFR model, while the remaining samples are used to test forecast performances.
+     INGARCH(3, 5) models generated base forecasts for all series. 
+     
+     Brier Scores are evaluated for each age group, the total series and the entrie hierarchy.
+     Table~\ref{tab:mortality_age} presents an overview of the average negative Brier Scores across the ten testing samples.
+     The DFR approach yields the most accurate joint forecasts for the hierarchy and outperforms other methods for most single series as well.
+     It is disappointing to note that the performance of the oldest group (i.e. $[85, )$) decreases, given that this group is typically a priority in practice.
+     However, this phenomenon also occurs with reconciliation frameworks in continuous cases. 
+     Although such frameworks generally improve forecast accuracy across all series, some individual series may experience decreased accuracy (\citealp{zhangOptimalReconciliationImmutable2022a}).
      
      
      \begin{table}
@@ -739,10 +746,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
        & Base & Bottom-Up & Top-Down & DFR \\\midrule
        Total & 638.0 & 626.7 & 638.0 & \textbf{590.8} \\
-       55-65 & \textbf{174.5} & \textbf{174.5} & 203.3 & 175.1 \\
-       65-74 & 138.3 & 138.3 & 142.9 & \textbf{128.9}\\
-       75-84 & 205.5 & 205.5 & 324.4 & \textbf{160.4}\\
-       85+ & 495.3 & 495.3 & \textbf{444.2} & 521.6\\
+       $[55, 64]$ & \textbf{174.5} & \textbf{174.5} & 203.3 & 175.1 \\
+       $[65, 74]$ & 138.3 & 138.3 & 142.9 & \textbf{128.9}\\
+       $[75, 84]$ & 205.5 & 205.5 & 324.4 & \textbf{160.4}\\
+       $[85, )$ & 495.3 & 495.3 & \textbf{444.2} & 521.6\\
        Hierarchy & 882.4 & 697.0 & 736.7 & \textbf{675.2} \\
        \bottomrule
       \end{tabular}
