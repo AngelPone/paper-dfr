@@ -757,51 +757,58 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \section{Discussion}
 
-     // the importance of distributional forecasts in operational research.
-     // the change of focus.
-     // the mean is always coherent. we can get quantile forecasts, median, from 
+    
 
-     // non-linear reconciliation, cross-learning training, classification problem.
+     Distributional forecasts are becoming increasingly important in both academic and industry settings for operational research. In the context of hierarchical forecasting, \cite{kolassaWeWantCoherent2022} suggests shifting focus from coherent point forecasts to coherent probabilistic forecasts. 
+     The proposed discrete reconciliation framework can generate coherent distributional forecasts for discrete-valued HTSs.  
+     Summary statistics such as median, mean, and quantiles can be derived from the marginal distribution obtained from the distributional forecasts. 
+     It is worth noting that mean point forecasts obtained through this way are also coherent in terms of aggregation.
+     Moreover, our methods offer precise distribution instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
-     // base forecasts are simple, but need to be good, Bayes based methods, some literature.
+     This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix. 
+     From a machine learning perspective, this procedure can be viewed as a classification problem with $r$ categories and a $q$-dimensional input. Machine learning models such as specifically designed neural networks can be utilized to solve this problem. 
+     In the scenario where thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. 
 
-     // more real application, the applicaiton in the first application is not a natural domain.
+     One area for improvement of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
+     While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty. 
+     We suggest applying the proposed algorithm to a small hierarchy with finite domains. 
+     When applying to large hierarchies, the bottom-level series should be low-count, such as binary.
 
-     // code
+     In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal. 
+     We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately. 
+     Secondly, we have not used state-of-the-art forecasting methods for such time series as proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weiEmpiricalLikelihoodRatio2021}. 
+     Thirdly, the parameters of the employed models are not carefully selected. 
+     To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and parameters.
+
+     This paper presents two simulation experiments and two empirical studies.
+     While the experiment results show a significant improvement in accuracy, the applications are not entirely natural. 
+     For instance, in the crime forecasting experiment where extreme values are usually crucial, we truncate the infinite domain of crime numbers. 
+     In the mortality experiment, binary series are created based on custom thresholds.
+     Future research could apply our proposed frameworks to real scenarios where time series have finite domains and deterministic constraints exist between them.  
+     It is important to note that  these constraints may not only be based on aggregation, but can also be other deterministic function such as logical operators.
+
+
      
-     // temporal simulation does not represent the same node.
 
      \section{Conclusion}
      \label{sec:conclusion}
      
      This paper develops a novel forecast reconciliation framework for count hierarchical time series. 
-     The framework is based on the idea of assigning probability from incoherent points to coherent points in analogue to the mapping approach for continuous time series.
-     We further propose a linear reconciliation algorithm to minimize the penalized brier score of reconciled probabilistic forecasts.
-     Considering the exponential growth of the domain, we also propose a stepwise discrete reconciliation algorithm by decomposing a large hierarchy into multiple small hierarchies.
+     The framework involves assigning probabilities from incoherent points to coherent points, similar to the mapping approach used for continuous time series.
+     We further propose a linear reconciliation algorithm that minimises the penalized brier score of reconciled probabilistic forecasts.
+     To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
+     We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
      
-     Our DFR and SDFR algorithms can produce coherent probabilistic forecasts and improve forecast accuracy. 
-     To illustrate this, we apply DFR and SDFR in simulation experiments for cross-sectional and temporal hierarchies, respectively.
-     We find that our algorithms considerably enhance the forecast performance compared with top-down and bottom-up approaches, which are extensions of classical top-down and bottom-up approaches for point forecasts.
-     We also apply the DFR algorithm to forecast offence crime numbers in Washington D.C. and to forecast mortality threshold exceedance of elder groups in Australia. 
+     Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy. 
+     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and mortality threshold exceedance of elder groups in Australia with promising results.
      The results indicate the potential of the proposed algorithms to be applied in reality.
      
-     One of the critical elements of the strong results shown in simulation and empirical study is the utilization of forecast combinations.
+     One key factor contributing to our strong results is  the utilization of forecast combinations.
      Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
      Also of importance is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results. 
      
-     One area for improvement of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
-     While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty. 
-     We suggest applying the proposed algorithm to a small hierarchy with finite domains. 
-     When applying to large hierarchies, the bottom-level series should be low-count, such as binary.
      
-     In this paper, we mainly discuss the application of our approaches in forecasting count time series. 
-     However, the discrete nature allows it to be applied to any structure with determined constraints and nodes being discrete variables.
-     In other words, they can be applied whenever discrete incoherent and coherent domain exist. 
-     
-     Our work is an explanatory attempt at discrete hierarchical time series forecasting. 
-     Future work will focus more on discrete cases associated with real-world management problems.
-     Count hierarchical time series forecasting is still an opening issue,
-     and we advocate more research attention on this area.
+     While this work provides an explanatory attempt at discrete hierarchical time series forecasting, future research should focus more on real-world management problems associated with discrete cases. Count hierarchical time series forecasting remains an open issue that requires further attention from researchers in this area.
 
 
 \newpage
