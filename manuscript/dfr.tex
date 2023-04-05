@@ -57,7 +57,7 @@
 
 \section{Introduction}
 
-Hierarchical time series(HTS) is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
+Hierarchical time series (HTS) is of great concern in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
 In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
@@ -67,10 +67,10 @@ Count hierarchical time series are naturally constructed when decisions in multi
 However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued ones. 
 This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS. 
 Moreover, the approach can be applied to any discrete-valued multivariate random variable that is imposed some deterministic constraints.  
-In this paper, we use low-count HTSs as illustrative examples due to their popularity.
 
-While point and interval forecasts are most widely applied in practice, it is important to consider the probability distribution that describes the full uncertainty of future events for optimal decision making (\citealp{gneitingProbabilisticForecasting2014}).
-With regard to forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
+
+While point and interval forecasts are most widely applied in practice, it is important to consider the probability distribution that describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
+Concerning forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
 Pmfs provide probabilities for each point in their discrete support,
 which is particularly crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
 By utilizing joint pmfs, we develop the definitions of coherency and incoherency for count hierarchical forecasts.
@@ -84,7 +84,7 @@ An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011
 first generating independent \textit{base} forecasts for each time series, 
 which are then ``optimally'' reconciled to produce coherent forecasts.
 
-The reconciliation framework was initially designed to reconcile point forecasts, but it has since been extended to probabilistic forecasting. 
+The reconciliation framework was initially designed to reconcile point forecasts but has since been extended to probabilistic forecasting. 
 Earlier approaches created coherent probabilistic forecasts by reconciling samples drawn from base forecasts, resulting in a coherent empirical distribution.
 \cite{jeonProbabilisticForecastReconciliation2019} propose a method that draws samples from the independently modelled predictive distributions and constructs base forecasts using stacking, ranking, or permutation techniques before reconciling them with the reconciliation matrix obtained through cross-validation.
 In contrast, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach, 
@@ -93,7 +93,7 @@ Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a
 They also propose an efficient algorithm to compute reconciliation weights by optimising proper scoring rules. 
 
 The forecast reconciliation framework has been proven to enhance forecast accuracy in various scenarios. 
-Forecast combination is one of the critical elements contributing to its superior performance(\citealp{hollymanUnderstandingForecastReconciliation2021}). 
+Forecast combination is one of the critical elements contributing to its superior performance (\citealp{hollymanUnderstandingForecastReconciliation2021}). 
 Every reconciled forecast is a weighted combination of all base forecasts that
 can incorporate external information using arbitrary forecasting methods.
 More importantly, the reconciliation process avoids the requirement for complex models that  simultaneously capture hierarchical constraints, external information, and serial dependence.
@@ -104,7 +104,7 @@ Non-integer forecasts generate additional costs from an operational research per
 
 To the best of our knowledge, existing literature on count HTS forecasting is limited and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. 
-The reconciled forecasts are derived by generalising Bayes’ rule and Monte Carlo sampling.
+The reconciled forecasts are derived by generalizing Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
 Although this innovative approach yields coherent probabilistic forecasts, 
 the conditional manner employed fails to restore the dependence structure within hierarchical time series.
@@ -122,8 +122,8 @@ Lastly, we conduct two empirical experiments using real data. The first experime
 The remainder of this paper is organised as follows. 
 Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
 Section \ref{sec:method} details the proposed discrete reconciliation framework based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section. 
-Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and the two empirical experiments are conducted in Section \ref{sec:application}. 
-Finally, Section \ref{sec:conclusion} concludes with some discussion and thoughts on future research.
+Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and two empirical experiments are conducted in Section \ref{sec:application}. 
+Finally, Section \ref{sec:conclusion} concludes with some discussions and thoughts on future research.
 
 
 
@@ -135,20 +135,19 @@ Finally, Section \ref{sec:conclusion} concludes with some discussion and thought
 \subsection{Preliminaries}
 Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
 We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic functions of the basis variables. Us
-Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
-Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$.
+The determined variables are some deterministic functions of the basis variables. As Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways. 
+Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $i = 1, 2, \dots, n$.
 
-\subsection{Incoherent and coherent domain}
+\subsection{Incoherent and coherent domain}\label{sec:domains}
 The \textit{incoherent domain} of $\bY$ is given by
 \[
-\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\}\,,
+\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\},
 \] 
 where products are Cartesian products taken over sets. 
-The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$ which will be denoted by $q$. 
-The incoherent domain is analogous to $\mathbb{R}^n$ is the continuous case.
+The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$, which is denoted by $q$. 
+The incoherent domain is analogous to $\mathbb{R}^n$ in the continuous case.
   
-The \textit{coherent domain} of $\bY$ is given by a subset of $\tilde{\mathcal D}(\bY)$ for which aggregation constraints hold.  
+The \textit{coherent domain} of $\bY$, denoted as $\tilde{\mathcal D}(\bY)$, is given by a subset of $\hat{\mathcal D}(\bY)$, for which aggregation constraints hold.  
 It has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which we denote as $r$. 
 The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
   
@@ -167,7 +166,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   &\left.(0,0,1)',\mathbf{(0,1,1)'},\mathbf{(1,0,1)'},(1,1,1)',\right.\\
   &\left.(0,0,2)',(0,1,2)',(1,0,2)',\mathbf{(1,1,2)'}\right\}\,,
   \end{align*}
-  and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e
+  and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in bold above, i.e.,
   \[
       \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
   \]
@@ -176,16 +175,16 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
   \label{sec:coherent_df}
 
-  Assuming a probabilistic $h$-step ahead forecast is made for $\bY$ at time $t$, the resulting probability vector will be denoted as $\hat{\bpi}^{t+h|t}$ where each element corresponds to the probability of one discrete point in the incoherent domain. 
+  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we denote the resulting probability vector as $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the incoherent domain. 
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;  
   second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$ which maps each index $j$ to a configuration of values that $\bY$ can take. 
-  Using the small example in the previous section: $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
   
-  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat h$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e. probability is assigned to some points for which the aggregation constraints do not hold. 
+  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat h$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., probability is assigned to some points for which the aggregation constraints do not hold. 
   This situation can occur easily in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence. 
   Such forecasts will generally be incoherent. 
-  For instance, if we suppose $Pr(Y_1=0)=0.2$,$Pr(Y_2=1)=0.1$,$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$, which assigns non-zero probability to an incoherent point.
+  For instance, if we suppose $Pr(Y_1=0)=0.2$,~$Pr(Y_2=1)=0.1$,~$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05$, which assigns non-zero probability to an incoherent point.
   
   On the other hand, a coherent probabilistic forecast can be defined using an $r$-vector $\tilde{\bpi}^{t+h|t}$ where each element corresponds to the probability of one point in the coherent domain. 
   The notation $\tilde{\pi}_k^{t+h|t}$ represents the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element of this vector that corresponds to the forecast probability that $\bY$ takes on value $(y_1,y_2,\dots,y_n)'$ which must be coherent. 
@@ -195,7 +194,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
   \subsubsection*{\textbf{Example}.}
   
-  Consider the earlier example, with binary $y_1$ and $y_2$ and $y_1+y_2=y_3$. The incoherent probabilistic forecast is given by
+  Consider the earlier example in Section~\ref{sec:domains}, with binary $y_1$ and $y_2$ and $y_1+y_2=y_3$. The incoherent probabilistic forecast is given by
   \[
     \hat{\bpi}^{t+h|t}= \left[       
       \hat{\pi}^{t+h|t}_{(000)},
@@ -209,10 +208,10 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \hat{\pi}^{t+h|t}_{(002)},
        \hat{\pi}^{t+h|t}_{(012)},
        \hat{\pi}^{t+h|t}_{(102)},
-       \hat{\pi}^{t+h|t}_{(112)},
-       \right]'
+       \hat{\pi}^{t+h|t}_{(112)}
+       \right]',
   \]
-  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{h}$ is defined so that $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, and $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{h}$ is defined so that $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
   
   The coherent probabilistic forecast is given by
   \[
@@ -220,9 +219,9 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \tilde{\pi}^{t+h|t}_{(000)},
   \tilde{\pi}^{t+h|t}_{(011)},
   \tilde{\pi}^{t+h|t}_{(101)},
-  \tilde{\pi}^{t+h|t}_{(112)},
-  \right]'\]
-  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, although this does not affect the proposed algorithms.
+  \tilde{\pi}^{t+h|t}_{(112)}
+  \right]',\]
+  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, although this does not affect the proposed algorithms.
 
 \section{Method}
 \label{sec:method}
@@ -251,8 +250,8 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     for all $k$. 
     Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
     \begin{align*}
-    &0\leq a_{kj} \leq 1 \,\forall k, j\\ 
-    &\sum\limits_{k=1}^r a_{kj} = 1 \,\forall j 
+    &0\leq a_{kj} \leq 1 ,\forall k, j.\\ 
+    &\sum\limits_{k=1}^r a_{kj} = 1 ,\forall j. 
     \end{align*}
     The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
     Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points  within the coherent domain. 
