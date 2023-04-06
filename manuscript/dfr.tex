@@ -181,19 +181,19 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we denote the resulting probability vector as $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the incoherent domain. 
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;  
-  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two denotations are linked by a function $\hat{h}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take. 
-  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two denotations are linked by a function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take. 
+  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc.
   
-  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat h$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{h}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold. 
+  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat{\mathcal{H}}$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold. 
   This situation usually occurs in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence. 
   Such forecasts will generally be incoherent. 
   For instance, if we suppose $Pr(Y_1=0)=0.2$,~$Pr(Y_2=1)=0.1$,~$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05=0.001$, which assigns non-zero probability to an incoherent point.
   
   On the other hand, a coherent probabilistic forecast can be defined using an $r$-vector $\tilde{\bpi}^{t+h|t}$ where each element corresponds to the probability of one point in the coherent domain. 
   The notation $\tilde{\pi}_k^{t+h|t}$ represents the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element of this vector that corresponds to the forecast probability that $\bY$ takes on a coherent value $(y_1,y_2,\dots,y_n)'$. 
-  The analogue to $\hat{h}(j)$ is a function  $\tilde{h}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$, which maps each index $k$ to a coherent configuration of values that $\bY$ can take. 
-  Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc.
-  Combining both probability vector $\tilde{\bpi}^{t+h|t}$ and link function $\tilde{h}$ constructs a coherent predictive distribution.
+  The analogue to $\hat{\mathcal{H}}(j)$ is a function  $\tilde{\mathcal{H}}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$, which maps each index $k$ to a coherent configuration of values that $\bY$ can take. 
+  Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc.
+  Combining both probability vector $\tilde{\bpi}^{t+h|t}$ and link function $\tilde{\mathcal{H}}$ constructs a coherent predictive distribution.
   
   \subsubsection*{\textbf{Example}.}
   
@@ -214,7 +214,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \hat{\pi}^{t+h|t}_{(112)}
        \right]',
   \]
-  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, and $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{h}$ is defined so that $\hat{h}(1)=(0,0,0)'$, $\hat{h}(2)=(0,1,0)'$, etc.
+  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, and $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{\mathcal{H}}$ is defined so that $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc.
   
   The coherent probabilistic forecast is given by
   \[
@@ -224,7 +224,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \tilde{\pi}^{t+h|t}_{(101)},
   \tilde{\pi}^{t+h|t}_{(112)}
   \right]',\]
-  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{h}$ is defined so that $\tilde{h}(1)=(0,0,0)'$, $\tilde{h}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{h}$ and $\tilde{h}$ are not unique, which does not affect the proposed algorithms.
+  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique, which does not affect the proposed algorithms.
 
 \section{Method}
 \label{sec:method}
@@ -251,7 +251,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
     for all $k$. 
-    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
+    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{\mathcal{H}}(j)$ to the coherent point $\tilde{\mathcal{H}}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
     \begin{align*}
     &0\leq a_{kj} \leq 1 ,\forall k, j.\\ 
     &\sum\limits_{k=1}^r a_{kj} = 1 ,\forall j. 
@@ -271,12 +271,12 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \[
       \text{BS}(\bpi, \mathbf{z}) = -\sum_{i=1}^{m}(z_i - \pi_i)^2,
     \] where $\bpi$, $\mathbf{z}$ and $i$ are defined similarly as in Section~\ref{sec:coherent_df}. 
-    $i \in \{1,\dots,m\}$ is the index that can be mapped into the potential outcomes of an event through link function $h$.
-    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if ${h}(k) = \mathbf{y}$ and otherwise $0$.  
+    $i \in \{1,\dots,m\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$.
+    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.  
     Brier score is a strictly proper scoring rule that is easy to implement. 
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
 
-    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{h}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. 
+    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$. 
     The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ rolling windows as
     \begin{align*}
     \textrm{Av. BS}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
@@ -290,7 +290,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to  a ``nearest'' point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define a ``cost'' of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
-    c_{kj}=||\hat{h}(j)-\tilde{h}(k)||_1\,,
+    c_{kj}=||\hat{\mathcal{H}}(j)-\tilde{\mathcal{H}}(k)||_1\,,
     \]
     where $||.||_1$ represents L1 norm. For example, in the three-variable scenario, the cost between $(0, 1, 0)'$ and $(0, 0, 0)$' is
     \[
@@ -325,7 +325,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
       c_{kj}>\underset{j}{\min}\,c_{kj}\,,
     \]  
     which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$. 
-    Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{h}(k)=\tilde{h}(j)$. 
+    Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$. 
     In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
 
     This movement restriction is similar to using moderate penalty strength on the previous penalized problems.
@@ -721,9 +721,9 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We assume that mortality decreases linearly over a short period (e.g., ten years) due to the advancements in technology, economy, medical conditions and other factors. 
      Using this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
      \[
-       \text{threshold}_t = 1.005 \times (m_t - (m_{t-11} - m_{t-1})/10),
+       \text{threshold}_t = 1.005 \times (d_t - (d_{t-11} - d_{t-1})/10),
      \]
-     where $m_t$ represents the mortality at year $t$, and $1.005$ is an excess death coefficient manually specified by us.
+     where $d_t$ represents the observed mortality at year $t$, and $1.005$ is an excess death coefficient manually specified by us.
      We then transform the mortality series into binary series by comparing actual mortality rates to the ``expected'' thresholds.
      
      In this experiment, we also employ the rolling origin strategy with a starting window size of $20$, resulting in $69$ samples.
