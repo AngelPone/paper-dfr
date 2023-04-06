@@ -489,7 +489,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     \]
     $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
     This ensures the stability of the generated time series.
-    The error term $\boldsymbol{\eta}$ implies positive correlation between the two series and ensures reasonable range of the latent state.
+    The error term $\boldsymbol{\eta}$ implies a positive correlation between the two series and ensures a reasonable range of the latent state.
     Observations are transformed from the state series using a sign function:
     \[
         Y_i = \mathbb{I}(\sigma(s_i) > 0.5), i\in\{1, 2\},\quad \sigma(s) = \frac{\exp(s)}{1+\exp(s)}.
@@ -497,26 +497,26 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
     We produce and evaluate one-step-ahead forecasts in this experiment.
     For each binary series, we generate $480$ observations; the rolling origin strategy with $150$ observations used to train the base forecasting models is employed, yielding $330$ samples.
-    The first $300$ samples are used to train the \textbf{DFR} model, while remaining $30$ samples are used to test performance.
+    The first $300$ samples are used to train the \textbf{DFR} model, while the remaining $30$ samples are used to test performance.
     
     The base probabilistic forecasts are obtained independently using the binomial AR(1) model(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
-    We evaluate the performance based on average brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ testing samples.
+    We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ testing samples.
      
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times. 
-    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discret top-down method.
-    The best average performance out of the four approaches is indicated by bold text in each row.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
+    The best average performance of the four approaches is indicated by bold text in each row.
     DFR performs the best for both the single series and the hierarchy. 
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     However, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of to its incoherency nature.
+    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
     
     We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy between these approaches. 
-    This testing approach computes the mean ranks of the four approaches across whole simulation set without imposing any distributional assumptions.
+    This testing approach computes the mean ranks of the four approaches across the whole simulation set without imposing any distributional assumptions.
     Non-overlapping grey intervals indicate statistically significant differences between methods.
     As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs more significantly than all other approaches.
-    Please note that MCB tests for bottom series are conducted on all samples at the bottom level.
+    Please note that MCB tests for the bottom series are conducted on all samples at the bottom level.
   
     \begin{figure}
       \centering
@@ -580,29 +580,29 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      For each daily time series, $1003$ observations are generated, and the initial $100$ observations are discarded as warm-ups. Analogous to Section~\ref{sec:cross-sectional_simu}, we utilise the rolling origin strategy with a fixed look-back window size of $350$, yielding $547$ windows.
      For each rolling timestamp, the most recent $350$ observations are used as input to generate probabilistic forecasts for the following seven days. 
-     The initial $526$ samples are used to train the reconciliation model, and the final $21$ samples were are to assess the forecasting performance.
+     The initial $526$ samples are used to train the reconciliation model, and the final $21$ samples are to assess the forecasting performance.
      
      Base forecasts of daily time series are generated utilising an autoregressive logistic model. 
      Specifically, for each origin, we construct an individual logistic model that employs the previous six observations and weekly dummy variables as regressors to predict the subsequent observation. 
      To generate forecasts for the final seven days, at each step, we use the predicted value from the previous step as a regressor to predict the next step recursively. 
-     We implement the logistic regression model with the \code{glm} function in \proglang{R} programming language.
+     We implement the logistic regression model with the \code{glm} function in \proglang{R}.
      
      Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}). 
      Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model utilises past observations and conditional mean to fit the conditional mean of current observation.
-     For the sake of simplicity, we construct $\textrm{INGARCH}(3, 3)$ models for all weekly time series, which takes the conditional mean and observations from the most recent three steps as regressors. 
+     For the sake of simplicity, we construct $\textrm{INGARCH}(3, 3)$ models for all weekly time series, which take the conditional mean and observations from the most recent three steps as regressors. 
      We implement the $\textrm{INGARCH}$ model using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
      Given the predicted mean of Poisson distribution within the forecast horizon, we add the probability of the series taking values greater than its maximum up to the probability of taking its maximum value.
      The base forecasts are then reconciled using the \textrm{SDFR} algorithm.
 
      
      \subsubsection{Simulation results}
-     We repeated the simulation pr ocess $1000$ times.
-     Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of the stepwise reconciliation model, in comparison to base forecasts, discree bottom-up and discrete top-down method.
+     We repeated the simulation process $1000$ times.
+     Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of the stepwise reconciliation model in comparison to base forecasts, discrete bottom-up and discrete top-down methods.
      $Y_1,\dots,Y_7$ represent the daily series at the bottom level, while $Y_8$ denotes the weekly series at the total level.
      Although SDFR does not enhance forecast accuracies for all series, the results
      demonstrate a compromise between discrete top-down and discrete bottom-up methods. 
      One intriguing observation is that the forecasting accuracy improves for $Y_4$ through $Y_7$. 
-     This could be attributed to the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of previous series must be adjusted multiple times to construct the final joint distribution, thereby introducing uncertainty.
+     This could be attributed to the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of the previous series must be adjusted multiple times to construct the final joint distribution, thereby introducing uncertainty.
      Another explanation could be the effective utilisation of forecast combination, where the bottom-level series corresponding to the end of the week incorporate more forecasts than preceding ones.
      Surprisingly, the forecast accuracy of the total series does not exhibit significant deviation from base forecasts,  even though it is adjusted most frequently, showcasing the robustness of \textbf{SDFR}.
      It is crucial to note that the results could vary if the SDFR algorithm is implemented in a different step order.
@@ -644,8 +644,8 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
      
-     Forecasting crime numbers in a specific area is vital for managing public health and police resource.
-     However, forecasting becomes more challenging when dealing with smaller areas where crime numbers are sparse.
+     Forecasting crime numbers in a specific area is vital for managing public health and police resources.
+     However, forecasting becomes more challenging when dealing with smaller areas with sparse crime numbers.
      In this subsection, we apply our DFR algorithm to predict the number of offence crimes in census tracts located in Washington, D.C. 
      The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}.} contains all reported crimes from 2014 to 2022 in Washington D.C., which have been aggregated into weekly time series according to location and crime type. 
      Considering the domain of the number of crimes, we perform experiments on all time series whose location type is a census tract and crime type is offence.
@@ -653,8 +653,8 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      The crime numbers time series are potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). 
      Our objective is to generate coherent probabilistic forecasts for the next four weeks.
-     To achieve this, we construct two-level temporal hierarchies that consists of weekly(bottom level) and four-weekly(total level) frequencies and develop an individual DFR model for each time series.
-     Additionally, we restrict the maximum value (i.e., domain of bottom level in the \textbf{DFR} model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$. 
+     To achieve this, we construct two-level temporal hierarchies that consist of weekly(bottom level) and four-weekly(total level) frequencies and develop an individual DFR model for each time series.
+     Additionally, we restrict the maximum value (i.e., the domain of bottom level in the \textbf{DFR} model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$. 
      Otherwise, it is set to $[0, 1, 2]$. 
      Any observation exceeding $2$ is truncated at $2$. 
      It should be noted that less than one percent of observations surpass $2$, so these adjustments have a negligible impact on our final results.
@@ -662,12 +662,12 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model. 
      Initially, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4) from a time series of $53$ weeks. 
      Subsequently, we augment the training data by one week and produce new probabilistic forecasts. 
-     At each step, to obtain the probabilistic forecasts for the total leve, we first aggregate the weekly series into four-weekly time series and then use INGARCH(2, 2) to produce one-step-ahead forecasts.
+     At each step, to obtain the probabilistic forecasts for the total level, we first aggregate the weekly series into four-weekly time series and then use INGARCH(2, 2) to produce one-step-ahead forecasts.
      We only use windows with forecast horizons starting before $2022$ as training samples; all remaining windows are used for performance evaluation purposes.
      We repeat the above procedure for every census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ test samples per census tract). 
      These reconciled forecasts are then used to evaluate forecasting performance. 
      
-     We calculate Brier Scores for each sample at the total level, the bottom level and entire hierarchy. 
+     We calculate Brier Scores for each sample at the total level, the bottom level and the entire hierarchy. 
      Table~\ref{tab:crime_bs} summarises the mean and median negative Brier Score of the $3696$ samples.
      We also perform the MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
      
@@ -687,7 +687,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \end{table}
      
      \begin{figure}[h]
-       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
+       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
        \centering
        \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
@@ -698,7 +698,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Although on average, the right panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
      The most significant improvement occurs at the bottom level.
      The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods.
-     Furthermore, results from testc conducted on all bottom-level series support the conclusion drawn from the right panel of Table~\ref{tab:crime_bs}.
+     Furthermore, results from tests conducted on all bottom-level series support the conclusion drawn from the right panel of Table~\ref{tab:crime_bs}.
      These findings imply that DFR is more effective than other approaches for more HTSs. 
      
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
@@ -718,7 +718,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      There are no ready-to-use thresholds available for specific age groups and years. 
      To address this, we establish a custom rule for illustrative purposes in this experiment. 
-     We assume that mortality decreases linearly over a short period (e.g., ten years) due to the advancements in technology, economy, medical conditions and other factors. 
+     We assume that mortality decreases linearly over a short period (e.g., ten years) due to advancements in technology, economy, medical conditions and other factors. 
      Using this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
      \[
        \text{threshold}_t = 1.005 \times (m_t - (m_{t-11} - m_{t-1})/10),
@@ -730,10 +730,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      The first $59$ of them are utilised to train the DFR model, while the remaining samples are used to test forecast performances.
      INGARCH(3, 5) models generated base forecasts for all series. 
      
-     Brier Scores are evaluated for each age group, the total series and the entrie hierarchy.
+     Brier Scores are evaluated for each age group, the total series and the entire hierarchy.
      Table~\ref{tab:mortality_age} presents an overview of the average negative Brier Scores across the ten testing samples.
      The DFR approach yields the most accurate joint forecasts for the hierarchy and outperforms other methods for most single series as well.
-     It is disappointing to note that the performance of the oldest group (i.e. $[85, )$) decreases, given that this group is typically a priority in practice.
+     It is disappointing to note that the performance of the oldest group (i.e., $[85, )$) decreases, given that this group is typically a priority in practice.
      However, this phenomenon also occurs with reconciliation frameworks in continuous cases. 
      Although such frameworks generally improve forecast accuracy across all series, some individual series may experience decreased accuracy (\citealp{zhangOptimalReconciliationImmutable2022a}).
      
@@ -762,7 +762,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Distributional forecasts are becoming increasingly important in both academic and industry settings for operational research. In the context of hierarchical forecasting, \cite{kolassaWeWantCoherent2022} suggests shifting focus from coherent point forecasts to coherent probabilistic forecasts. 
      The proposed discrete reconciliation framework can generate coherent distributional forecasts for discrete-valued HTSs.  
      Summary statistics such as median, mean, and quantiles can be derived from the marginal distribution obtained from the distributional forecasts. 
-     It is worth noting that mean point forecasts obtained through this way are also coherent in terms of aggregation.
+     It is worth noting that mean point forecasts obtained in this way are also coherent in terms of aggregation.
      Moreover, our methods offer precise distribution instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
      This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix. 
@@ -785,7 +785,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      For instance, in the crime forecasting experiment where extreme values are usually crucial, we truncate the infinite domain of crime numbers. 
      In the mortality experiment, binary series are created based on custom thresholds.
      Future research could apply our proposed frameworks to real scenarios where time series have finite domains and deterministic constraints exist between them.  
-     It is important to note that  these constraints may not only be based on aggregation, but can also be other deterministic function such as logical operators.
+     It is important to note that  these constraints may not only be based on aggregation but can also be other deterministic functions such as logical operators.
 
 
      
