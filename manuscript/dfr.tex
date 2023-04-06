@@ -230,7 +230,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \label{sec:method}
 
 This section introduces a formal framework for discrete forecast reconciliation based on the distributional coherence proposed in Section~\ref{sec:coherence}.
-We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Secion~\ref{sec:algorithm1}.
+We then present an algorithm that optimises Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Secion~\ref{sec:algorithm1}.
 To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that destructs the hierarchy in Section~\ref{sec:algorithm2}.
 Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
 
@@ -246,12 +246,12 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
       \label{eq:framework}
     \tilde{\bpi}=\bm{A}\hat{\bpi},
     \end{equation}
-    where $\tilde{\bpi}$ is obtained by multiplying the matrix of reconciliation weights $\bm{A}$ with the incoherent probability vector $\hat{\bpi}$. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
+    where $\tilde{\bpi}$ is obtained by multiplying the $r \times q$ matrix of reconciliation weights $\bm{A}$ with the incoherent probability vector $\hat{\bpi}$. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
     \[
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
-    for all $k$. 
-    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
+    for all $k = 1, 2, \dots, r$. 
+    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{h}(j)$ to the coherent point $\tilde{h}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$), where  $k = 1, 2, \dots, r$ and  $j = 1, 2, \dots, q$. Note that $a_{kj}$ must meet the following constraints
     \begin{align*}
     &0\leq a_{kj} \leq 1 ,\forall k, j.\\ 
     &\sum\limits_{k=1}^r a_{kj} = 1 ,\forall j. 
@@ -263,10 +263,10 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \subsection{Score optimal reconciliation}
     \label{sec:algorithm}
 
-    Before introducing the objective function, we first need to find a way to evaluate the reconciled distribution. 
+    Before introducing the objective function, we first introduce the evaluation of the reconciled distribution. 
     Scoring rules are commonly used for this purpose in probabilistic forecasting. 
-    These rules assign a numerical score based on the predictive distribution and on the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for an optimisation procedure.
-    Alternative scoring rules that can be used to evaluate discrete distribution include Brier Score, Spherical Score and Logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for details). 
+    These rules assign a numerical score based on the predictive distribution and the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for an optimisation procedure.
+    Alternative scoring rules that can be used to evaluate discrete distribution include Brier Score, Spherical Score and Logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details). 
     Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
       \text{BS}(\bpi, \mathbf{z}) = -\sum_{i=1}^{m}(z_i - \pi_i)^2,
