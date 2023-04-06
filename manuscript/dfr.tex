@@ -532,7 +532,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
       \begin{tabular}{lcccc}
       \toprule
       \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\ 
-      & Base & Bottom-Up & Top-Down & DFR \\\midrule
+      & Base & DBU & DTD & DFR \\\midrule
       $Y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
       $Y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
       $Y_3$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
@@ -615,7 +615,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \begin{tabular}{lcccc}
      \toprule
      \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
-      & Base & Bottom-Up & Top-Down & SDFR \\\midrule
+      & Base & DBU & DTD & SDFR \\\midrule
      $Y_1$ & \textbf{408.2} & \textbf{408.2} & 494.1 & 409.9 \\
      $Y_2$ & \textbf{414.3} & \textbf{414.3} & 496.1 & 415.8\\
      $Y_3$ & \textbf{420.9} & \textbf{420.9} & 498.6 & 421.0\\
@@ -632,9 +632,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      \begin{figure}
        \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
-       \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_hierarchy.pdf}} \qquad
-       \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_total.pdf}} \qquad
-       \subfloat{\includegraphics[width=0.31\textwidth]{figures/temporal_mcb_BS_bottom.pdf}}
+       \includegraphics[width=\textwidth]{figures/temporal_mcb.pdf}
      \end{figure}     
 
      \section{Empirical study}
@@ -680,7 +678,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \toprule
        &\multicolumn{4}{c}{Mean} 
        & \multicolumn{4}{c}{Median} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-9}
-        & Base & Bottom-Up & Top-Down & DFR &  Base & Bottom-Up & Top-Down & DFR \\\midrule
+        & Base & DBU & DTD & DFR &  Base & DBU & DTD & DFR \\\midrule
        Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.64 & \textbf{64.75} \\
        Bottom & 34.41 & 34.41 & 34.80 & \textbf{34.30} & 13.73 & 13.73 & 13.28 & \textbf{10.82}\\
        Hierarchy & 73.87 & \textbf{67.87} & 68.33 & 67.97 & 97.66 & 92.70 & 93.08 & \textbf{92.42}\\
@@ -691,7 +689,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \begin{figure}[h]
        \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
        \centering
-       \includegraphics[width=\textwidth]{figures/dc_crime_bs.pdf}
+       \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
      
      
@@ -746,7 +744,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \begin{tabular}{lcccc}
        \toprule
        \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\ 
-       & Base & Bottom-Up & Top-Down & DFR \\\midrule
+       & Base & DBU & DTD & DFR \\\midrule
        Total & 638.0 & 626.7 & 638.0 & \textbf{590.8} \\
        $[55, 64]$ & \textbf{174.5} & \textbf{174.5} & 203.3 & 175.1 \\
        $[65, 74]$ & 138.3 & 138.3 & 142.9 & \textbf{128.9}\\
