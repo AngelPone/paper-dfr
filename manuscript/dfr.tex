@@ -271,9 +271,9 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Alternative scoring rules that can be used to evaluate discrete distribution include Brier Score, Spherical Score and Logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details). 
     Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
-      \text{BS}(\bpi, \mathbf{z}) = -\sum_{i=1}^{m}(z_i - \pi_i)^2,
-    \] where $\bpi$, $\mathbf{z}$ and $i$ are defined similarly as in Section~\ref{sec:coherent_df}. 
-    $i \in \{1,\dots,m\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$.
+      \text{BS}(\bpi, \mathbf{z}) = -\sum_{k=1}^{O}(z_k - \pi_k)^2,
+    \] where $\bpi$, $\mathbf{z}$ and $k$ are defined similarly as in Section~\ref{sec:coherent_df}. 
+    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$.
     $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.  
     Brier score is a strictly proper scoring rule that is easy to implement. 
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
@@ -578,7 +578,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      The weekly time series are then disaggregated into daily time series by randomly selecting days for which $Y=1$ and maintaining coherence. 
      We first simulate seven probabilities based on seven independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of $Y=1$ from Monday to Sunday. 
      The values of the $w$ days with the highest probabilities are set to $1$, while others are set to $0$. Here, $w$ denotes the value of the corresponding weekly observation.
-     $\beta$ is set to $4$ and $\alpha$ is set to $\alpha_i = i i=1,\dots,7$, allowing for the probabilities of $Y=1$ to increase gradually from $i=1$ to $i=7$, suggesting potential seasonality.
+     $\beta$ is set to $4$ and $\alpha$ is set to $\alpha_i = i, i=1,\dots,7$, allowing for the probabilities of $Y=1$ to increase gradually from $i=1$ to $i=7$, suggesting potential seasonality.
      
      For each daily time series, $1003$ observations are generated, and the initial $100$ observations are discarded as warm-ups. Analogous to Section~\ref{sec:cross-sectional_simu}, we utilise the rolling origin strategy with a fixed look-back window size of $350$, yielding $547$ windows.
      For each rolling timestamp, the most recent $350$ observations are used as input to generate probabilistic forecasts for the following seven days. 
@@ -778,7 +778,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal. 
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately. 
-     Secondly, we have not used state-of-the-art forecasting methods for such time series as proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weiEmpiricalLikelihoodRatio2021}. 
+     Secondly, we have not used state-of-the-art forecasting methods for such time series as proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}. 
      Thirdly, the parameters of the employed models are not carefully selected. 
      To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and parameters.
 
