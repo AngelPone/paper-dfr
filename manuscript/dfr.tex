@@ -73,7 +73,7 @@ While point and interval forecasts are most widely applied in practice, it is im
 Concerning forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf). 
 Pmfs provide probabilities for each point in their discrete support,
 which is particularly crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
-By utilizing joint pmfs, we develop the definitions of coherency and incoherency for count hierarchical forecasts.
+By utilising joint pmfs, we develop the definitions of coherency and incoherency for count hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts, 
 in the sense that the point forecast for a parent series should equal the sum of the point forecasts for the associated child series. 
@@ -640,39 +640,39 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \section{Empirical study}
      \label{sec:application}
-     In this section, we utilize the proposed DFR algorithm to analyse two publicly available real-world datasets.
+     This section uses the proposed DFR algorithm to forecast two publicly available real-world datasets.
      Section~\ref{sec:application_crime} concentrates on temporal hierarchy and forecasts the number of criminal offences in Washington D.C. 
-     Meanwhile, Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series based on mortality thresholds. 
+     Meanwhile, Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series of the exceedance of thresholds in age-specific mortality rates in Australia.
      
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
      
      Forecasting crime numbers in a specific area is vital for managing public health and police resources.
      However, forecasting becomes more challenging when dealing with smaller areas with sparse crime numbers.
-     In this subsection, we apply our DFR algorithm to predict the number of offence crimes in census tracts located in Washington, D.C. 
+     In this subsection, we apply the proposed DFR algorithm to predict the number of offence crimes in census tracts located in Washington, D.C. 
      The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}.} contains all reported crimes from 2014 to 2022 in Washington D.C., which have been aggregated into weekly time series according to location and crime type. 
      Considering the domain of the number of crimes, we perform experiments on all time series whose location type is a census tract and crime type is offence.
      As a result, we obtain $231$ weekly time series; each representing the number of offence crimes committed within one census tract.
      
      The crime numbers time series are potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}). 
      Our objective is to generate coherent probabilistic forecasts for the next four weeks.
-     To achieve this, we construct two-level temporal hierarchies that consist of weekly(bottom level) and four-weekly(total level) frequencies and develop an individual DFR model for each time series.
+     To achieve this, we construct two-level temporal hierarchies that consist of weekly (bottom level) and four-weekly (total level) frequencies and develop an individual DFR model for each time series.
      Additionally, we restrict the maximum value (i.e., the domain of bottom level in the \textbf{DFR} model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$. 
      Otherwise, it is set to $[0, 1, 2]$. 
      Any observation exceeding $2$ is truncated at $2$. 
-     It should be noted that less than one percent of observations surpass $2$, so these adjustments have a negligible impact on our final results.
+     Notably, less than one percent of observations surpass $2$, so these adjustments have a negligible impact on the final results.
      
      We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model. 
      Initially, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4) from a time series of $53$ weeks. 
      Subsequently, we augment the training data by one week and produce new probabilistic forecasts. 
      At each step, to obtain the probabilistic forecasts for the total level, we first aggregate the weekly series into four-weekly time series and then use INGARCH(2, 2) to produce one-step-ahead forecasts.
      We only use windows with forecast horizons starting before $2022$ as training samples; all remaining windows are used for performance evaluation purposes.
-     We repeat the above procedure for every census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ test samples per census tract). 
+     We repeat the above procedure for each census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ test samples per census tract). 
      These reconciled forecasts are then used to evaluate forecasting performance. 
      
      We calculate Brier Scores for each sample at the total level, the bottom level and the entire hierarchy. 
      Table~\ref{tab:crime_bs} summarises the mean and median negative Brier Score of the $3696$ samples.
-     We also perform the MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
+     We also perform MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
      
      \begin{table}[h]
        \centering
@@ -690,31 +690,25 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \end{table}
      
      \begin{figure}[h]
-       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
+       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \centering
        \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
      
      
-     In Table~\ref{tab:crime_bs}, the left panel shows that DFR algorithm outperforms base forecasts for all levels in terms of mean Brier Scores. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy.
-     The discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. 
-     Although on average, the right panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median brier scores.
-     The most significant improvement occurs at the bottom level.
-     The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods.
-     Furthermore, results from tests conducted on all bottom-level series support the conclusion drawn from the right panel of Table~\ref{tab:crime_bs}.
-     These findings imply that DFR is more effective than other approaches for more HTSs. 
+     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs. 
      
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
      \label{sec:application_mortality}
      The high mortality rate among the population is a major concern for practitioners. 
      They are particularly worried about risks that arise when mortality exceeds a certain threshold. 
-     One example of this is the Vita Capital mortality catastrophe bonds, which provide coverage for excess mortality risks in various areas. 
+     One typical example is the Vita Capital mortality catastrophe bonds, which cover excess mortality risks in various areas. 
      If the mortality rate in one or more areas surpasses specific thresholds, investors may not receive their principal payments from the issuer.
-     In these situations, joint probabilistic forecasts become essential as they offer a comprehensive view of potential future outcomes. 
+     Joint probabilistic forecasts become essential in these situations as they offer a comprehensive view of potential future outcomes. 
      These forecasts are especially critical when there is dependence between mortalities in target areas.
      
      We conduct an experiment using yearly mortality data collected from 1921 to 2020 in Australia.
-     The data is grouped by age, and we focus on the mortality of elder groups: $[55, 64]$, $[65, 74]$, $[75, 84]$, $[85, )$. 
+     The data is grouped by age, and we focus on the mortality of elder groups: $[55, 64]$, $[65, 74]$, $[75, 84]$, and $[85, )$. 
      We construct a two-level hierarchy, where the bottom level includes 
      $4$ binary series that indicates whether the mortality of each corresponding age group exceeds a given threshold for that year.
      We then aggregate these bottom-level series to obtain a total series indicating how many groups exceed their thresholds.
@@ -722,15 +716,15 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      There are no ready-to-use thresholds available for specific age groups and years. 
      To address this, we establish a custom rule for illustrative purposes in this experiment. 
      We assume that mortality decreases linearly over a short period (e.g., ten years) due to advancements in technology, economy, medical conditions and other factors. 
-     Using this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
+     Under this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
      \[
        \text{threshold}_t = 1.005 \times (d_t - (d_{t-11} - d_{t-1})/10),
      \]
-     where $d_t$ represents the observed mortality at year $t$, and $1.005$ is an excess death coefficient manually specified by us.
+     where $d_t$ represents the observed mortality at year $t$, and $1.005$ is a manually specified excess death coefficient.
      We then transform the mortality series into binary series by comparing actual mortality rates to the ``expected'' thresholds.
      
      In this experiment, we also employ the rolling origin strategy with a starting window size of $20$, resulting in $69$ samples.
-     The first $59$ of them are utilised to train the DFR model, while the remaining samples are used to test forecast performances.
+     The first $59$ of them are utilised for training the DFR model, while the remaining samples are used to test forecast performances.
      INGARCH(3, 5) models generated base forecasts for all series. 
      
      Brier Scores are evaluated for each age group, the total series and the entire hierarchy.
@@ -769,10 +763,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Moreover, our methods offer precise distribution instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
      This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix. 
-     From a machine learning perspective, this procedure can be viewed as a classification problem with $r$ categories and a $q$-dimensional input. Machine learning models such as specifically designed neural networks can be utilized to solve this problem. 
-     In the scenario where thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. 
+     From a machine learning perspective, this procedure can be viewed as a classification problem with $r$ categories and a $q$-dimensional input. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem. 
+     When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. 
 
-     One area for improvement of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
+     One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty. 
      We suggest applying the proposed algorithm to a small hierarchy with finite domains. 
      When applying to large hierarchies, the bottom-level series should be low-count, such as binary.
@@ -780,14 +774,14 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal. 
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately. 
      Secondly, we have not used state-of-the-art forecasting methods for such time series as proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}. 
-     Thirdly, the parameters of the employed models are not carefully selected. 
-     To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and parameters.
+     Thirdly, the parameters of the employed models are not optimally estimated. 
+     To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and the corresponding parameters.
 
      This paper presents two simulation experiments and two empirical studies.
      While the experiment results show a significant improvement in accuracy, the applications are not entirely natural. 
-     For instance, in the crime forecasting experiment where extreme values are usually crucial, we truncate the infinite domain of crime numbers. 
+     For instance, in the crime forecasting experiment, where extreme values are usually crucial, we truncate the infinite domain of crime numbers. 
      In the mortality experiment, binary series are created based on custom thresholds.
-     Future research could apply our proposed frameworks to real scenarios where time series have finite domains and deterministic constraints exist between them.  
+     Future research could apply our proposed frameworks to real scenarios where time series have finite domains, and deterministic constraints exist between them.  
      It is important to note that  these constraints may not only be based on aggregation but can also be other deterministic functions such as logical operators.
 
 
@@ -797,7 +791,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \label{sec:conclusion}
      
      This paper develops a novel forecast reconciliation framework for count hierarchical time series. 
-     The framework involves assigning probabilities from incoherent points to coherent points, similar to the mapping approach used for continuous time series.
+     The framework involves assigning probabilities from incoherent points to coherent points, similar to the mapping approach for continuous time series.
      We further propose a linear reconciliation algorithm that minimizes the penalized brier score of reconciled probabilistic forecasts.
      To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
      We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
@@ -806,12 +800,21 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and mortality threshold exceedance of elder groups in Australia with promising results.
      The results indicate the potential of the proposed algorithms to be applied in reality.
      
-     One key factor contributing to our strong results is  the utilization of forecast combinations.
+     One key factor contributing to our strong results is the utilisation of forecast combinations.
      Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
      Also of importance is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results. 
      
      
      While this work provides an explanatory attempt at discrete hierarchical time series forecasting, future research should focus more on real-world management problems associated with discrete cases. Count hierarchical time series forecasting remains an open issue that requires further attention from researchers in this area.
+
+\section*{Acknowledgments}
+
+Yanfei Kang is supported by the National Natural Science Foundation of China (No. 72171011). Feng Li is supported by the Beijing Universities Advanced Disciplines Initiative (No. GJJ2019163) and the Emerging Interdisciplinary Project of CUFE. This research was supported by the high-performance computing (HPC) resources at Beihang University.
+
+\newpage
+
+\bibliographystyle{agsm}
+\bibliography{references.bib}
 
 
 \newpage
@@ -825,7 +828,7 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
 
 \begin{algorithm}[H]
   \label{alg:adjust}
-  \caption{Adjust}
+  \caption{\code{Adjust}}
   \SetKwInOut{Input}{Input}
   \SetKwInOut{Output}{Output}
   \Input{$\bpi(y_0,y_1,\dots,y_i), \tilde\pi_i, y_i \in \{0,1,\dots,k_i\}$}
@@ -860,9 +863,5 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
  \]
  The equation constructs the joint distribution of $y_1, \bY_2, y_4, \bY_5$ by eliminating the shared variable $y_3$ of the two distributions.
 
-\newpage
-
-\bibliographystyle{agsm}
-\bibliography{references.bib}
 
 \end{document}
