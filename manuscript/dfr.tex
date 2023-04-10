@@ -1,7 +1,7 @@
 \documentclass[a4paper,review,12pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
-\usepackage{amsfonts,amsmath,bm,xcolor, booktabs,hyperref}
+\usepackage{amsfonts,amsmath,bbm,bm,xcolor,booktabs,hyperref}
 \usepackage[ruled]{algorithm2e}
 \usepackage{geometry}
 \usepackage{subfig}
@@ -455,7 +455,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     The discrete top-down method extends the traditional top-down by proportionally disaggregating the probabilities of each point of the total series into all possible coherent points, using a ratio computed from historical occurrences.
     For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed in the three-variables scenario where $Pr(y_3) = 0.4$, the probabilities of possible coherent points would be calculated as follows: $\tilde \pi_{(011)} = 0.4\times 0.4$ and $\tilde \pi_{(101)} = 0.4\times 0.6$.
-    This method can also be considered as a special case of Equation (\ref{eq:framework}), where
+    This method can also be considered as a special case of Equation \eqref{eq:framework}, where
     \[
     \mathbf{A} = \left[\begin{matrix}
       1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -490,40 +490,40 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
       \right].
     \]
     $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
-    This ensures the stability of the generated time series.
+    This ensures the stationarity of the generated time series.
     The error term $\boldsymbol{\eta}$ implies a positive correlation between the two series and ensures a reasonable range of the latent state.
     Observations are transformed from the state series using a sign function:
     \[
-        Y_i = \mathbb{I}(\sigma(s_i) > 0.5), i\in\{1, 2\},\quad \sigma(s) = \frac{\exp(s)}{1+\exp(s)}.
+        Y_i = \mathbbm{1}(\sigma(s_i) > 0.5), i\in\{1, 2\},\quad \sigma(s) = \frac{\exp(s)}{1+\exp(s)}.
     \]
 
     We produce and evaluate one-step-ahead forecasts in this experiment.
     For each binary series, we generate $480$ observations; the rolling origin strategy with $150$ observations used to train the base forecasting models is employed, yielding $330$ samples.
     The first $300$ samples are used to train the \textbf{DFR} model, while the remaining $30$ samples are used to test performance.
     
-    The base probabilistic forecasts are obtained independently using the binomial AR(1) model(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
+    The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
     We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ testing samples.
      
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times. 
     Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
     The best average performance of the four approaches is indicated by bold text in each row.
-    DFR performs the best for both the single series and the hierarchy. 
+    DFR performs the best for both single series and the hierarchy. 
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
-    However, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
+    Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
+    Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
     
-    We also performed the MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy between these approaches. 
-    This testing approach computes the mean ranks of the four approaches across the whole simulation set without imposing any distributional assumptions.
+    We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy among these approaches. 
+    This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
     Non-overlapping grey intervals indicate statistically significant differences between methods.
-    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs more significantly than all other approaches.
-    Please note that MCB tests for the bottom series are conducted on all samples at the bottom level.
+    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs significantly better than all other approaches.
+    Note that MCB tests for the bottom series are conducted on all samples at the bottom level.
   
     \begin{figure}
       \centering
       \label{fig:mcb_crosssectional}
-      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the left of their names.}
+      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
       \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
     \end{figure}
     
@@ -546,8 +546,8 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      \subsection{Temporal hierarchy}
 
-     We now consider a daily temporal scenario consisting of one total series and $7$ bottom-level series. 
-     This type of setting is frequently encountered in supply chain management, where daily and weekly forecasts are required to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
+     We now consider a daily temporal scenario consisting of one total series and seven bottom-level series. 
+     This setting is frequently encountered in supply chain management, where daily and weekly forecasts are required to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
      The bottom-level time series are restricted to values of 0 or 1.
      Despite this limitation, the hierarchy's domain remains extensive, making it difficult to estimate a complete reconciliation matrix with limited observations in practice. 
      Therefore, we employ the stepwise reconciliation algorithm outlined in Section \ref{sec:algorithm2}. 
@@ -555,7 +555,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \subsubsection{Simulation setup}
      
      While intermittent series are characterized by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
-     Based on this understanding, we initially simulate weekly time series with a seasonal period of $4$, which are subsequently disaggregated into daily time series.
+     Based on this understanding, we initially simulate weekly time series with a seasonal period of four, which are subsequently disaggregated into daily time series.
      
      Assuming that the weekly time series follow a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average(ARIMA)  process. This procedure is implemented with the \code{gratis} package for \proglang{R} programming language. 
      The controlled parameters are shown in Table~\ref{tab:parameters}. Additional parameters are randomly produced by the package to ensure the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}). 
@@ -567,8 +567,8 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \caption{\label{tab:parameters} Selected parameters of the ARIMA process used to simulate the conditional mean of weekly time series in the temporal setting.}
        \begin{tabular}{lc}
          \toprule
-         Parameter name & Value \\ \midrule
-         Frequency & 4 \\
+         Parameter & Value \\ \midrule
+         Seasonal period & 4 \\
          Number of autoregressive terms & 3 \\
          Difference order & 0 \\
          Seasonal difference order & 0 \\ \bottomrule
@@ -609,7 +609,8 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Surprisingly, the forecast accuracy of the total series does not exhibit significant deviation from base forecasts,  even though it is adjusted most frequently, showcasing the robustness of \textbf{SDFR}.
      It is crucial to note that the results could vary if the SDFR algorithm is implemented in a different step order.
      Additionally, the performance could be enhanced if we average multiple reconciled forecasts from various orderings.
-     Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests of differences in forecast performance. The outcomes lead to similar conclusions to those derived from Table~\ref{tab:sim_temporal_res_dist}. 
+     
+     Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test the significance of differences in forecast performance among these approaches. Similar to the conclusions drawn from Table~\ref{tab:sim_temporal_res_dist}, SDFR significantly outperforms the other approaches in forecasting the bottom series and the hierarchy, while its forecasts for the total series not deviating from base much. 
      
      \begin{table}
      \centering
@@ -633,7 +634,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      
      
      \begin{figure}
-       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of brier scores are shown to the left of their names.}
+       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \includegraphics[width=\textwidth]{figures/temporal_mcb.pdf}
      \end{figure}     
 
@@ -842,7 +843,7 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
 
  The \code{ConstructJointDist} algorithm constructs a new joint construct given two joint distributions. 
  Consider variables $y_1, \bY_2, y_3, y_4, \bY_5$, where $\bY_2$ and $\bY_5$ are vectors and $y_1, y_3, y_4$ are scalars. 
- They have the following relations
+ They have the following relations.
  \[
   y_1 = |\bY_2|_1 + y_3, \quad y_3 = y_4 + |\bY_5|_1,
  \]
