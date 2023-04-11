@@ -492,9 +492,9 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     $\alpha$ and $\beta$ are uniformly generated from $[0.4, 0.5]$ and $[0.3,0.5]$, respectively. 
     This ensures the stationarity of the generated time series.
     The error term $\boldsymbol{\eta}$ implies a positive correlation between the two series and ensures a reasonable range of the latent state.
-    Observations are transformed from the state series using a sign function:
+    Observations are transformed from the state series ($\mathbf{s}_{t} := [s_{1t}, s_{2t}]'$) using a sign function:
     \[
-        Y_i = \mathbbm{1}(\sigma(s_i) > 0.5), i\in\{1, 2\},\quad \sigma(s) = \frac{\exp(s)}{1+\exp(s)}.
+        Y_{it} = \mathbbm{1}(\sigma(s_{it}) > 0.5), i\in\{1, 2\},\quad \sigma(s_{it}) = \frac{\exp(s_{it})}{1+\exp(s_{it})}.
     \]
 
     We produce and evaluate one-step-ahead forecasts in this experiment.
