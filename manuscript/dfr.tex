@@ -19,7 +19,6 @@
   urlcolor=blue}
 
 
-
 \newcommand{\bY}{\mathbf{Y}}
 \newcommand{\bpi}{\bm{\pi}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
@@ -55,7 +54,7 @@
   Count data \sep
   Hierarchical time series \sep
   Brier score \sep
-  Quadratic programming
+  Quadratic programming.
   \end{keyword}
 
 \end{frontmatter}
@@ -258,13 +257,11 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \[
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
-
-    for all $k = 1, 2, \dots, r$.
-    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{\mathcal{H}}(j)$ to the coherent point $\tilde{\mathcal{H}}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$), where  $k = 1, 2, \dots, r$ and  $j = 1, 2, \dots, q$. Note that $a_{kj}$ must meet the following constraints
-
+    for all $k = 1, 2, \dots, r$  and  $j = 1, 2, \dots, q$.
+    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{\mathcal{H}}(j)$ to the coherent point $\tilde{\mathcal{H}}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
     \begin{align*}
-    &0\leq a_{kj} \leq 1 ,\forall k, j,\\
-    &\sum\limits_{k=1}^r a_{kj} = 1 ,\forall j.
+    0\leq a_{kj} \leq 1 , ~ \forall k, j, ~ \textrm{and} ~
+    \sum\limits_{k=1}^r a_{kj} = 1 , ~ \forall j.
     \end{align*}
     The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
     Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points  within the coherent domain.
@@ -289,7 +286,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
     The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ rolling windows as
     \begin{align*}
-    \textrm{Av. BS}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
+    {\overline{BS}}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
     =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
     =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
     \end{align*}
@@ -355,7 +352,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Combining all the elements considered above, we propose the Discrete Forecast Reconciliation (DFR) algorithm.
     The architecture of the proposed architecture is illustrated in Figure~\ref{fig:dfr}.
     It consists of two stages: training and forecasting.
-    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}) given an initial window size $T - \mathcal{T}_{\text{window}}-h+1$, where $h$ represents the forecast horizon.
+    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}) given an initial window size $(T - \mathcal{T}_{\text{window}}-h+1)$, where $h$ represents the forecast horizon.
     For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence. Corresponding realization $\mathbf{z}$ of forecasts is also obtained.
     Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
     In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with the base incoherent distribution.
@@ -490,10 +487,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
       \mathbf{\Phi} = \left[\begin{matrix}
         \alpha & 0 \\
         0 & \beta
-      \end{matrix}\right], \boldsymbol{\eta} \sim \mathcal{N}\left(\mathbf{0}, \left[\begin{matrix}
+      \end{matrix}\right], ~ \boldsymbol{\eta} \sim \mathcal{N}\left(\mathbf{0}, \left[\begin{matrix}
         0.1 & 0.05 \\
         0.05 & 0.1
-      \end{matrix}\right]\right), \mathbf{s}_{-1} = \left[
+      \end{matrix}\right]\right), ~ \mathbf{s}_{0} = \left[
         \begin{matrix}0 \\ 0\end{matrix}
       \right],
     \]
@@ -502,7 +499,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     The error term $\boldsymbol{\eta}$ implies a positive correlation between the two series and ensures a reasonable range of the latent state.
     Observations are transformed from the state series ($\mathbf{s}_{t} := [s_{1t}, s_{2t}]'$) using a sign function:
     \[
-        Y_{it} = \mathbbm{1}(\sigma(s_{it}) > 0.5), i\in\{1, 2\},\quad \sigma(s_{it}) = \frac{\exp(s_{it})}{1+\exp(s_{it})}.
+        Y_{it} = \mathbbm{1}(\sigma(s_{it}) > 0.5), ~ i\in\{1, 2\},\quad \sigma(s_{it}) = \frac{\exp(s_{it})}{1+\exp(s_{it})}.
     \]
 
     We produce and evaluate one-step-ahead forecasts in this experiment.
@@ -516,7 +513,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     The above procedure was repeated $1000$ times.
     Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
     The best average performance of the four approaches is indicated by bold text in each row.
-    DFR performs the best for both single series and the hierarchy.
+    DFR performs the best for both the single series and the hierarchy.
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
@@ -666,7 +663,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      The crime numbers time series are potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}).
      Our objective is to generate coherent probabilistic forecasts for the next four weeks.
      To achieve this, we construct two-level temporal hierarchies that consist of weekly (bottom level) and four-weekly (total level) frequencies and develop an individual DFR model for each time series.
-     Additionally, we restrict the maximum value (i.e., the domain of the bottom level in the \textbf{DFR} model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$.
+     Additionally, we restrict the maximum value (i.e., the domain of the bottom level in the DFR model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$.
      Otherwise, it is set to $[0, 1, 2]$.
      Any observation exceeding $2$ is truncated at $2$.
      Notably, less than one percent of observations surpass $2$, so these adjustments have a negligible impact on the final results.
@@ -739,7 +736,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Brier Scores are evaluated for each age group, the total series and the entire hierarchy.
      Table~\ref{tab:mortality_age} presents an overview of the average negative Brier Scores across the ten testing samples.
      The DFR approach yields the most accurate joint forecasts for the hierarchy and outperforms other methods for most single series as well.
-     It is disappointing to note that the performance of the oldest group (i.e., $[85, )$) decreases, given that this group is typically a priority in practice.
+     It is disappointing to note that the performance of the oldest group (i.e., $ \ge 85$) decreases, given that this group is typically a priority in practice.
      However, this phenomenon also occurs with reconciliation frameworks in continuous cases.
      Although such frameworks generally improve forecast accuracy across all series, some individual series may experience decreased accuracy (\citealp{zhangOptimalReconciliationImmutable2022a}).
 
@@ -854,20 +851,20 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
 
 
  The \code{ConstructJointDist} algorithm constructs a new joint construct given two joint distributions.
- Consider variables $y_1, \bY_2, y_3, y_4, \bY_5$, where $\bY_2$ and $\bY_5$ are vectors and $y_1, y_3, y_4$ are scalars.
+ Consider variables $y_1, ~ \bY_2, ~ y_3, ~ y_4, ~ \bY_5$, where $\bY_2$ and $\bY_5$ are vectors and $y_1, ~ y_3, ~ y_4$ are scalars.
  They have the following relations.
  \[
   y_1 = |\bY_2|_1 + y_3, \quad y_3 = y_4 + |\bY_5|_1,
  \]
  where $|\cdot|_1$ represents the sum of all the variables in the vector.
- The given distributions are $\bpi(y_1, \bY_2, y_3)$ and $\bpi(y_3, y_4, \bY_5)$.
+ The given distributions are $\bpi(y_1, ~ \bY_2, ~ y_3)$ and $\bpi(y_3, ~ y_4, ~ \bY_5)$.
  The marginal distributions of $y_3$ derived from the two distributions are the same, i.e.,
  \[
-  \sum_{y_3} \bpi(y_1, \bY_2, y_3) = \sum_{y_3}\bpi(y_3, y_4, \bY_5)
+  \sum_{y_3} \bpi(y_1, ~ \bY_2, ~ y_3) = \sum_{y_3}\bpi(y_3, ~ y_4, ~ \bY_5)
 \]
  Assuming the joint distribution of $y_1$ and $\bY_2$ is independent of the joint distribution of $y_4$ and $\bY_5$ given $y_3$, we can obtain the probability of one point in the new joint distribution using the following equation: \[
    \begin{aligned}
-  &\text{Pr}(y_1=a_1,\bY_2=\mathbf{a}_2, y_4=a_4, \bY_5 = \mathbf{a}_5) =\\ &\text{Pr} (y_1=a_1,\bY_2=\mathbf{a}_2,y_3=a_3) \times \text{Pr}(y_4=y_4,\bY_5=y_5|y_3=a_3).
+  &\text{Pr}(y_1=a_1, ~ \bY_2=\mathbf{a}_2, ~ y_4=a_4, \bY_5 = \mathbf{a}_5) =\\ &\text{Pr} (y_1=a_1, ~ \bY_2=\mathbf{a}_2, ~ y_3=a_3) \times \text{Pr}(y_4=y_4, ~ \bY_5=y_5|y_3=a_3).
    \end{aligned}
  \]
  The equation constructs the joint distribution of $y_1, \bY_2, y_4, \bY_5$ by eliminating the shared variable $y_3$ of the two distributions.
