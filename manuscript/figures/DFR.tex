@@ -1,45 +1,53 @@
 \documentclass{standalone}
 \usepackage{tikz}
 \usetikzlibrary{shapes}
+\usetikzlibrary{positioning}
 \usepackage{amsmath}
 
 
-\tikzstyle{startstop} = [rectangle, rounded corners, text width=2cm,text centered, minimum height=1cm, draw=black]
-\tikzstyle{io} = [trapezium, trapezium left angle=70,trapezium right angle=110, text width=3.3cm, minimum height=1cm, text centered, draw=black, trapezium stretches=true]
-\tikzstyle{process} = [rectangle, text width=3.3cm, minimum height=1cm, text centered, draw=black]
+%\tikzstyle{startstop} = [rectangle, rounded corners, text width=2cm,text centered, minimum height=1cm, draw=black]
+\tikzstyle{io} = [trapezium, trapezium left angle=70,trapezium right angle=110, text width=3.5cm, minimum height=1cm, text centered, draw=black, trapezium stretches=true]
+\tikzstyle{process} = [rectangle, text width=3.5cm, minimum height=1cm, text centered, draw=black]
 
 \begin{document}
-\begin{tikzpicture}[node distance=2cm]
-    
-    \node(start)[startstop]{Start};
-    \node(in)[io, below of=start]{Time Series};
+\begin{tikzpicture}[node distance=4.5cm]
 
-    \node(rollingorigin)[process, below of=in]{Rolling origin transformation};
+    % \node(start)[startstop]{Start};
+    \node(in)[io]{Input time series};
 
-    \node(train1)[process, below left of=rollingorigin, xshift=-3cm, yshift=-0.5cm]{Obtain $h$-step-ahead forecasts for each window};
-    \node(train2)[process, below of=rollingorigin]{Obtain $h$-step-ahead realization for each window};
+    \node(rollingorigin)[process, right of=in]{Rolling origin transformation};
+    \draw [->](in.east) -- (rollingorigin.west) ;
 
-    \node(train3)[process, below of=train2]{Train reconciliation matrix $A_1,\dots,A_h$};
 
-    \node(forecast1)[process,right of=rollingorigin, xshift=3cm]{Obtain $h$-step-ahead base forecasts $\hat{\mathbf{\pi}}_{T+1},\dots,\hat{\mathbf{\pi}}_{T+h}$};
-    \node(forecast2)[process, below of=forecast1]{Obtain $h$-step-ahead reconciled distribution};
-    \node(output)[io, below of=forecast2]{Coherent forecast $\tilde{\mathbf{\pi}}_{T+1},\dots,\tilde{\mathbf{\pi}}_{T+h}$};
-    \node(end)[startstop, below of=output]{End};
 
-    \draw[->] (start) edge (in) 
-        (in) edge (rollingorigin) ;
-    \draw[->] (rollingorigin) -| (train1) ;
-    \draw[->] (rollingorigin.south) -| (train2) ;
+    \node(train1)[process, above right = 1cm and 0.75cm of rollingorigin, ]{Obtain $h$-step-ahead forecasts for each window};
+    \draw[->] (rollingorigin.north) |- (train1.west) ;
+    \node(train2)[process, right of=rollingorigin]{Obtain $h$-step-ahead realization for each window};
+    \draw[->] (rollingorigin.east) -- (train2.west) ;
+    \node(train3)[process, right of=train2]{Train reconciliation matrix $A_1,\dots,A_h$};
+    \draw[->] (train2.east) -- (train3.west);
+    \draw[->] (train1.east) -| (train3.north);
 
-    \draw[->] (train1) |- (train3);
-    \draw[->] (train2.south) -| (train3);
-    \draw[->] (in.east) -| (forecast1.north);
-    \draw[->] (train3.south) |- ++(2.5,-0.5) -- ++(0,5.0) -- (forecast1.west);
+    \node(forecast1)[process,below right = 1cm and 0.75cm of rollingorigin]{Obtain $h$-step-ahead base forecasts $\hat{\mathbf{\pi}}_{T+1},\dots,\hat{\mathbf{\pi}}_{T+h}$};
+    \draw[->] (rollingorigin.south) |- (forecast1) ;
+    \node(forecast2)[process, right of=forecast1]{Obtain $h$-step-ahead reconciled distribution};
     \draw[->] (forecast1) -- (forecast2);
+    \node(output)[io, right of=forecast2]{Output coherent forecast $\tilde{\mathbf{\pi}}_{T+1},\dots,\tilde{\mathbf{\pi}}_{T+h}$};
+    % % \node(end)[startstop, below of=output]{End};
 
+    % % \draw[->] (start) edge (in)
+    % 
+    % 
 
+    % \draw[->] (train1) |- (train3);
+    %\draw[->] (in.east) -| (forecast1.north);
+    \draw[->] (train3.south) -- (forecast2.north);
     \draw[->] (forecast2) -- (output);
-    \draw[->] (output) -- (end);
-    
+    % 
+
+
+    % \draw[->] (forecast2) -- (output);
+    % \draw[->] (output) -- (end);
+
 \end{tikzpicture}
 \end{document}
