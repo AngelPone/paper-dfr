@@ -1,0 +1,188 @@
+\documentclass[12pt]{beamer}
+
+
+
+
+%\directlua{ require("drawboxes")}
+\input{bohanbeamerstyle/bohanbeamerstyle}
+
+% \titlegraphic{ss}
+\title{Discrete Forecast Reconciliation}
+\author{Bohan Zhang}
+\institute{Beihang University \\ 
+KLLAB seminar}
+\date{April 20, 2023}
+
+
+% \nosectiontitlepage
+
+\begin{document}
+
+\begin{frame}[plain]
+
+    \maketitle
+
+\end{frame}
+
+
+
+\begin{frame}
+    \frametitle{Collaborate with}
+    \fontsize{9}{10.8}\selectfont
+    \begin{table}
+    \begin{tabular}{ccc}
+        \includegraphics[width=0.3\textwidth]{figures/tas.jpg} &
+        \includegraphics[width=0.3\textwidth]{figures/yfkang.png} &
+        \includegraphics[width=0.3\textwidth]{figures/fengli.png} \\
+        \begin{minipage}[t]{0.3\textwidth}\centering Anastasios Panagiotelis \\ University of Sydney \end{minipage} &
+        \begin{minipage}[t]{0.3\textwidth}\centering Yanfei Kang \\ Beihang University \end{minipage} &
+        \begin{minipage}[t]{0.3\textwidth}\centering Feng Li \\ Central University of \\ Finance and Economics \end{minipage}
+    \end{tabular}
+    \end{table}
+
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{CONTENTS}
+    \tableofcontents
+\end{frame}
+
+
+\section{Introduction}
+\begin{frame}
+\frametitle{Motivation: the problem}
+
+\begin{outline}
+\1 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields. Examples include:
+\2 occurrences of “black swan” events
+\2 intermittent demand in the retail industry
+
+\1 Hierarchical time series (HTS) is of great concern in these applications.
+
+\1 {\color{red}However, research attention paied on count HTS forecasting is limited.}
+
+\end{outline}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Motivation: the challenge}
+
+\begin{outline}
+\1 The \textbf{forecast reconciliation framework} can produce coherent forecasts and has been proven to enhance forecast accuracy by utilizing forecast combination.
+\1 Forecast reconciliation was designed for continuous-valued HTS based on projection and \textbf{can not be directly applied to} discrete-valued HTS.
+\2 Forecasts should be “coherent” such that their support matches the support of the variable (\Citealp{freelandForecastingDiscreteValued2004})
+\2 Transformation from continuous forecasts to integer decision introduces additional operational costs.
+
+\end{outline}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Motivation: the idea}
+
+To address these concerns, we propose a discrete forecast reconciliation framework which
+
+\begin{itemize}
+    \item first produces probabilistic forecasts for each series, then obtains coherent \textbf{joint predictive distribution} for the HTS through reconciliation,
+    \item allows for the employment of forecasting methods for univariate count time series in the literature,
+    \item utilises scoring rules such as Brier Score to evaluate the forecasts and train the reconciliation matrix.
+\end{itemize}
+
+\end{frame}
+
+\section{Related work}
+\begin{frame}
+\frametitle{Related Work}
+
+A series of work on forecast reconciliation for count HTSs:
+
+\begin{itemize}
+    \fontsize{9}{10.2}\selectfont
+    \item Corani, G., Azzimonti, D., Rubattu, N., \& Antonucci, A. (2022). Probabilistic Reconciliation of Count Time Series (arXiv:2207.09322). arXiv.
+    \item Zambon, L., Azzimonti, D., \& Corani, G. (2022). Efficient probabilistic reconciliation of forecasts for real-valued and count time series (arXiv:2210.02286). arXiv.
+    \item Zambon, L., Agosto, A., Giudici, P., \& Corani, G. (2023). Properties of the reconciled distributions for Gaussian and count forecasts (arXiv:2303.15135). arXiv.
+\end{itemize}
+
+The proposed framework conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. However, it fails to restore the dependence structure within hierarchical time series.
+
+
+\end{frame}
+
+
+\section{The discrete forecast reconciliation framework}
+
+\begin{frame}
+\frametitle{Coherent and incoherent domain for discrete HTS}
+\begin{table}
+    \fontsize{9}{10.2}\selectfont
+\begin{tabular}{ll}
+    \toprule
+    HTS & $\mathbf{Y}=(Y_1,Y_2,\dots,Y_n)'$ \\
+    basis time series & $(Y_1,Y_2,\dots,Y_{m})'$ \\
+    domain of $i$-th variable & $\mathcal{D}(Y_i) = \{0,1,\dots,D_i\}$ \\
+    Incoherent domain of HTS & $\hat{\mathcal{D}}(\mathbf{Y}) = \{0,\dots,D_1\}\times \dots\times \{0,\dots,D_n\}$ \\
+    Coherent domain of HTS & $\tilde{\mathcal{D}}(\mathbf{Y}) = \{0,\dots,D_1\}\times \dots\times\{0,\dots,D_m\}$ \\\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item Incoherent domain is the Cartesian product of domains of all variables, whose elements are possibly incoherent.
+    \item Coherent domain is a subset of incoherent domain whose elements are \textit{coherent}.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Example}
+\begin{block}{Variables}
+\[
+\begin{aligned}
+  \mathcal{D}(Y_1) = \{0, 1\}, \mathcal{D}(Y_2) = \{0, 1\}, \\
+  Y_3=Y_1+Y_2, \mathcal{D}(Y_3)\in\{0,1,2\}
+\end{aligned}
+\]
+\end{block}
+
+
+\begin{block}{Incoherent domain}
+\[
+\begin{aligned}
+\hat{\mathcal D}(\mathbf{Y})=&\left\{\mathbf{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
+&\left.(0,0,1)',\mathbf{(0,1,1)'},\mathbf{(1,0,1)'},(1,1,1)',\right.\\
+&\left.(0,0,2)',(0,1,2)',(1,0,2)',\mathbf{(1,1,2)'}\right\}\,,
+\end{aligned}
+\]
+\end{block}
+
+
+\begin{block}{Coherent domain}
+\[
+    \tilde{\mathcal D}(\mathbf{Y})=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
+\]    
+    
+\end{block}
+\end{frame}
+
+\begin{frame}
+\framtitle{Incoherent and coherent forecasts}
+\end{frame}
+
+\section{Score-optimal algorithm: DFR}
+
+\section{Addressing the dimensionality problem: SDFR}
+
+\section{Simulation}
+
+\section{Emprical study}
+
+\section{Conclusion}
+
+
+
+\bibliography{../manuscript/references.bib}
+\bibliographystyle{agsm}
+\end{document}

@@ -18,4 +18,11 @@
 .Rdata
 .Rhistory*
 
+*.snm
+*.nav
+*.toc
+
+_minted*
+
+
 !*/figures/*.pdf
