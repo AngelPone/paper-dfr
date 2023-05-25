@@ -145,18 +145,21 @@ We partition $\bY$ so that the first $m$ elements are \textit{basis} variables a
 The determined variables are some deterministic functions of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways.
 Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $i = 1, 2, \dots, n$.
 
-\subsection{Incoherent and coherent domain}\label{sec:domains}
-The \textit{incoherent domain} of $\bY$ is given by
+\subsection{Discrete coherence}\label{sec:domains}
+
+To define coherence in the discrete setting, first requires definitions of three sets upon which predictive distributions can be defined. The \textit{complete domain} of $\bY$ is given by
 \[
 \hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\},
 \]
-where products are Cartesian products taken over sets.
+where products are Cartesian products taken over sets, i.e. any possible vector where each element corresponds to a possible discrete value of a single variable..
 The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$, which is denoted by $q$.
 The incoherent domain is analogous to $\mathbb{R}^n$ in the continuous case.
 
 The \textit{coherent domain} of $\bY$, denoted as $\tilde{\mathcal D}(\bY)$, is given by a subset of $\hat{\mathcal D}(\bY)$, for which aggregation constraints hold.
 It has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which we denote as $r$.
 The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
+
+The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set difference between the complete domain and incoherent domain, i.e. the set of points for which the aggregation constraints do not hold.
 
   \subsubsection*{\textbf{Example}.}
   \label{sec:example}
@@ -167,7 +170,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
     \mathcal{D}(Y_2)=\left\{0,1\right\},\quad
     \mathcal{D}(Y_3)=\left\{0,1,2\right\}.
   \]
-  The incoherent domain is
+  The complete domain is
   \begin{equation}
   \begin{aligned}
   \hat{\mathcal D}(\bY)=&\left\{\mathbf{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
@@ -178,8 +181,18 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \end{equation}
   and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in \textbf{bold} in Equation~\eqref{eq:incoherent}. Thus the coherent domain is
   \[
-      \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,.
+      \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,,
   \]
+  while the incoherent domain $\bar{\mathcal D}(\bY)$ is the set of points for which the aggregation constraints do not hold, i.e.
+    \[
+  \tilde{\mathcal D}(\bY)=\left\{(0,1,0)',(1,0,0)',(1,1,0)',(0,0,1)',
+  (1,1,1)',(0,0,2)',(0,1,2)',(1,0,2)'
+  \right\}\,,
+  \]
+  
+  Definition
+  
+  A discrete coherent distribution has the property $Pr(Y=y)=0 \forall y\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
 
   \subsection{Coherency of predictive distribution for discrete-valued HTS}
 
@@ -188,8 +201,8 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we denote the resulting probability vector as $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the incoherent domain.
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;
-  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two denotations are linked by a function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
-  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc.
+  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by a function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
+  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterise a probability mass function, `probability vectors' and `pmfs' will be used interchangeably throughout the rest of the paper.
 
   The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat{\mathcal{H}}$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold.
   This situation usually occurs in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence.
@@ -243,7 +256,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     \subsection{The discrete reconciliation framework}
 
-    In general, the discrete reconciliation framework constructs the coherent distribution by assigning mass from incoherent points to coherent points in the predictive distribution.
+    Loosely speaking, the discrete reconciliation framework constructs the coherent distribution by assigning mass from incoherent points to coherent points in the predictive distribution.
     Let $\tilde{\bpi} = \psi(\hat{\bpi})$ with the superscript $t+h|t$ dropped for convenience, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is a reconciliation function that maps mass from the incoherent joint pmf to a coherent one.
     This framework is analogous to that described in \cite{panagiotelisProbabilisticForecastReconciliation2022}, where an incoherent probability measure on $\mathbb{R}^n$ is mapped onto the coherent subspace $\mathfrak{s}$.
 
@@ -434,12 +447,10 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     \subsection{Probabilistic extensions of bottom-up and top-down methods for count series}
 
-    The top-down and bottom-up methods are traditional and straightforward techniques used for hierarchical point forecasting.
-    These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
-    In this section, we extend this idea to discrete cases by introducing the Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods. These approaches can produce distributional forecasts for count time series based on base forecasts from a single level.
-    We also show how these two approaches can be incorporated into the proposed linear reconciliation method.
-
-    \subsubsection*{\textbf{Discrete bottom-up}}
+    Having extended the framework of forecast reconciliation to the discrete case, we can also define discrete analogues to the traditional top-down and bottom up reconciliation methods. These will be used as benchmarks in our empirical examples. These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
+    We refer to these algorithms as Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods and both are special cases of our reconciliation framework. 
+    
+    \subsubsection*{\textbf{Discrete bottom-up and top down}}
     \label{sec:bottomup}
 
     The discrete bottom-up method constructs a coherent distribution by assuming independent bottom-level forecasts.
@@ -763,11 +774,11 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      The proposed discrete reconciliation framework can generate coherent distributional forecasts for discrete-valued HTS.
      Summary statistics such as median, mean, and quantiles can be derived from the marginal distribution obtained from the distributional forecasts.
      It is worth noting that mean point forecasts obtained in this way are also coherent in terms of aggregation.
-     Moreover, our methods offer precise distributions instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
+     %Moreover, our methods offer precise distributions instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
      This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix.
-     From a machine learning perspective, this procedure can be viewed as a classification problem with $r$ categories and a $q$-dimensional input. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
-     When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model.
+     From a machine learning perspective, this procedure can be viewed as a classification problem with an $r$ dimensional output representing class probabilities and a $q$-dimensional input. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
+     When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. This poses an interesting avenue for future research.
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
