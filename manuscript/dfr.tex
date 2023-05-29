@@ -72,7 +72,7 @@ In the past decades, hierarchical forecasting has attracted significant attentio
 These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
 
 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields.
-Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan" events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
+Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan'' events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
 Count hierarchical time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
 However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued data.
 This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS.
@@ -117,7 +117,7 @@ To the best of our knowledge, existing literature on count HTS forecasting is li
 The reconciled forecasts are derived by generalizing Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
 Although this innovative approach yields coherent probabilistic forecasts,
-the conditional manner employed can fails to account for the dependence structure within hierarchical time series.
+the conditional manner employed can fail to account for the dependence structure within hierarchical time series.
 Incorporating correlation necessitates base predictive distributions that are obtained through multivariate base models, which, notwithstanding advances in methods such as copulas, remain challenging.
 
 In this paper, we seek to address the hierarchical forecasting problem for discrete-valued time series, particularly focusing on low-count time series.
@@ -237,7 +237,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
        \hat{\pi}^{t+h|t}_{(112)}
        \right]',
   \]
-  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, and $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also the function $\hat{\mathcal{H}}$ is defined so that $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc.
+  where the notation $\hat{\pi}^{t+h|t}_{1}$ can be used instead of $\hat{\pi}^{t+h|t}_{(000)}$, and $\hat{\pi}^{t+h|t}_{2}$ can be used instead of $\hat{\pi}^{t+h|t}_{(010)}$, etc. Also, the function $\hat{\mathcal{H}}$ is defined so that $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc.
 
   The coherent probabilistic forecast is given by
   \[
@@ -247,7 +247,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \tilde{\pi}^{t+h|t}_{(101)},
   \tilde{\pi}^{t+h|t}_{(112)}
   \right]',\]
-  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique, which does not affect the proposed algorithms.
+  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also, the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique, which does not affect the proposed algorithms.
 
 \section{Method}
 \label{sec:method}
@@ -315,7 +315,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     \subsubsection*{\textbf{Costs}}
     In addition to minimizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
-    This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to  a \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
+    This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
     c_{kj}=||\hat{\mathcal{H}}(j)-\tilde{\mathcal{H}}(k)||_1\,,
@@ -341,7 +341,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
     \]
     which is a combination of minimizing the average Brier score and a regularising penalty term.
-    The first term is the negative average Brier Score used to form a minimization problem. The second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with $\mathcal{L}_1$ distance $c_{kj}$.
+    The first term is the average Brier Score used to form a minimization problem. The second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with $\mathcal{L}_1$ distance $c_{kj}$.
     The penalty strength can be adjusted using manually specified coefficient $\lambda$.
     This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.
 
@@ -376,7 +376,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence, and compared to corresponding realisations $\mathbf{z}$.
     Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
     In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with the base incoherent distribution.
-    Furthermore, We obtain multi-step ahead forecasts by building a separate reconciliation model for each step.
+    Furthermore, We obtain multistep ahead forecasts by building a separate reconciliation model for each step.
 
     \begin{figure}
     \centering
@@ -448,7 +448,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   For space-saving purposes here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
 
-  Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently, we averaging results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
+  Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently, we average results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
   When handling hierarchy with more aggregation levels, we can repeat the above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile the next level.
 
 
@@ -527,7 +527,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times.
-    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarises the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
     The best average performance of the four approaches is indicated by bold text in each row.
     DFR performs the best for both the single series and the hierarchy.
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
@@ -575,7 +575,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \subsubsection{Simulation setup}
 
-     While intermittent series are characterized by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
+     While intermittent series are characterised by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
      Based on this understanding, we initially simulate weekly time series with a seasonal period of four, which are subsequently disaggregated into daily time series.
 
      Assuming that the weekly time series follows a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average (ARIMA) process. This procedure is implemented with the \code{gratis} package \citep{gratis}
@@ -624,7 +624,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \subsubsection{Simulation results}
      We repeated the simulation process $1000$ times.
-     Table~\ref{tab:sim_temporal_res_dist} summarizes the probabilistic forecast performance of the stepwise reconciliation model in comparison to base forecasts, discrete bottom-up and discrete top-down methods.
+     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model in comparison to base forecasts, discrete bottom-up and discrete top-down methods.
      $Y_1,\dots,Y_7$ represent the daily series at the bottom level, while $Y_8$ denotes the weekly series at the total level.
      Although SDFR does not enhance forecast accuracies for all series, the results
      demonstrate a compromise between discrete top-down and discrete bottom-up methods.
