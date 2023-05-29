@@ -1,7 +1,7 @@
 \documentclass[a4paper,review,12pt,authoryear]{elsarticle}
 
 \usepackage{natbib}
-\usepackage{amsfonts,amsmath,bbm,bm,xcolor,booktabs,hyperref}
+\usepackage{amsfonts,amsmath,bbm,bm,xcolor,booktabs,hyperref,amsthm}
 \usepackage[ruled]{algorithm2e}
 \usepackage{geometry}
 \usepackage{subfig}
@@ -23,6 +23,10 @@
 \newcommand{\bpi}{\bm{\pi}}
 \newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
 \def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
 
 \begin{document}
 
@@ -78,7 +82,7 @@ Moreover, the approach can be applied to any discrete-valued multivariate random
 While point and interval forecasts are most widely applied in practice, it is important to consider the probability distribution that describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
 Concerning forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf).
 Pmfs provide probabilities for each point in their discrete support,
-which is particularly crucial for low-count time series (\citealp{petropoulosForecastingTheoryPractice2022a}).
+which is particularly crucial for low-count time series (\citealp{freelandForecastingDiscreteValued2004}).
 By utilising joint pmfs, we develop the definitions of coherency and incoherency for count hierarchical forecasts.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts,
@@ -129,14 +133,14 @@ The remainder of this paper is organised as follows.
 Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
 Section \ref{sec:method} details the proposed discrete reconciliation framework based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section.
 Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and two empirical experiments are conducted in Section \ref{sec:application}.
-Finally, Section \ref{sec:conclusion} concludes with some discussions and thoughts on future research.
+Then, Section \ref{sec:discussion} presents discussions and thoughts on future research. 
+Finally, Section \ref{sec:conclusion} concludes the paper.
 
 
 
 \section{Coherence of probabilistic hierarchical count forecasts}
 
 \label{sec:coherence}
-
 
 % \subsection{Preliminaries}
 
@@ -149,17 +153,15 @@ Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1
 
 To define coherence in the discrete setting, first requires definitions of three sets upon which predictive distributions can be defined. The \textit{complete domain} of $\bY$ is given by
 \[
-\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(\bY_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\},
+\hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(Y_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\},
 \]
-where products are Cartesian products taken over sets, i.e. any possible vector where each element corresponds to a possible discrete value of a single variable..
-The cardinality of the incoherent domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$, which is denoted by $q$.
-The incoherent domain is analogous to $\mathbb{R}^n$ in the continuous case.
+where products are Cartesian products taken over sets, i.e. any possible vector where each element corresponds to a possible discrete value of a single variable.
+The cardinality of the complete domain is $|\hat{\mathcal D}(\bY)|=\prod\limits_{i=1}^{n} (D_i+1)$, which is denoted by $q$.
+The complete domain is analogous to $\mathbb{R}^n$ in the continuous case.
 
 The \textit{coherent domain} of $\bY$, denoted as $\tilde{\mathcal D}(\bY)$, is given by a subset of $\hat{\mathcal D}(\bY)$, for which aggregation constraints hold.
 It has cardinality $|\tilde{\mathcal D}(\bY)|=\prod\limits_{i=1}^{m} (D_i+1)$, which we denote as $r$.
-The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}).
-
-The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set difference between the complete domain and incoherent domain, i.e. the set of points for which the aggregation constraints do not hold.
+The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the continuous case (\citealp{panagiotelisProbabilisticForecastReconciliation2022}). The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set difference between the complete domain and incoherent domain, i.e. the set of points for which the aggregation constraints do not hold.
 
   \subsubsection*{\textbf{Example}.}
   \label{sec:example}
@@ -179,32 +181,34 @@ The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set dif
   \end{aligned}
   \label{eq:incoherent}
   \end{equation}
-  and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in \textbf{bold} in Equation~\eqref{eq:incoherent}. Thus the coherent domain is
+  and the coherent domain consists of those points for which $y_1+y_2=y_3$, highlighted in \textbf{bold} in Equation~\eqref{eq:incoherent}. Thus, the coherent domain is
   \[
       \tilde{\mathcal D}(\bY)=\left\{(0,0,0)',(0,1,1)',(1,0,1)',(1,1,2)'\right\}\,,
   \]
   while the incoherent domain $\bar{\mathcal D}(\bY)$ is the set of points for which the aggregation constraints do not hold, i.e.
     \[
-  \tilde{\mathcal D}(\bY)=\left\{(0,1,0)',(1,0,0)',(1,1,0)',(0,0,1)',
+  \bar{\mathcal D}(\bY)=\left\{(0,1,0)',(1,0,0)',(1,1,0)',(0,0,1)',
   (1,1,1)',(0,0,2)',(0,1,2)',(1,0,2)'
   \right\}\,,
   \]
   
-  Definition
+  \begin{definition}[Discrete coherence]
   
-  A discrete coherent distribution has the property $Pr(Y=y)=0 \forall y\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
+  A discrete coherent distribution has the property $Pr(\mathbf{Y}=\bm{y})=0, \forall \bm{y}\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
+
+  \end{definition}
 
   \subsection{Coherency of predictive distribution for discrete-valued HTS}
 
   \label{sec:coherent_df}
 
-  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we denote the resulting probability vector as $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the incoherent domain.
+  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we represent the resulting predcitive distribution using a mapping function $\hat{\mathcal{H}}$ and a probability vector $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the complete domain.
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;
-  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by a function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
-  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterise a probability mass function, `probability vectors' and `pmfs' will be used interchangeably throughout the rest of the paper.
+  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by the function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
+  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterise a probability mass function, `probability vectors', `pmfs' and `distribution' will be used interchangeably throughout the rest of the paper.
 
-  The combination of probability vector $\hat{\bpi}^{t+h|t}$ and link function $\hat{\mathcal{H}}$ constructs an incoherent predictive distribution provided there exists some $\hat{\bpi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold.
+  The predictive distribution is incoherent provided there exists some $\hat{\pi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold.
   This situation usually occurs in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence.
   Such forecasts will generally be incoherent.
   For instance, in the simple example provided, if we suppose $Pr(Y_1=0)=0.2$,~$Pr(Y_2=1)=0.1$,~$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05=0.001$, which assigns non-zero probability to an incoherent point.
@@ -213,7 +217,6 @@ The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set dif
   The notation $\tilde{\pi}_k^{t+h|t}$ represents the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element of this vector that corresponds to the forecast probability that $\bY$ takes on a coherent value $(y_1,y_2,\dots,y_n)'$.
   The analogue to $\hat{\mathcal{H}}(j)$ is a function  $\tilde{\mathcal{H}}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$, which maps each index $k$ to a coherent configuration of values that $\bY$ can take.
   Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc.
-  Combining both probability vector $\tilde{\bpi}^{t+h|t}$ and link function $\tilde{\mathcal{H}}$ constructs a coherent predictive distribution.
 
   \subsubsection*{\textbf{Example}.}
 
@@ -249,7 +252,7 @@ The \textit{incoherent domain} $\bar{\mathcal D}(\bY)$ is defined as the set dif
 \section{Method}
 \label{sec:method}
 
-This section introduces a formal framework for discrete forecast reconciliation based on the distributional coherence defined in Section~\ref{sec:coherence}.
+This section introduces a formal framework for discrete forecast reconciliation based on the discrete coherence defined in Section~\ref{sec:coherence}.
 We then present an algorithm that optimises Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Section~\ref{sec:algorithm1}.
 To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that decomposes the hierarchy in Section~\ref{sec:algorithm2}.
 Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
@@ -295,8 +298,15 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Brier score is a strictly proper scoring rule that is easy to implement.
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
 
-    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is a rolling window. Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
-    The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ rolling windows as
+    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window obtained using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}).
+    Figure~\ref{fig:rollingwindow} depicts the behaviour of expanding window, which begins with an initial window size and adds one observation for fitting and forecasting $h$ steps ahead in each iteration. This process continues until the observation at time $t$ is included in the forecast horizon.
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/rolling_window.pdf}
+    \caption{\label{fig:rollingwindow} Diagram of expanding window strategy.}
+    \end{figure}
+    Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
+    The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ expanding windows as
     \begin{align*}
     {\overline{BS}}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
     =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
@@ -305,7 +315,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This is a quadratic function of $a_{kj}$ with larger values indicating a better coherent forecast.
 
     \subsubsection*{\textbf{Costs}}
-    In addition to minimizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
+    In addition to maximizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to  a \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
@@ -316,7 +326,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
     \]
     It should be noted that unlike in continuous cases, there may not be a unique nearest coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent.
-    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections.
+    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections. {\color{red} TAS}
     Although it is possible to define costs based on other distance measures such as  $\mathcal{L}_2$ norm and assign different weights to different series within the hierarchy when determining the costs, the  $\mathcal{L}_1$ norm allows the problem to be represented in a way that can be solved with quadratic programming.
 
 
@@ -328,10 +338,10 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \lambda\sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
     \]
     subject to
-    \begin{align*}
-    &0\leq a_{kj}\leq 1,\forall j, k\\
-    &\sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
-    \end{align*}
+    \[
+    0\leq a_{kj}\leq 1,\forall j, k \quad \text{and} \quad
+    \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
+    \]
     which is a combination of maximizing the average Brier score and a regularising penalty term.
     The first term is the negative average Brier Score used to form a minimization problem. The second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with $\mathcal{L}_1$ distance $c_{kj}$.
     The penalty strength can be adjusted using manually specified coefficient $\lambda$.
@@ -359,13 +369,13 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     The dependence structure within the hierarchy is captured during the training of the $\bm{A}$ matrix.
     In general, assuming forecasts are made for each variable, the $k$-th element of the resulting probability vector is calculated as follows: \[
       \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
-    \]
-
+    \] 
+    
     Combining all the elements considered above, we propose the Discrete Forecast Reconciliation (DFR) algorithm.
     The architecture of the proposed architecture is illustrated in Figure~\ref{fig:dfr}.
     It consists of two stages: training and forecasting.
-    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}) given an initial window size $(T - \mathcal{T}_{\text{window}}-h+1)$, where $h$ represents the forecast horizon.
-    For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence. and compared to corresponding realizations $\mathbf{z}$.
+    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows.
+    For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence, and compared to corresponding realisations $\mathbf{z}$.
     Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
     In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with the base incoherent distribution.
     Furthermore, We obtain multi-step ahead forecasts by building a separate reconciliation model for each step.
@@ -440,7 +450,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   For space-saving purposes here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
 
-  Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently,we averaging results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
+  Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently, we averaging results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
   When handling hierarchy with more aggregation levels, we can repeat the above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile the next level.
 
 
@@ -450,7 +460,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Having extended the framework of forecast reconciliation to the discrete case, we can also define discrete analogues to the traditional top-down and bottom up reconciliation methods. These will be used as benchmarks in our empirical examples. These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
     We refer to these algorithms as Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods and both are special cases of our reconciliation framework. 
     
-    \subsubsection*{\textbf{Discrete bottom-up and top down}}
+    \subsubsection*{\textbf{Discrete bottom-up}}
     \label{sec:bottomup}
 
     The discrete bottom-up method constructs a coherent distribution by assuming independent bottom-level forecasts.
@@ -515,17 +525,17 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     The first $300$ observations are used to train the DFR model, while the remaining $30$ observations are used to test performance.
 
     The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
-    We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
+    We evaluate the performance based on average negative Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
 
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times.
-    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average negative Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
     The best average performance of the four approaches is indicated by bold text in each row.
     DFR performs the best for both the single series and the hierarchy.
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
+    Note that negative Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
 
     We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy among these approaches.
     This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
@@ -536,14 +546,14 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     \begin{figure}
       \centering
       \label{fig:mcb_crosssectional}
-      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
       \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
     \end{figure}
 
 
     \begin{table}
       \centering
-      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with Brier Score ($\times 10^{-2}$).}
+      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with negative Brier Score ($\times 10^{-2}$).}
       \begin{tabular}{lcccc}
       \toprule
       % \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\
@@ -570,24 +580,24 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      While intermittent series are characterized by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
      Based on this understanding, we initially simulate weekly time series with a seasonal period of four, which are subsequently disaggregated into daily time series.
 
-     Assuming that the weekly time series follows a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average(ARIMA) process. This procedure is implemented with the \code{gratis} package \citep{gratis}
-     for the \proglang{R} programming language.
-     The controlled parameters are shown in Table~\ref{tab:parameters}. Additional parameters are randomly produced by the package to ensure the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
+     Assuming that the weekly time series follows a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average (ARIMA) process. This procedure is implemented with the \code{gratis} package \citep{gratis}
+     for the \proglang{R} programming language. We set the seasonal period, number of autoregressive terms, difference order and seasonal difference order to $4$, $3$, $0$ and $0$ respectively. 
+     Additional parameters are randomly produced by the package to ensure the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
      Given that the domain of the weekly time series in our context is finite (i.e., $\leq 7$), we linearly map the generated conditional mean series into the range of $[2.5, 4.5]$.
      Subsequently, we simulate the Poisson distributed series based on the conditional mean series. Values exceeding $7$ are set to $7$.
 
-     \begin{table}[h]
-       \centering
-       \caption{\label{tab:parameters} Parameter settings of the ARIMA process used to simulate the conditional mean of weekly time series in the temporal setting. Other parameters are randomly selected by the \texttt{gratis} algorithm.}
-       \begin{tabular}{lc}
-         \toprule
-         Parameter & Value \\ \midrule
-         Seasonal period & \texttt{4} \\
-         Number of autoregressive terms & \texttt{3} \\
-         Difference order & \texttt{0} \\
-         Seasonal difference order & \texttt{0} \\ \bottomrule
-       \end{tabular}
-     \end{table}
+    %  \begin{table}[h]
+    %    \centering
+    %    \caption{\label{tab:parameters} Parameter settings of the ARIMA process used to simulate the conditional mean of weekly time series in the temporal setting. Other parameters are randomly selected by the \texttt{gratis} algorithm.}
+    %    \begin{tabular}{lc}
+    %      \toprule
+    %      Parameter & Value \\ \midrule
+    %      Seasonal period & \texttt{4} \\
+    %      Number of autoregressive terms & \texttt{3} \\
+    %      Difference order & \texttt{0} \\
+    %      Seasonal difference order & \texttt{0} \\ \bottomrule
+    %    \end{tabular}
+    %  \end{table}
 
      The weekly time series are then disaggregated into daily time series by randomly selecting days for which $Y=1$ and maintaining coherence.
      We first simulate seven probabilities based on seven independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of $Y=1$ from Monday to Sunday.
@@ -604,7 +614,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We implement the logistic regression model with the \code{glm} function in \proglang{R}.
 
      Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}).
-     Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model utilises past observations and conditional mean to fit the conditional mean of current observation.
+     Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model utilises past observations and conditional mean to fit the conditional mean of current observation. The model $\textrm{INGARCH}(p, q)$ has the following form:
+     \[
+      \lambda_t = \beta_0 + \sum_{k=1}^p \beta_ky_{t-k} + \sum_{l=1}^q \alpha_l\lambda_{t-l}, 
+     \] where $\beta_k, k=0,\dots,p$ and $\alpha_l, l=1,\dots,q$ are unknown parameters. $\lambda_t$ is the conditional mean at time $t$.
      For the sake of simplicity, we construct $\textrm{INGARCH}(3, 3)$ models for all weekly time series, which take the conditional mean and observations from the most recent three steps as regressors.
      We implement the $\textrm{INGARCH}$ model utilising the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
      Given the predicted mean of Poisson distribution within the forecast horizon, we add the probability of the series taking values greater than its maximum up to the probability of taking its maximum value.
@@ -628,7 +641,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}
      \centering
-     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-3}$).}
+     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with negative Brier Score ($\times 10^{-3}$).}
      \begin{tabular}{lcccc}
      \toprule
 %     \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
@@ -648,7 +661,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 
      \begin{figure}
-       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
        \includegraphics[width=\textwidth]{figures/temporal_mcb.pdf}
      \end{figure}
 
@@ -704,13 +717,13 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \end{table}
 
      \begin{figure}[h]
-       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
        \centering
        \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
 
 
-     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
+     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median negative Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
 
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
      \label{sec:application_mortality}
@@ -751,7 +764,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}
        \centering
-       \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of mortality application with Brier Score ($\times 10^{-3}$).}
+       \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of mortality application with negative Brier Score ($\times 10^{-3}$).}
        \begin{tabular}{lcccc}
        \toprule
        % \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
@@ -767,6 +780,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \end{table}
 
      \section{Discussion}
+     \label{sec:discussion}
 
 
 
@@ -782,7 +796,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     We suggest applying the proposed algorithm to a small to moderate sized hierarchies, when applying to large hierarchies, the bottom-level series should be low-count, such as binary.
+     We suggest applying the proposed algorithm to a small to moderate sized hierarchies, when applying to large hierarchies, the bottom-level series should be low-count, such as binary ({\color{red} TAS continuous and discrete problem, future research}).
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately.
@@ -824,11 +838,12 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 Yanfei Kang is supported by the National Natural Science Foundation of China (No. 72171011). Feng Li is supported by the Beijing Universities Advanced Disciplines Initiative (No. GJJ2019163) and the Emerging Interdisciplinary Project of CUFE. This research was supported by the high-performance computing (HPC) resources at Beihang University.
 
-\newpage
 
+\begingroup
+\setstretch{1.15}
 \bibliographystyle{agsm}
 \bibliography{references.bib}
-
+\endgroup
 
 \newpage
 
