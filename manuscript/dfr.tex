@@ -291,15 +291,14 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Alternative scoring rules that can be used to evaluate discrete distributions include the Brier Score, spherical Score and logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details).
     The Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
-      \text{BS}(\bpi, \mathbf{z}) = -\sum_{k=1}^{O}(z_k - \pi_k)^2,
+      \text{BS}(\bpi, \mathbf{z}) = \sum_{k=1}^{O}(z_k - \pi_k)^2,
     \] where $\bpi$, $\mathbf{z}$ and $k$ are defined similarly as in Section~\ref{sec:coherent_df}.
-    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$.
-    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
+    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. The score is defined here to be negatively oriented, i.e. smaller values of the score indicate more accurate forecasts.    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
     Brier score is a strictly proper scoring rule that is easy to implement.
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
 
-    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window obtained using the rolling forecast origin strategy (\citealp{hyndmanForecastingPrinciplesPractice2021}).
-    Figure~\ref{fig:rollingwindow} depicts the behaviour of expanding window, which begins with an initial window size and adds one observation for fitting and forecasting $h$ steps ahead in each iteration. This process continues until the observation at time $t$ is included in the forecast horizon.
+    Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window (\citealp{hyndmanForecastingPrinciplesPractice2021}).
+    Figure~\ref{fig:rollingwindow} depicts the behaviour of the expanding window, where the training data always begins at the same origin, one observation is added to the training data for each window, and forecasts are made $h$ steps ahead. This process continues until the last observation is included in the forecast horizon.
     \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{figures/rolling_window.pdf}
@@ -308,14 +307,14 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
     The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ expanding windows as
     \begin{align*}
-    {\overline{BS}}=& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
-    =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
-    =& -\frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
+    {\overline{BS}}=& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
+    =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
+    =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
     \end{align*}
-    This is a quadratic function of $a_{kj}$ with larger values indicating a better coherent forecast.
+    This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
     \subsubsection*{\textbf{Costs}}
-    In addition to maximizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
+    In addition to minimizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to  a \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
@@ -326,8 +325,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
     \]
     It should be noted that unlike in continuous cases, there may not be a unique nearest coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent.
-    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections. {\color{red} TAS}
-    Although it is possible to define costs based on other distance measures such as  $\mathcal{L}_2$ norm and assign different weights to different series within the hierarchy when determining the costs, the  $\mathcal{L}_1$ norm allows the problem to be represented in a way that can be solved with quadratic programming.
+    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections. It is possible to define costs based on other distance measures such as the $\mathcal{L}_2$ norm and still solve using quadratic programming.
 
 
     \subsubsection*{\textbf{Objective}}
@@ -342,7 +340,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     0\leq a_{kj}\leq 1,\forall j, k \quad \text{and} \quad
     \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
     \]
-    which is a combination of maximizing the average Brier score and a regularising penalty term.
+    which is a combination of minimizing the average Brier score and a regularising penalty term.
     The first term is the negative average Brier Score used to form a minimization problem. The second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with $\mathcal{L}_1$ distance $c_{kj}$.
     The penalty strength can be adjusted using manually specified coefficient $\lambda$.
     This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.
@@ -525,17 +523,17 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     The first $300$ observations are used to train the DFR model, while the remaining $30$ observations are used to test performance.
 
     The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
-    We evaluate the performance based on average negative Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
+    We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
 
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times.
-    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average negative Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarizes the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
     The best average performance of the four approaches is indicated by bold text in each row.
     DFR performs the best for both the single series and the hierarchy.
     The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that negative Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
+    Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
 
     We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy among these approaches.
     This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
@@ -546,14 +544,14 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     \begin{figure}
       \centering
       \label{fig:mcb_crosssectional}
-      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
+      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
       \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
     \end{figure}
 
 
     \begin{table}
       \centering
-      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with negative Brier Score ($\times 10^{-2}$).}
+      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with Brier Score ($\times 10^{-2}$).}
       \begin{tabular}{lcccc}
       \toprule
       % \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\
@@ -641,7 +639,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}
      \centering
-     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with negative Brier Score ($\times 10^{-3}$).}
+     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-3}$).}
      \begin{tabular}{lcccc}
      \toprule
 %     \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
@@ -661,7 +659,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 
      \begin{figure}
-       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
+       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \includegraphics[width=\textwidth]{figures/temporal_mcb.pdf}
      \end{figure}
 
@@ -698,12 +696,12 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      These reconciled forecasts are then used to evaluate forecasting performance.
 
      We calculate Brier Scores for each sample at the total level, the bottom level and the entire hierarchy.
-     Table~\ref{tab:crime_bs} summarises the mean and median negative Brier Score of the $3696$ samples.
+     Table~\ref{tab:crime_bs} summarises the mean and median Brier Score of the $3696$ samples.
      We also perform MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
 
      \begin{table}[h]
        \centering
-       \caption{\label{tab:crime_bs}Summarised negative Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
+       \caption{\label{tab:crime_bs}Summarised Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
        \begin{tabular}{ccccccccc}
        \toprule
        &\multicolumn{4}{c}{Mean}
@@ -717,13 +715,13 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \end{table}
 
      \begin{figure}[h]
-       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of negative Brier scores are shown to the right of their names.}
+       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \centering
        \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
 
 
-     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median negative Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
+     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
 
      \subsection{Application: forecasting mortality threshold exceedance in Australia}
      \label{sec:application_mortality}
@@ -755,7 +753,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      INGARCH(3, 5) models generated base forecasts for all series.
 
      Brier Scores are evaluated for each age group, the total series and the entire hierarchy.
-     Table~\ref{tab:mortality_age} presents an overview of the average negative Brier Scores across the ten testing samples.
+     Table~\ref{tab:mortality_age} presents an overview of the average Brier Scores across the ten testing samples.
      The DFR approach yields the most accurate joint forecasts for the hierarchy and outperforms other methods for most single series as well.
      It is disappointing to note that the performance of the oldest group (i.e., $ \ge 85$) decreases, given that this group is typically a priority in practice.
      However, this phenomenon also occurs with reconciliation frameworks in continuous cases.
@@ -764,7 +762,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}
        \centering
-       \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of mortality application with negative Brier Score ($\times 10^{-3}$).}
+       \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of mortality application with Brier Score ($\times 10^{-3}$).}
        \begin{tabular}{lcccc}
        \toprule
        % \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
@@ -796,7 +794,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     We suggest applying the proposed algorithm to a small to moderate sized hierarchies, when applying to large hierarchies, the bottom-level series should be low-count, such as binary ({\color{red} TAS continuous and discrete problem, future research}).
+     We suggest applying the proposed algorithm to a small to moderate sized hierarchies, when applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top level series are likely to be more easily modelled as continuous, reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately.
