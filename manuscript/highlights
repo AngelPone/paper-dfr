@@ -1,0 +1,4 @@
+- We present a discrete reconciliation framework for count hierarchical time series.
+- The proposed DFR algorithm uses quadratic programming to optimise penalised Brier Score.
+- The SDFR algorithm is introduced to handle large hierarchies.
+- Simulations and applications show the superiority of our framework.
