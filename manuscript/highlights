@@ -1,5 +1,0 @@
-- Presents forecast reconciliation framework for discrete hierarchical time series.
-- Proposed DFR algorithm optimises the penalised Brier Score.
-- Optimisation cast as assignment solved using Quadratic Programming.
-- Second algorithm handles computational complexity of larger hierarchies.
-- Simulations and applications show the effectiveness of our framework.
