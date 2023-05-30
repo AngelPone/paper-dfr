@@ -37,11 +37,10 @@
   \author[label1]{Bohan Zhang}
   \address[label1]{School of Economics and Management, Beihang University, Beijing, China}
   \author[label2]{Anastasios Panagiotelis}
-  \author[label1]{Yanfei Kang\corref{cor1}}
-  \ead{yanfeikang@buaa.edu.cn}
   \author[label3]{Feng Li}
 
-
+  \author[label1]{Yanfei Kang\corref{cor1}}
+  \ead{yanfeikang@buaa.edu.cn}
   \cortext[cor1]{Corresponding author.}
   \address[label2]{The University of Sydney Business School, NSW 2006, Australia}
   \address[label3]{School of Statistics and Mathematics, Central University of Finance and Economics, Beijing, China}
@@ -76,10 +75,10 @@ Examples include intermittent demand in the retail industry (\citealp{kourentzes
 Count hierarchical time series are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
 However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued data.
 This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS.
-Moreover, the approach can be applied to any discrete-valued multivariate random variable that follow some deterministic linear constraints.
+Moreover, the approach can be applied to any discrete-valued multivariate random variable that follows some deterministic linear constraints.
 
 
-While point and interval forecasts are most widely applied in practice, it is important to consider the probability distribution that describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
+While point and interval forecasts are most widely applied in practice, it is crucial to consider the probability distribution that describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
 Concerning forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf).
 Pmfs provide probabilities for each point in their discrete support,
 which is particularly crucial for low-count time series (\citealp{freelandForecastingDiscreteValued2004}).
@@ -125,7 +124,7 @@ Firstly, we introduce the notion of ``coherence'' for hierarchical counts,
 bearing a resemblance to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
 Secondly, we utilise these concepts to establish a formal reconciliation framework for count HTSs, which generally reconciles the forecasts by assigning probability from incoherent to coherent domain points.
 Thirdly, we adopt the Brier score as a metric for evaluating forecasts and present a reconciliation algorithm that optimises this metric.
-We also demonstrate how this algorithm can be solved through quadratic programming and to speed up the computation, we develop a second stepwise algorithm.
+We also demonstrate how this algorithm can be solved through quadratic programming, and to speed up the computation, we develop a second stepwise algorithm.
 Fourthly, two simulation experiments are performed to verify the applicability in both temporal and cross-sectional settings.
 Lastly, we conduct two empirical experiments using real data. The first experiment analyses a crime dataset with a temporal hierarchy, and the other employs cross-sectional mortality data.
 
@@ -146,12 +145,12 @@ Finally, Section \ref{sec:conclusion} concludes the paper.
 
 Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
 We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic functions of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables in different ways.
+The determined variables are some deterministic functions of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables differently.
 Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $i = 1, 2, \dots, n$.
 
 \subsection{Discrete coherence}\label{sec:domains}
 
-To define coherence in the discrete setting, first requires definitions of three sets upon which predictive distributions can be defined. The \textit{complete domain} of $\bY$ is given by
+Defining coherence in the discrete setting first requires definitions of three sets upon which predictive distributions can be defined. The \textit{complete domain} of $\bY$ is given by
 \[
 \hat{\mathcal D}(\bY)=\prod\limits_{i=1}^n\hat{\mathcal D}(Y_i)=\left\{0, 1,2,\dots,D_1\right\}\times\left\{0,1,2,\dots,D_2\right\}\times\dots\times\left\{0,1,2,\dots,D_n\right\},
 \]
@@ -293,7 +292,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \[
       \text{BS}(\bpi, \mathbf{z}) = \sum_{k=1}^{O}(z_k - \pi_k)^2,
     \] where $\bpi$, $\mathbf{z}$ and $k$ are defined similarly as in Section~\ref{sec:coherent_df}.
-    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. The score is defined here to be negatively oriented, i.e. smaller values of the score indicate more accurate forecasts.    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
+    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. The score is defined here to be negatively oriented, i.e., smaller score values indicate more accurate forecasts.    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
     Brier score is a strictly proper scoring rule that is easy to implement.
     More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
 
@@ -356,14 +355,14 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
 
     This movement restriction is similar to using moderate penalty strength on the previous penalised problems.
-    Therefore, it is suggested that this strategy replace the penalty term during practical implementation. It yields similar results with an exponential decrease of parameter numbers and resulting in faster computation speeds.
+    Therefore, it is suggested that this strategy replace the penalty term during practical implementation. It yields similar results with an exponential decrease of parameter numbers and faster computation speeds.
 
     \subsection{The DFR algorithm}
     \label{sec:algorithm1}
 
     The proposed framework accepts an incoherent probabilistic forecast as input, which can be generated using any forecasting process.
-    However, due to limitated research on multivariate count time series forecasting, we recommend constructing an incoherent base distribution from distributions obtained independently using arbitrary univariate forecasting methods.
-    This approach enables the use of univariate forecasting techniques tailored for low-count time series found in existing literature.
+    However, due to limited research on multivariate count time series forecasting, we recommend constructing an incoherent base distribution from distributions obtained independently using arbitrary univariate forecasting methods.
+    This approach enables the use of univariate forecasting techniques tailored for low-count time series found in the existing literature.
     The dependence structure within the hierarchy is captured during the training of the $\bm{A}$ matrix.
     In general, assuming forecasts are made for each variable, the $k$-th element of the resulting probability vector is calculated as follows: \[
       \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
@@ -455,7 +454,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     \subsection{Probabilistic extensions of bottom-up and top-down methods for count series}
 
-    Having extended the framework of forecast reconciliation to the discrete case, we can also define discrete analogues to the traditional top-down and bottom up reconciliation methods. These will be used as benchmarks in our empirical examples. These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
+    Having extended the framework of forecast reconciliation to the discrete case, we can also define discrete analogues to the traditional top-down and bottom-up reconciliation methods. These will be used as benchmarks in our empirical examples. These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
     We refer to these algorithms as Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods and both are special cases of our reconciliation framework. 
     
     \subsubsection*{\textbf{Discrete bottom-up}}
@@ -794,7 +793,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     We suggest applying the proposed algorithm to a small to moderate sized hierarchies, when applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top level series are likely to be more easily modelled as continuous, reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
+     We suggest applying the proposed algorithm to small to moderate-sized hierarchies. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately.
@@ -803,10 +802,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and the corresponding parameters.
 
      This paper presents two simulation experiments and two empirical studies.
-     While the experiment results show a significant improvement in accuracy, the applications are not entirely natural.
+     While the experiment results significantly improve accuracy, the applications are not entirely natural.
      For instance, in the crime forecasting experiment, where extreme values are usually crucial, we truncate the infinite domain of crime numbers.
      In the mortality experiment, binary series are created based on custom thresholds.
-     Future research could apply our proposed frameworks to real scenarios where time series have finite domains, and deterministic constraints exist between them.
+     Future research could apply our proposed frameworks to real scenarios where time series have finite domains and deterministic constraints exist between them.
      It is important to note that these constraints may not only be based on aggregation but can also be other deterministic functions such as logical operators.
 
 
@@ -827,7 +826,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One key factor contributing to our strong results is the utilisation of forecast combinations.
      Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
-     Also of importance is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results.
+     Also important is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results.
 
 
      While this work provides an explanatory attempt at discrete hierarchical time series forecasting, future research should focus more on real-world management problems associated with discrete cases. Count hierarchical time series forecasting remains an open issue that requires further attention from researchers in this area.
