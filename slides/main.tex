@@ -1,20 +1,22 @@
 \documentclass[12pt]{beamer}
 
-
-
-
-%\directlua{ require("drawboxes")}
 \input{bohanbeamerstyle/bohanbeamerstyle}
-
+\usepackage{blkarray}
 % \titlegraphic{ss}
 \title{Discrete Forecast Reconciliation}
 \author{Bohan Zhang}
 \institute{Beihang University \\ 
-KLLAB seminar}
-\date{April 20, 2023}
+IIF Workshop on Forecast Reconciliation}
+\date{September 7, 2023}
 
 
-% \nosectiontitlepage
+% style setting
+\nosectiontitlepage
+\def\outlinespacingscalar{1.3}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+\setbeamercolor{block title}{bg=teal,fg=white}
+\setbeamercolor{block body}{bg=teal!10}
+\setbeamerfont{block title}{size=\fontsize{10}{12}}
 
 \begin{document}
 
@@ -51,51 +53,49 @@ KLLAB seminar}
 
 \section{Introduction}
 \begin{frame}
-\frametitle{Motivation: the problem}
+\frametitle{Motivation}
+\framesubtitle{the problem}
 
 \begin{outline}
-\1 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields. Examples include:
+\1 Non-negative and discrete-valued time series, particularly those with low counts, commonly arise in various fields. Examples include:
 \2 occurrences of “black swan” events
 \2 intermittent demand in the retail industry
 
-\1 Hierarchical time series (HTS) is of great concern in these applications.
+\1 Despite the great concern of hierarchical forecasting in these applications, limited research have been conducted.
 
-\1 {\color{red}However, research attention paied on count HTS forecasting is limited.}
 
 \end{outline}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Motivation: the challenge}
+\frametitle{Motivation: the lesson learned from reconciliation approach}
+
 
 \begin{outline}
-\1 The \textbf{forecast reconciliation framework} can produce coherent forecasts and has been proven to enhance forecast accuracy by utilizing forecast combination.
-\1 Forecast reconciliation was designed for continuous-valued HTS based on projection and \textbf{can not be directly applied to} discrete-valued HTS.
-\2 Forecasts should be “coherent” such that their support matches the support of the variable (\Citealp{freelandForecastingDiscreteValued2004})
-\2 Transformation from continuous forecasts to integer decision introduces additional operational costs.
-
+    \0 The forecast reconciliation approach
+    \1 first produces base forecasts for each series in the hierarchy; then optimally reconciles the base forecasts through projection;
+    \1 utilises forecast combination, which improves forecast accuracy and reduces the risk of model misspecification;
+    \1 has been shown to improve forecast accuracy in various applications.
+    \0 But it was designed for continuous-valued HTS and can not be directly applied to discrete-valued HTS: \textit{projection} may produce non-integer and non-negative forecasts.
 \end{outline}
 
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Motivation: the idea}
+\frametitle{Motivation: probabilistic forecasting}
+    \begin{outline}
 
-To address these concerns, we propose a discrete forecast reconciliation framework which
+        \1 While point and interval forecasts are most widely applied in practice, attention has been shifted towards full predictive distribution.
+        \1 When forecasting discrete-valued time series, it is also more natural to produce predictive distribution.
 
-\begin{itemize}
-    \item first produces probabilistic forecasts for each series, then obtains coherent \textbf{joint predictive distribution} for the HTS through reconciliation,
-    \item allows for the employment of forecasting methods for univariate count time series in the literature,
-    \item utilises scoring rules such as Brier Score to evaluate the forecasts and train the reconciliation matrix.
-\end{itemize}
+    \end{outline}
 
 \end{frame}
 
-\section{Related work}
-\begin{frame}
-\frametitle{Related Work}
+
+\begin{frame}{Related Work}
 
 A series of work on forecast reconciliation for count HTSs:
 
@@ -108,36 +108,58 @@ A series of work on forecast reconciliation for count HTSs:
 
 The proposed framework conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series. However, it fails to restore the dependence structure within hierarchical time series.
 
-
 \end{frame}
 
+\begin{frame}{Contribution}
 
-\section{The discrete forecast reconciliation framework}
-
-\begin{frame}
-\frametitle{Coherent and incoherent domain for discrete HTS}
-\begin{table}
-    \fontsize{9}{10.2}\selectfont
-\begin{tabular}{ll}
-    \toprule
-    HTS & $\mathbf{Y}=(Y_1,Y_2,\dots,Y_n)'$ \\
-    basis time series & $(Y_1,Y_2,\dots,Y_{m})'$ \\
-    domain of $i$-th variable & $\mathcal{D}(Y_i) = \{0,1,\dots,D_i\}$ \\
-    Incoherent domain of HTS & $\hat{\mathcal{D}}(\mathbf{Y}) = \{0,\dots,D_1\}\times \dots\times \{0,\dots,D_n\}$ \\
-    Coherent domain of HTS & $\tilde{\mathcal{D}}(\mathbf{Y}) = \{0,\dots,D_1\}\times \dots\times\{0,\dots,D_m\}$ \\\bottomrule
-\end{tabular}
-\end{table}
+To address these concerns, we 
 
 \begin{itemize}
-    \item Incoherent domain is the Cartesian product of domains of all variables, whose elements are possibly incoherent.
-    \item Coherent domain is a subset of incoherent domain whose elements are \textit{coherent}.
+    \item introduce the definition of \textit{coherent domain and coherent forecasts} in the context of multivariate discrete random variables.
+    \item propose a discrete forecast reconciliation framework.
+    \item develop the DFR and Stepwise DFR (SDFR) algorithms to train the reconciliation matrix.
+    \item extend the top-down and bottom-up method to discrete probabilistic setting for comparison.
+    \item verify the applicability of the algorithms in two simulation expriments and two real-world applications.
 \end{itemize}
 
 \end{frame}
 
 
-\begin{frame}
-\frametitle{Example}
+
+\section{Coherent discrete predictive distribution}
+
+\begin{frame}{Coherent and incoherent domain for discrete HTS}
+\begin{table}
+    \fontsize{10}{12}\selectfont
+\begin{tabular}{ll}
+    \toprule
+    HTS & $\mathbf{Y}=(Y_1,Y_2,\dots,Y_n)'$ \\
+    basis (e.g., bottom-level) time series & $\mathbf{Y}_b = (Y_1,Y_2,\dots,Y_{m})'$ \\
+    domain of $i$-th variable & $\mathcal{D}(Y_i) = \{0,1,\dots,D_i\}$ \\\bottomrule
+\end{tabular}
+\end{table}
+
+
+    Complete domain of $\mathbf{Y}$ is the Cartesian product of domains of all variables.
+    \[
+        \hat{\mathcal{D}}(\mathbf{Y}) = \{0,\dots,D_1\}\times \dots\times \{0,\dots,D_n\} \quad q:= |\hat{\mathcal{D}}(\mathbf{Y})|
+    \]
+
+    Coherent domain of $\mathbf{Y}$ is a subset of $\hat{\mathcal{D}}(\mathbf{Y})$, in which every point respects the aggregation constraints.
+    \[
+        \tilde{\mathcal{D}}(\mathbf{Y}) = \{\mathbf{y} | \mathbf{y}\in \hat{\mathcal{D}}(\mathbf{Y}), S\mathbf{y}_b = \mathbf{y}\} \quad r:=|\tilde{\mathcal{D}}(\mathbf{Y})|
+    \]
+
+    Incoherent domain of $\mathbf{Y}$
+    \[
+        \bar{\mathcal{D}}(\mathbf{Y}) = \hat{\mathcal{D}}(\mathbf{Y}) \backslash \tilde{\mathcal{D}}(\mathbf{Y})
+    \]
+
+
+\end{frame}
+
+
+\begin{frame}{Example}
 \begin{block}{Variables}
 \[
 \begin{aligned}
@@ -148,7 +170,7 @@ The proposed framework conditions base probabilistic forecasts of the most disag
 \end{block}
 
 
-\begin{block}{Incoherent domain}
+\begin{block}{Complete domain}
 \[
 \begin{aligned}
 \hat{\mathcal D}(\mathbf{Y})=&\left\{\mathbf{(0,0,0)'},(0,1,0)',(1,0,0)',(1,1,0)',\right.\\
@@ -167,9 +189,106 @@ The proposed framework conditions base probabilistic forecasts of the most disag
 \end{block}
 \end{frame}
 
-\begin{frame}
-\framtitle{Incoherent and coherent forecasts}
+\begin{frame}{Discrete coherence}
+
+\begin{definition}[Discrete Coherence]
+A coherent discrete distribution has the property $Pr(\mathbf{Y} = 
+\mathbf{y}) = 0, \forall y \in \bar{\mathcal{D}}(\mathbf{Y})$. Any distribution not meeting this condition is an incoherent distribution.
+\end{definition}
+
+\begin{outline}
+    \1 We use a probability vector to represent the discrete predictive distribution.
+    \1 Denote (potentially) incoherent base forecasts by $\hat{\boldsymbol{\pi}}$ and reconciled forecasts by $\tilde{\boldsymbol{\pi}}$.
+    \[
+        \begin{aligned}
+      \hat{\boldsymbol{\pi}} &:= [\hat {\pi}_1, \hat\pi_2\dots, \hat \pi_q]' := [\hat{\pi}_{(y_1,\dots,y_n)^{(1)}}, \dots, \hat{\pi}_{(y_1,\dots,y_n)^{(q)}}] \\
+      \tilde{\boldsymbol{\pi}} &:= [\tilde {\pi}_1, \tilde\pi_2\dots, \tilde \pi_r]' := [\tilde{\pi}_{(y_1,\dots,y_n)^{(1)}}, \dots, \tilde{\pi}_{(y_1,\dots,y_n)^{(r)}}]
+        \end{aligned}
+\]
+\end{outline}
+
 \end{frame}
+
+\begin{frame}{Example}
+
+\begin{block}{Base forecast}
+    \[\begin{aligned}
+            \hat{\boldsymbol{\pi}} = [\hat {\pi}_1, \hat\pi_2\dots, \hat \pi_{12}]' &= [\hat{\pi}_{(001)}, \hat{\pi}_{(011)}\dots, \hat{\pi}_{(112)}]' \\ &= [0.01, 0.02, \dots, 0.03]'       
+        \end{aligned}\]
+\end{block}
+
+\begin{block}{Reconciled forecast}
+\[\begin{aligned}
+    \tilde{\boldsymbol{\pi}} = [\tilde {\pi}_1, \tilde\pi_2, \tilde\pi_3, \tilde\pi_4]'& = [\tilde{\pi}_{(000)}, \tilde{\pi}_{(011)}, \tilde{\pi}_{(101)}\tilde{\pi}_{(112)}]' \\ &= [0.2, 0.3, 0.4 0.1]'      
+\end{aligned}  
+\]
+    
+\end{block}
+
+\end{frame}
+
+\section{The discrete reconciliation framework}
+
+\begin{frame}{The discrete reconciliation framework}
+
+    \begin{outline}
+    \0 \[\tilde{\boldsymbol\pi} = \psi(\hat{\boldsymbol{\pi}})\quad \psi:[0,1]^{q} \rightarrow [0,1]^r\]
+    
+    \0 The linear reconciliation function
+    \[
+        \tilde{\boldsymbol\pi} = \boldsymbol{A}\hat{\boldsymbol{\pi}}
+    \] where, $\boldsymbol{A}=[a_{ij}], i=1,\dots,r,j=1,\dots,q$ is an $r \times q$ \textit{reconciliation matrix} with following constraints:
+    \[\begin{aligned}
+        0 \leq a_{ij} \leq 1, &\forall i, j\\
+        \sum_{i=1}^r a_{ij} = 1, &\forall j
+    \end{aligned}\]
+    The framework reconciles the base forecasts by proportionally assigning the probability of each point in complete domain to points in the coherent domain.
+    \end{outline}
+\end{frame}
+
+\begin{frame}{The discrete reconciliation framework}
+
+\begin{block}{Example}
+    \resizebox{\textwidth}{!}{
+\begin{blockarray}{rcccccccccccc}
+    & 000 & 010 & 100 & 110  & 001  & 011 & 101 & 111 & 002  & 012 & 102 & 112 \\
+\begin{block}{r[cccccccccccc]}
+000 & 0   & 0.4 & 0.3 & 0.25 & 0    & 0   & 0   & 0   & 0.3 & 0   & 1   & 0.2   \\
+011 & 0   & 0.4 & 0.3 & 0.25 & 0.2  & 0   & 0   & 1   & 0.3 & 1   & 0   & 0.3   \\
+101 & 0   & 0   & 0.3 & 0.25 & 0.4  & 0   & 1   & 0   & 0.3 & 0   & 0   & 0.5   \\
+112 & 1   & 0.2 & 0.1 & 0.25 & 0.4  & 1   & 0   & 0   & 0.1 & 0   & 0   & 0     \\
+\end{block}
+\end{blockarray}}            
+\end{block}
+\begin{outline}
+    \1 The framework allows the probability of a point in the complete domain assigned to \text{any} point in the coherent domain. 
+    \1 For example, in an extreme case, from a coherent point $(000)$ to another coherent point $(112)$.
+\end{outline}
+    
+\end{frame}
+
+\begin{frame}{Movement restriction}
+
+\begin{outline}
+\0 Movement restriction strategy requires that the probability is only assgined to \textbf{the cloest coherent points}.
+\1 This is similar to the projection idea in the optimal combination reconciliation framework.    
+\1 A coherent point in the complete domain moves all of its probability to the same point in the coherent domain.
+\1 We choose the L1 norm as the distance measure.
+\[
+    d((0, 0, 0), (0, 0, 1)) = |(0,0,0) - (0,0,1)|_1 = 1  
+\]
+\end{outline}
+\vspace{-3mm}
+\begin{block}{Example}\resizebox{\textwidth}{!}{\begin{blockarray}{rcccccccccccc}
+    & 000 & 010 & 100 & 110  & 001  & 011 & 101 & 111 & 002  & 012 & 102 & 112 \\
+\begin{block}{r[cccccccccccc]}
+000 & 1   & 0.4 & 0.3 & 0.25 & 0.4  & 0   & 0   & 0   & 0.3 & 0    & 0   & 0   \\
+011 & 0   & 0.6 & 0   & 0.25 & 0.3  & 1   & 0   & 0.3 & 0.3 & 0.35 & 0   & 0   \\
+101 & 0   & 0   & 0.7 & 0.25 & 0.3  & 0   & 1   & 0.3 & 0.3 & 0    & 0.4 & 0   \\
+112 & 0   & 0   & 0   & 0.25 & 0    & 0   & 0   & 0.4 & 0.1 & 0.65 & 0.6 & 1    \\\end{block}\end{blockarray}}\end{block}
+
+\end{frame}
+
 
 \section{Score-optimal algorithm: DFR}
 
@@ -180,6 +299,10 @@ The proposed framework conditions base probabilistic forecasts of the most disag
 \section{Emprical study}
 
 \section{Conclusion}
+
+\begin{frame}{Advantage of the methods}
+    
+\end{frame}
 
 
 

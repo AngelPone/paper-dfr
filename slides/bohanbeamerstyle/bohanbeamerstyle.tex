@@ -17,6 +17,29 @@
 \usepackage{amsmath}
 \usepackage{makecell}
 
+% justify
+\usepackage{ragged2e}
+\justifying\let\raggedright\justifying
+
+
+% outline space
+\makeatletter
+\renewenvironment{outline}[1][]{%
+  \ifthenelse{\equal{#1}{}}{}{\renewcommand{\ol@type}{#1}}%
+  \ol@z%
+  \newcommand{\0}{\ol@toz\ol@z}%
+  \newcommand{\1}{\vspace{\dimexpr\outlinespacingscalar\baselineskip-\baselineskip}\ol@toi\ol@i\item}%
+  \newcommand{\2}{\ol@toii\ol@ii\item}%
+  \newcommand{\3}{\ol@toiii\ol@iii\item}%
+  \newcommand{\4}{\ol@toiiii\ol@iiii\item}%
+}{%
+  \ol@toz\ol@exit%
+}
+\makeatother
+
+
+
+
 \renewcommand\theadalign{bc}
 \renewcommand\theadfont{\bfseries}
 \renewcommand\theadgape{\Gape[4pt]}
@@ -69,16 +92,29 @@
 
 % footer
 \newlength{\footerheight}
-\setlength{\footerheight}{0.04\paperheight}
+\setlength{\footerheight}{0.06\paperheight}
 \setbeamercolor{footer}{bg=coreBackgroundLight, fg=coreFontMain}
 
+\setbeamerfont{footline}{size=\fontsize{10}{12}}
 \setbeamertemplate{footline}
 {%
 \begin{beamercolorbox}[sep=0pt,wd=\paperwidth,center]{footer}
-\begin{minipage}[c][\footerheight]{\textwidth}
-    \centering
-    \insertframenumber/\inserttotalframenumber
-\end{minipage}
+%\begin{minipage}[c][\footerheight]{\textwidth}
+\begin{columns}
+    \begin{column}{0.7\textwidth}
+        \begin{minipage}[c][\footerheight]{\textwidth}
+            {\insertsectionhead}             
+        \end{minipage}
+    \end{column}
+    \begin{column}{0.1\textwidth}
+        \begin{minipage}[c][\footerheight]{\textwidth}
+            \centering
+            \insertframenumber/\inserttotalframenumber            
+        \end{minipage}
+    \end{column}
+\end{columns}
+    
+%\end{minipage}
 \end{beamercolorbox}
 }
 
@@ -151,7 +187,7 @@
 
 \begin{tcolorbox}[enhanced,frame hidden, colback=coreBackground,height=\contactheight,notitle,halign=flush center,valign=top,before skip=0pt,after skip=0pt,top=-5pt]
 \begin{tabular}{ccc}
-\includegraphics[height=3mm]{bohanbeamerstyle/figures/mail.png} & \includegraphics[height=3mm]{bohanbeamerstyle/figures/github.png} &\includegraphics[height=3mm]{bohanbeamerstyle/figures/Twitter.png}
+\href{mailto:zhangbohan@buaa.edu.cn}{\includegraphics[height=3mm]{bohanbeamerstyle/figures/mail.png}} & \href{https://github.com/angelpone}{\includegraphics[height=3mm]{bohanbeamerstyle/figures/github.png}} & \href{https://twitter.com/zhangbhangel}{\includegraphics[height=3mm]{bohanbeamerstyle/figures/Twitter.png}}
 \end{tabular}
 
 \end{tcolorbox}
