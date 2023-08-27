@@ -286,11 +286,82 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
 011 & 0   & 0.6 & 0   & 0.25 & 0.3  & 1   & 0   & 0.3 & 0.3 & 0.35 & 0   & 0   \\
 101 & 0   & 0   & 0.7 & 0.25 & 0.3  & 0   & 1   & 0.3 & 0.3 & 0    & 0.4 & 0   \\
 112 & 0   & 0   & 0   & 0.25 & 0    & 0   & 0   & 0.4 & 0.1 & 0.65 & 0.6 & 1    \\\end{block}\end{blockarray}}\end{block}
-
 \end{frame}
 
 
-\section{Score-optimal algorithm: DFR}
+\begin{frame}{Forecast evaluation}
+
+    \begin{outline}
+        \1 Scoring rules assess the quality of probabilistic forecasts, by assigning a numerical score based on the predictive distribution and on the corresponding observation.
+        \1 Brier Score can be used to evaluate the probabilistic forecasts of discrete variables.
+        \[
+          \text{BS} = \sum_{k=1}^r (\tilde{\pi}_k - {z}_k)^2,
+        \]
+        where $z_k = 1$ if $\mathbf{Y}$ takes the $k$-th coherent point, and $z_k = 0$ otherwise.
+    \end{outline}
+\end{frame}
+
+\section{Score-optimal algorithm: DFR and SDFR}
+
+
+\begin{frame}{The DFR algorithm: Objective}
+    \begin{outline}
+        \0 By minimizing the average Brier Score of $\tau$ reconciled forecasts, we can find the optimal reconciliation matrix.
+        \[
+            \begin{aligned}
+          &\min_{A}\frac{1}{\tau}\sum_{t=1}^{\tau}(\mathbf{A}\hat{\boldsymbol{\pi}}_t - \mathbf{z}_t)'(\mathbf{A}\hat{\boldsymbol{\pi}}_t - \mathbf{z}_t) \\
+          =&\min_{a_{ij}}\frac{1}{\tau}\left[\sum_{i=1}^r\left(\sum_{j=1}^q a_{ij}\hat\pi_{jt} - z_i^t\right)^2\right] \\
+          \text{s.t.} & \sum_{i=1}^r a_{ij} = 1, 0\leq a_{ij} \leq 1
+            \end{aligned}
+        \]
+        \0 This is a standard quadratic programming problem.
+    \end{outline}
+\end{frame}
+
+
+\begin{frame}{The DFR algorithm: construting training samples}
+
+We employ the expanding window strategy to construct the $\tau$ training samples.
+
+\begin{figure}
+\includegraphics[width=0.8\textwidth]{../manuscript/figures/rolling_window.pdf}
+\end{figure}
+\end{frame}
+
+\begin{frame}{The DFR algorithm: constructing $\hat{\boldsymbol{\pi}}$ }
+
+    We construct the incoherent base forecasts $\hat{\boldsymbol{\pi}}$ by assuming the independence of univariate base forecasts.
+
+    \begin{outline}[enumerate]
+        \1 Generate predictive distributions for each time series in the hierarachy using arbitrary univariate forecasting model.
+        \1 Construct the joint distribution by assuming independence.
+    \end{outline}
+
+    \begin{block}{Example}$\hat{\boldsymbol{\pi}}_{Y_1} = [0.4, 0.6]'\quad \hat{\boldsymbol{\pi}}_{Y_2} = [0.3, 0.7]' \quad \hat{\boldsymbol{\pi}}_{Y_3} = [0.2, 0.2, 0.6]'$
+
+        $
+          \hat{\pi}_{(001)} = Pr(Y_1=0) \times Pr(Y_2=0) \times Pr(Y_3=1) =  0.024
+        $
+
+        \[\begin{aligned}
+          \hat{\boldsymbol{\pi}} = [&0.024,0.056,0.036,0.084, \\ &0.024,0.056,0.036,0.084, \\ &0.072,0.168,0.108,0.252]'
+        \end{aligned}\]
+    \end{block}
+\end{frame}
+
+
+\begin{frame}{The DFR algorithm}
+\begin{figure}
+    \includegraphics[width=0.9\textwidth]{figures/dfr.png}
+    \caption{Flowchart of the DFR algorithm}        
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+    The number of unknown parameters in $\mathbf{A}$ grows exponentially as the number of time series and the cardinality of domains of bottom-level series grow.
+\end{frame}
+
 
 \section{Addressing the dimensionality problem: SDFR}
 
