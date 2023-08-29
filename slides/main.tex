@@ -17,6 +17,7 @@ IIF Workshop on Forecast Reconciliation}
 \setbeamercolor{block title}{bg=teal,fg=white}
 \setbeamercolor{block body}{bg=teal!10}
 \setbeamerfont{block title}{size=\fontsize{10}{12}}
+\setlength{\leftmargini}{10pt}
 
 \begin{document}
 
@@ -119,7 +120,7 @@ To address these concerns, we
     \item propose a discrete forecast reconciliation framework.
     \item develop the DFR and Stepwise DFR (SDFR) algorithms to train the reconciliation matrix.
     \item extend the top-down and bottom-up method to discrete probabilistic setting for comparison.
-    \item verify the applicability of the algorithms in two simulation expriments and two real-world applications.
+    \item verify the applicability of the algorithms in simulation expriments and real-world applications.
 \end{itemize}
 
 \end{frame}
@@ -288,6 +289,7 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
 112 & 0   & 0   & 0   & 0.25 & 0    & 0   & 0   & 0.4 & 0.1 & 0.65 & 0.6 & 1    \\\end{block}\end{blockarray}}\end{block}
 \end{frame}
 
+\section{Score-optimal algorithm: DFR and SDFR}
 
 \begin{frame}{Forecast evaluation}
 
@@ -300,9 +302,6 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
         where $z_k = 1$ if $\mathbf{Y}$ takes the $k$-th coherent point, and $z_k = 0$ otherwise.
     \end{outline}
 \end{frame}
-
-\section{Score-optimal algorithm: DFR and SDFR}
-
 
 \begin{frame}{The DFR algorithm: Objective}
     \begin{outline}
@@ -359,24 +358,226 @@ We employ the expanding window strategy to construct the $\tau$ training samples
 
 
 \begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
-    The number of unknown parameters in $\mathbf{A}$ grows exponentially as the number of time series and the cardinality of domains of bottom-level series grow.
-\end{frame}
+    \begin{outline}
+    \1 The number of unknown parameters in $\mathbf{A}$ grows exponentially as the number of time series and the cardinality of domains of bottom-level series grow.
+    \1 We propose the Stepwise DFR (SDFR) algorithm to deal with this problem.    
+    \begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/sdfr.png}    
+    \end{figure}
 
-
-\section{Addressing the dimensionality problem: SDFR}
-
-\section{Simulation}
-
-\section{Emprical study}
-
-\section{Conclusion}
-
-\begin{frame}{Advantage of the methods}
+    \1 It reduces the number fo unknown parameters from exponential level to cubic level.
+    \end{outline}
     
 \end{frame}
 
 
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/sdfr.png}    
+    \end{figure}
 
-\bibliography{../manuscript/references.bib}
-\bibliographystyle{agsm}
+\begin{enumerate}
+    \item Decompose the big hierarchy into multiple small sub-hierarchies.
+    \item Train the reconciliation model for each sub-hierarchy.
+    \item Combine the reconciled forecasts together under assumptions.
+    \[
+      P(Y_0, Y_1, Y_2, Y_3) = P(Y_0, Y_1, S_2) P(Y_2, Y_3|S_2)  
+    \]
+\end{enumerate}
+\end{frame}
+
+
+
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/alg_sdfr.png}
+\end{figure}
+\end{frame}
+
+
+
+
+
+\begin{frame}{Discrete Bottom-up}
+\begin{outline}
+\1 The discrete bottom-up method constructs a coherent distribution by assuming independent bottom-level forecasts. 
+\1 This method follows the same procedure as constructing base forecasts explained earlier except that the base forecasts of aggregated series are excluded.
+\1 The mean point forecasts obtained from this coherent distribution’s marginal distribution are identical to those obtained by directly aggregating mean forecasts of bottom-level series.
+
+\begin{block}{Example}  
+\[
+    \begin{aligned}
+        \hat{\boldsymbol{\pi}}_{Y_1} &= [0.4, 0.6]'\quad \hat{\boldsymbol{\pi}}_{Y_2} = [0.3, 0.7]' \\
+        \tilde{\pi}_{(000)} &= Pr(Y_1=0) \times Pr(Y_2=0) = 0.12      \\
+        \tilde{\boldsymbol{\pi}} &= [0.12, 0.28, 0.18, 0.42]'
+    \end{aligned}
+\]
+\end{block}
+\end{outline}
+\end{frame}
+
+
+\begin{frame}{Discrete Top-down}
+
+    The discrete top-down method extends the traditional top-down by proportionally disaggregating the probabilities of each point of the total series into all possible coherent points, using a ratio computed from historical occurrences.
+
+    \begin{block}{Example}
+        40 $(1, 0, 1)$ and 60 $(0, 1, 1)$ observed in the history.
+        \[
+            \begin{aligned}
+                \hat{\boldsymbol{\pi}}_{Y_3} &= [0.2, 0.3, 0.5]' \\   
+                \tilde{\pi}_{(011)} &= Pr(Y_3=1)\times\frac{60}{60+40} = 0.18\\
+                \tilde{\boldsymbol{\pi}} &= [0.2, 0.18, 0.12, 0.5]'
+            \end{aligned}
+        \]
+    \end{block}
+\end{frame}
+
+\section{Simulation}
+
+\begin{frame}{Simulation in cross-sectional setting}
+\begin{itemize}
+    \item $\mathcal{D}(Y_1) = \{0, 1\}, \mathcal{D}(Y_2) = \{0, 1\}, Y_3 = Y_1 + Y_2$
+    \item We produce and evaluate one-step-ahead forecast in this experiment.
+    \item For each binary series, we generate $480$ observations; expanding window strategy yields $330$ samples for training and $30$ samples for testing.
+    \item The performances for each time series are evaluated based on the average Brier scores of test samples.
+    \item The base probabilistic forecasts are obtained using the binomial AR(1) model.
+    \item The procedure was repeated $1000$ times.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Simulation in cross-sectional setting}
+    \begin{table}
+        \centering
+        \caption{Average Brier score ($\times 10^{-2}$) of $1000$ simulations for cross-sectional setting}
+        \begin{tabular}{lcccc}
+        \toprule
+        & Base & DBU & DTD & DFR \\\midrule
+        $Y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
+        $Y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
+        $Y_3$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
+        $\mathbf{Y}$ & 74.4 & 47.8 & 56.1 & \textbf{44.0} \\
+        \bottomrule
+        \end{tabular}
+      \end{table}
+\end{frame}
+
+
+\begin{frame}{Simulation in temporal setting}
+
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{figures/temporal.png}
+\end{figure}
+
+\begin{itemize}
+    \item We construct a weekly-daily temporal hierarchy in this simulation.
+    \item $\mathcal{D}(Y_i) = \{ 0, 1 \} , i = 1, . . . , 7$.
+    \item SDFR is used in this simulation to handle the big hierarchy.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}{Simulation in temporal setting}
+    \begin{table}
+        \centering
+        \caption{Average Brier score ($\times 10^{-2}$) of $1000$ samples for temporal setting.}
+        \begin{tabular}{lcccc}
+        \toprule
+         & Base & DBU & DTD & SDFR \\\midrule
+        $Y_1$ & \textbf{40.8} & \textbf{40.8} & 49.4 & 41.0 \\
+        $Y_2$ & \textbf{41.4} & \textbf{41.4} & 49.6 & 41.6\\
+        $Y_3$ & \textbf{42.1} & \textbf{42.1} & 49.9 & 42.1\\
+        $Y_4$ & 43.0 & 43.0  & 50.0          & \textbf{42.8}\\
+        $Y_5$ & 43.6 & 43.6  & 50.2          & \textbf{43.1} \\
+        $Y_6$ & 44.0 & 44.0  & 50.3          & \textbf{43.3} \\
+        $Y_7$ & 44.3 & 44.3  & 50.3          & \textbf{43.9} \\
+        $Y_8$ & \textbf{82.6} & 83.5          & \textbf{82.6} & 83.1\\
+        $\mathbf{Y}$ & 99.5 & 97.8  & 99.4          & \textbf{97.7} \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\section{Emprical study}
+
+\begin{frame}{Forecasting crime number in Washington D.C.}
+\begin{itemize}
+    \item The dataset contains $231$ weekly time series of offence crime numbers from 2014 to 2022; each time series corresponds to one census tracts in Washington D.C.
+    \item We construct two-level temporal hierarchies (i.e., weekly and four-weekly) and forecast the offence numbers in the next four weeks for each time series.
+    
+    \item Samples whose forecast origin starts from 2022 are used for evaluation.
+    \item Base probabilistic forecasts are produced using integer-valued GARCH models.
+    \item DFR are used to reconcile the forecasts.
+\end{itemize}    
+\end{frame}
+
+\begin{frame}{Forecasting crime number in Washington D.C.}
+\begin{figure}
+\centering
+\includegraphics[width=0.65\textwidth]{figures/dc.png}
+\caption{Example time series}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Forecasting crime number in Washington D.C.}
+\begin{table}[h]
+    \centering
+    \caption{Summarised Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{ccccccccc}
+    \toprule
+    &\multicolumn{4}{c}{Mean}
+    & \multicolumn{4}{c}{Median} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+        & Base & DBU & DTD & DFR &  Base & DBU & DTD & DFR \\\midrule
+    Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.64 & \textbf{64.75} \\
+    Bottom & 34.41 & 34.41 & 34.80 & \textbf{34.30} & 13.73 & 13.73 & 13.28 & \textbf{10.82}\\
+    Hierarchy & 73.87 & \textbf{67.87} & 68.33 & 67.97 & 97.66 & 92.70 & 93.08 & \textbf{92.42}\\
+    \bottomrule
+    \end{tabular}}
+    \end{table}
+\end{frame}
+
+\begin{frame}{Forecasting crime number in Washington D.C.}
+\begin{figure}
+\centering
+\includegraphics[width=\textwidth]{../manuscript/figures/dc_crime_mcb.pdf}
+\caption{MCB test results}
+\end{figure}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+    \begin{itemize}
+        \item We develop a novel forecast reconciliation framework for count hierarchical time series, which involves assigning probabilities from incoherent points to coherent points.
+        \item We further propose a linear reconciliation algorithm that minimizes brier score of reconciled probabilistic forecasts.
+        \item To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
+        \item Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy, as shown in simulation and empirical studies.
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+
+\begin{minipage}[t][0.8\textheight][c]{\textwidth}
+\centering
+\fontsize{15}{18}\selectfont
+Thank you!
+
+Any questions/suggestions/comments?    
+
+\end{minipage}
+
+
+Paper: \url{https://arxiv.org/abs/2305.18809}
+
+Package: \url{https://github.com/AngelPone/DiscreteRecon}
+\end{frame}
+
 \end{document}

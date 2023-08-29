@@ -587,19 +587,6 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Given that the domain of the weekly time series in our context is finite (i.e., $\leq 7$), we linearly map the generated conditional mean series into the range of $[2.5, 4.5]$.
      Subsequently, we simulate the Poisson distributed series based on the conditional mean series. Values exceeding $7$ are set to $7$.
 
-    %  \begin{table}[h]
-    %    \centering
-    %    \caption{\label{tab:parameters} Parameter settings of the ARIMA process used to simulate the conditional mean of weekly time series in the temporal setting. Other parameters are randomly selected by the \texttt{gratis} algorithm.}
-    %    \begin{tabular}{lc}
-    %      \toprule
-    %      Parameter & Value \\ \midrule
-    %      Seasonal period & \texttt{4} \\
-    %      Number of autoregressive terms & \texttt{3} \\
-    %      Difference order & \texttt{0} \\
-    %      Seasonal difference order & \texttt{0} \\ \bottomrule
-    %    \end{tabular}
-    %  \end{table}
-
      The weekly time series are then disaggregated into daily time series by randomly selecting days for which $Y=1$ and maintaining coherence.
      We first simulate seven probabilities based on seven independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of $Y=1$ from Monday to Sunday.
      The values of the $w$ days with the highest probabilities are set to $1$, while others are set to $0$. Here, $w$ denotes the value of the corresponding weekly observation.
@@ -645,7 +632,6 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-2}$).}
      \begin{tabular}{lcccc}
      \toprule
-%     \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
       & Base & DBU & DTD & SDFR \\\midrule
      $Y_1$ & \textbf{40.8} & \textbf{40.8} & 49.4 & 41.0 \\
      $Y_2$ & \textbf{41.4} & \textbf{41.4} & 49.6 & 41.6\\
