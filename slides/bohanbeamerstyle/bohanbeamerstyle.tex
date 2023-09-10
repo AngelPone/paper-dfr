@@ -9,6 +9,7 @@
     fontfamily=helvetica
 }
 
+
 \usepackage{booktabs}
 
 \usepackage{outlines}
@@ -100,19 +101,12 @@
 {%
 \begin{beamercolorbox}[sep=0pt,wd=\paperwidth,center]{footer}
 %\begin{minipage}[c][\footerheight]{\textwidth}
-\begin{columns}
-    \begin{column}{0.7\textwidth}
-        \begin{minipage}[c][\footerheight]{\textwidth}
-            {\insertsectionhead}             
-        \end{minipage}
-    \end{column}
-    \begin{column}{0.1\textwidth}
-        \begin{minipage}[c][\footerheight]{\textwidth}
-            \centering
-            \insertframenumber/\inserttotalframenumber            
-        \end{minipage}
-    \end{column}
-\end{columns}
+
+\begin{minipage}[c][\footerheight]{\textwidth}
+    \fontsize{8}{9.6}\selectfont
+    \centering
+    \insertframenumber/\inserttotalframenumber            
+\end{minipage}
     
 %\end{minipage}
 \end{beamercolorbox}
