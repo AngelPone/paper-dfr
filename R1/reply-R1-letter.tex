@@ -1,0 +1,174 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amssymb,amsmath}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage[unicode=true]{hyperref}
+\usepackage{multirow}
+\usepackage{outlines}
+\usepackage{caption}
+\captionsetup[table]{name=Table R}
+\makeatletter
+\def\fnum@table{\tablename\thetable}
+\makeatother
+\captionsetup[figure]{name=Figure R}
+\makeatletter
+\def\fnum@figure{\figurename\thefigure}
+\makeatother
+\hypersetup{
+  pdfborder={0 0 0},
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{xcolor, graphicx, color, array, colortbl}
+%\usepackage{natbib}
+\usepackage{longtable,booktabs}
+\let\code=\texttt
+\let\pkg=\texttt
+\let\proglang=\textsf
+
+%% BibTeX
+\usepackage[style=authoryear-comp, backend=biber, natbib=true, maxcitenames=2, maxbibnames=99, safeinputenc]{biblatex}
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+  \printtext{\bibstring{in}\intitlepunct}}}
+\DeclareNameAlias{sortname}{family-given}
+\addbibresource{../references.bib}
+
+\usepackage{enumitem}
+\setlist[enumerate,itemize]{listparindent=\parindent,leftmargin=1.5em}% Indented paragraphs within lists
+\setlength{\itemsep}{0.0pt}
+
+%% Reply Environment: \RE[]{} -> blue text, \RE{} -> Re: blue text
+\newcommand{\RE}[2][Re:~]{{\color{blue}\textbf{#1}#2}}
+
+\usepackage{makecell}
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\RequirePackage{setspace}
+\spacing{1.5}
+
+
+\title{\bf\Large Authors' Responses to Reviewers Comments for \\
+  ``Discrete Forecast Reconciliation'' }
+
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\RE[]{We thank the Editor and the three anonymous reviewers for reviewing our paper. We are also grateful for the insightful comments and suggestions. In this revision, we have addressed all the comments raised by the reviewers, providing a point-by-point response to each comment made by the review team.}
+
+\section*{Responses to Reviewer 1}\label{reviewer-1-comments}
+
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all of the comments and suggestions. Below we provide a point-by-point response to these comments.}
+
+\textit{In this paper, the authors proposed a discrete forecast reconciliation (DFR) algorithm to tackle the forecast reconciliation problem for discrete hierarchical time series. A variant of the algorithm, namely stepwise DFR (SDFR), is proposed for the dimensionality issue by breaking down the complex hierarchies into simpler ones. The performance of this algorithm is evaluated in two simulation experiments and two empirical experiments with real data. The result shows that overall, the proposed algorithm outperforms its counterparts in terms of accuracy. This paper addresses an important issue in forecasting that is significant both theoretically and practically. In what follows, I list several comments which I hope will help the authors to further improve this paper.}
+
+\begin{enumerate}%[leftmargin=*, listparindent=1.25em, parsep=10pt]%[leftmargin=*]
+\item \textit{Applicability}
+
+  \begin{enumerate}
+    \item \textit{The authors pointed out (in p.26, l.552) that the algorithm ``cannot be easily applied to a large hierarchy'' due to the dimensionality issues. This limits the applicability of the proposed algorithm. From a practical perspective, it may be necessary to offer guidelines as to which hierarchies fall into the ``large'' category. }
+
+    \RE{Thank you for your comment. }
+
+    \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimization effort is not required. Hence it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
+
+    \RE{Thank you for your suggestion.}
+  \end{enumerate}
+
+\item \textit{Contribution. In the introduction, the authors merely summarized their work without clarifying the contribution. Thus, it is unclear to me the contribution of this research from the existing algorithms in the continuous case. If the problem formulation is an analogue of the continuous case, what about the algorithm design? A review or a brief summarization of forecast reconciliation in the continuous case should be added. The emphasis should be given to what motivates you to develop the new algorithm.}
+
+\item \textit{Exposition. This manuscript can benefit from further improvement in terms of exposition and presentation. }
+\begin{enumerate}
+    \item \textit{There are parts that are hard to read and sentences with grammatical errors and spelling errors e.g. the last sentence in p.2.}
+    
+    \RE{We thank the reviewer for the very nice suggestion.}
+    \item \textit{The introduction of costs (in p.10) can be moved closer to movement restriction since it can be represented either as a penalty or a constraint.}
+    
+    \RE{We thank the reviewer for the very nice suggestion.}
+\end{enumerate}
+
+
+
+
+\item \textit{ Minor issues }
+
+  \begin{enumerate}
+    \item  \textit{p.6, l.127 predictive}
+
+    \RE{Thank you for your comment.}
+
+    \item \textit{p.9, l.199 explain what ``strictly proper'' means}
+
+    \RE{}
+
+
+    \item \textit{p.9, last line. $k = 1 \rightarrow$ should it be $z_k = 1$?}
+    \item \textit{p.11, l.214. Not clear how to define the costs of $\mathcal{L}_1$ cannot be used}
+
+  \end{enumerate}
+
+\end{enumerate}
+\newpage
+\section*{Responses to Reviewer 2}\label{reviewer-2-comments}
+
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all of the comments and suggestions. Below we provide a point-by-point response to these comments.}
+
+\textit{The paper is addressing an important issue on reconciling hierarchical probabilistic count forecasts. Diverse setting to evaluate the new approach was devised. For example, a forecasting application on mortality threshold exceedance in Australia is an interesting example based on mortality catastrophe bonds.}
+
+\begin{enumerate}
+    \item \textit{However, the discussion on the methodology requires more explanation. The method could use other probabilistic evaluation measures such as discrete ranked probability score.}
+    \item \textit{The discussion of the empirical results is difficult to be read.}
+    \item \textit{Overall, a good research question was studied, but more clear explanation on the methodology and impactful discussion on the empirical result are needed.}
+\end{enumerate}
+
+
+
+
+\newpage
+\section*{Responses to Reviewer 3}\label{reviewer-3-comments}
+
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all of your comments and suggestions. Below we provide a point-by-point response to your comments.}
+
+
+\textit{The paper tackles a substantial issue, and the proposed framework offers a significant contribution to the field of probabilistic forecast reconciliation. However, it's crucial to note that while addressing this important problem is commendable, the mere proposal of a framework for generating reconciled count forecasts may not be sufficient. It is essential to demonstrate its superiority over simpler approaches to establish its value and using realistic setting and datasets.}
+
+\begin{enumerate}
+  \item \textit{One advantage of the proposed methodology is its ability to generate reconciled forecast distributions in count form. In evaluating forecast performance, a fair benchmark would involve using existing reconciliation approaches that use integer base forecasts. However, it's important to note that in these cases, the reconciled forecasts may not necessarily be in count form. In such instances, rounding non-integer values to whole numbers may still be effective. Have you considered evaluating the performance of forecasting when non-integer forecast results are both rounded up and rounded down, and comparing these results with your proposed approach?}
+
+  \RE{}
+
+
+  \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
+
+  \RE{}
+
+  \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
+  
+  \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
+  
+  \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
+  
+  \item \textit{Considering the emphasis on low-volume data, it raises a question as to why the authors opted for a yearly time series in the empirical section of the study.}
+  
+  \item \textit{Could the authors provide insights on the computational cost associated with the proposed approach? This aspect becomes particularly crucial when weighing the potential benefits of the proposed approach against simpler methods like rounding forecasts, especially in more realistic scenarios including big hierarchies where high computational costs are a concern.}
+
+
+\end{enumerate}
+
+% \newpage
+% \bibliographystyle{agsm}
+% \bibliography{mybib}
+% \printbibliography
+
+\end{document}
