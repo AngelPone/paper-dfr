@@ -9,12 +9,11 @@
 IIF Workshop on Forecast Reconciliation}
 \date{September 7, 2023}
 
-
 % style setting
 \nosectiontitlepage
 \def\outlinespacingscalar{1.3}
 \setbeamertemplate{blocks}[rounded][shadow=false]
-\setbeamercolor{block title}{bg=teal,fg=white}
+\setbeamercolor{block title}{bg=teal, fg=white}
 \setbeamercolor{block body}{bg=teal!10}
 \setbeamerfont{block title}{size=\fontsize{10}{12}}
 \setlength{\leftmargini}{10pt}
@@ -78,7 +77,7 @@ IIF Workshop on Forecast Reconciliation}
     \1 first produces base forecasts for each series in the hierarchy; then optimally reconciles the base forecasts through projection;
     \1 utilises forecast combination, which improves forecast accuracy and reduces the risk of model misspecification;
     \1 has been shown to improve forecast accuracy in various applications.
-    \0 But it was designed for continuous-valued HTS and can not be directly applied to discrete-valued HTS: \textit{projection} may produce non-integer and non-negative forecasts.
+    \0 But it was designed for continuous-valued HTS and can not be directly applied to discrete-valued HTS: \textit{projection} may produce non-integer and negative forecasts.
 \end{outline}
 
 \end{frame}
@@ -120,7 +119,7 @@ To address these concerns, we
     \item propose a discrete forecast reconciliation framework.
     \item develop the DFR and Stepwise DFR (SDFR) algorithms to train the reconciliation matrix.
     \item extend the top-down and bottom-up method to discrete probabilistic setting for comparison.
-    \item verify the applicability of the algorithms in simulation expriments and real-world applications.
+    \item verify the applicability of the algorithms in simulation experiments and real-world applications.
 \end{itemize}
 
 \end{frame}
@@ -271,7 +270,7 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
 \begin{frame}{Movement restriction}
 
 \begin{outline}
-\0 Movement restriction strategy requires that the probability is only assgined to \textbf{the cloest coherent points}.
+\0 Movement restriction strategy requires that the probability is only assigned to \textbf{the closest coherent points}.
 \1 This is similar to the projection idea in the optimal combination reconciliation framework.    
 \1 A coherent point in the complete domain moves all of its probability to the same point in the coherent domain.
 \1 We choose the L1 norm as the distance measure.
@@ -305,7 +304,7 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
 
 \begin{frame}{The DFR algorithm: Objective}
     \begin{outline}
-        \0 By minimizing the average Brier Score of $\tau$ reconciled forecasts, we can find the optimal reconciliation matrix.
+        \0 By minimising the average Brier Score of $\tau$ reconciled forecasts, we can find the optimal reconciliation matrix.
         \[
             \begin{aligned}
           &\min_{A}\frac{1}{\tau}\sum_{t=1}^{\tau}(\mathbf{A}\hat{\boldsymbol{\pi}}_t - \mathbf{z}_t)'(\mathbf{A}\hat{\boldsymbol{\pi}}_t - \mathbf{z}_t) \\
@@ -318,7 +317,7 @@ A coherent discrete distribution has the property $Pr(\mathbf{Y} =
 \end{frame}
 
 
-\begin{frame}{The DFR algorithm: construting training samples}
+\begin{frame}{The DFR algorithm: constructing training samples}
 
 We employ the expanding window strategy to construct the $\tau$ training samples.
 
@@ -332,7 +331,7 @@ We employ the expanding window strategy to construct the $\tau$ training samples
     We construct the incoherent base forecasts $\hat{\boldsymbol{\pi}}$ by assuming the independence of univariate base forecasts.
 
     \begin{outline}[enumerate]
-        \1 Generate predictive distributions for each time series in the hierarachy using arbitrary univariate forecasting model.
+        \1 Generate predictive distributions for each time series in the hierarchy using arbitrary univariate forecasting model.
         \1 Construct the joint distribution by assuming independence.
     \end{outline}
 
@@ -357,7 +356,7 @@ We employ the expanding window strategy to construct the $\tau$ training samples
 \end{frame}
 
 
-\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarchy}
     \begin{outline}
     \1 The number of unknown parameters in $\mathbf{A}$ grows exponentially as the number of time series and the cardinality of domains of bottom-level series grow.
     \1 We propose the Stepwise DFR (SDFR) algorithm to deal with this problem.    
@@ -366,13 +365,13 @@ We employ the expanding window strategy to construct the $\tau$ training samples
     \includegraphics[width=0.6\textwidth]{figures/sdfr.png}    
     \end{figure}
 
-    \1 It reduces the number fo unknown parameters from exponential level to cubic level.
+    \1 It reduces the number of unknown parameters from exponential level to cubic level.
     \end{outline}
     
 \end{frame}
 
 
-\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarchy}
     \begin{figure}
         \centering
         \includegraphics[width=0.8\textwidth]{figures/sdfr.png}    
@@ -390,7 +389,7 @@ We employ the expanding window strategy to construct the $\tau$ training samples
 
 
 
-\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarachy}
+\begin{frame}{Stepwise DFR (SDFR): handling high-dimensional hierarchy}
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{figures/alg_sdfr.png}
@@ -503,7 +502,7 @@ We employ the expanding window strategy to construct the $\tau$ training samples
     \end{table}
 \end{frame}
 
-\section{Emprical study}
+\section{Empirical study}
 
 \begin{frame}{Forecasting crime number in Washington D.C.}
 \begin{itemize}
@@ -556,15 +555,15 @@ We employ the expanding window strategy to construct the $\tau$ training samples
 \begin{frame}{Conclusion}
     \begin{itemize}
         \item We develop a novel forecast reconciliation framework for count hierarchical time series, which involves assigning probabilities from incoherent points to coherent points.
-        \item We further propose a linear reconciliation algorithm that minimizes brier score of reconciled probabilistic forecasts.
+        \item We further propose a linear reconciliation algorithm that minimises Brier score of reconciled probabilistic forecasts.
         \item To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
         \item Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy, as shown in simulation and empirical studies.
     \end{itemize}
 \end{frame}
 
 
+{\setbeamertemplate{footline}{}
 \begin{frame}
-
 \begin{minipage}[t][0.8\textheight][c]{\textwidth}
 \centering
 \fontsize{15}{18}\selectfont
@@ -578,6 +577,7 @@ Any questions/suggestions/comments?
 Paper: \url{https://arxiv.org/abs/2305.18809}
 
 Package: \url{https://github.com/AngelPone/DiscreteRecon}
-\end{frame}
+
+\end{frame}}
 
 \end{document}

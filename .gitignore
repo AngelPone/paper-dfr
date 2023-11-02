@@ -9,11 +9,13 @@
 *.xdv
 *.fls
 *.bbl
+*.bcf
 *.blg
 *.log
 *.pdf
 *.dvi
 *.gz
+*.run.xml
 .Rproj.user
 .Rdata
 .Rhistory*
