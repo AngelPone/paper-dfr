@@ -1,5 +1,7 @@
+rm(list = ls())
+setwd("experiment/M5")
 library(dplyr)
-dt <- read.csv("~/Documents/projects/datasets/m5-forecasting-accuracy/sales_train_evaluation.csv")
+dt2 <- read.csv("~/Documents/projects/datasets/m5-forecasting-accuracy/sales_train_evaluation.csv")
 
 salesmax <- dt %>% select(starts_with("d_")) %>% t() %>%
   apply(2, max)
@@ -47,4 +49,3 @@ dtarget <- dtarget %>% rowwise() %>%
   mutate(salesmax = max(hierarchy$series))
 
 saveRDS(dtarget, "data.rds")
-
