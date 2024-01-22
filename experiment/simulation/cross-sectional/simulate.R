@@ -75,8 +75,16 @@ test_length = 30
 
 n = history_length+window_length+test_length
 
+
 library(foreach)
-cl <- parallel::makeCluster(8)
+num.cores <- 8
+
+if (exists("num.cores")) {
+  cl <- parallel::makeCluster(num.cores)
+} else {
+  cl <- parallel::makeCluster(1)
+}
+
 doParallel::registerDoParallel(cl)
 
 
@@ -150,6 +158,7 @@ res <- foreach(i=1:1000, .packages = c("DiscreteRecon"),
 
 # save results
 saveRDS(res, 'res.rds')
+res <- readRDS("simulation/cross-sectional/res.rds")
 
 # filter out errors
 res <- Filter(function(x){!is.null(x$metric)}, res)
@@ -163,12 +172,10 @@ for (m in c("base", "bu", "td", "dfr")){
   })
 }
 accs_sum <- data.frame(lapply(accs_list, rowMeans))
-row.names(accs_sum) <- c("y_0", "y_1", "y_2", "Y")
-accs_sum
+row.names(accs_sum) <- c("y_3", "y_1", "y_2", "Y")
+accs_sum*100
 
 library(tsutils)
-
-
 
 plot_data <- list()
 for (i in 1:4){
@@ -177,17 +184,22 @@ for (i in 1:4){
   })
 }
 
-pdf(file="mcb.pdf", width = 12, height = 4,
+# prevent inaccuracy caused by floating error, the accuracy should be same
+plot_data[[1]][,"td"] <- plot_data[[1]][,"base"]
+plot_data[[2]][,"bu"] <- plot_data[[2]][,"base"]
+plot_data[[3]][,"bu"] <- plot_data[[3]][,"base"]
+
+pdf(file="figures/sim_cross_mcb.pdf", width = 12, height = 4,
     pointsize = 16)
 par(mfrow=c(1,3))
 nemenyi(plot_data[[1]], plottype = "vmcb", 
-        labels = c("Base", "Bottom-up", "Top-down", "DFR"), 
+        labels = c("Base", "DBU", "DTD", "DFR"), 
         main = "MCB Test for total series")
 nemenyi(rbind(plot_data[[2]], plot_data[[3]]), plottype = "vmcb", 
-        labels = c("Base", "Bottom-up", "Top-down", "DFR"), 
+        labels = c("Base", "DBU", "DTD", "DFR"), 
         main = "MCB Test for bottom series")
 nemenyi(plot_data[[4]], plottype = "vmcb", 
-        labels = c("Base", "Bottom-up", "Top-down", "DFR"), 
+        labels = c("Base", "DBU", "DTD", "DFR"), 
         main = "MCB Test for hierarchy")
 dev.off()
 

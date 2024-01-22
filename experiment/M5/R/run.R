@@ -25,10 +25,10 @@ for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
   saveRDS(dtarget, "bf.rds")
 }
 library(dplyr)
-dtarget <- readRDS("bf.rds") %>% filter(salesmax <= 3)
+dtarget <- readRDS("results/bf.rds") %>% filter(salesmax == 4)
 dtarget$recf <- vector("list", NROW(dtarget))
 for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
   print(hierarchy_idx)
   dtarget$recf[[hierarchy_idx]] <- recon_f(dtarget$hierarchy[[hierarchy_idx]], dtarget$fcasts[[hierarchy_idx]])
 }
-saveRDS(dtarget, "reconf-3.rds")
+saveRDS(dtarget, "results/reconf-4.rds")
