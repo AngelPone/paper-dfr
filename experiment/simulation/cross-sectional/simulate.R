@@ -1,7 +1,7 @@
 library(dplyr)
 library(DiscreteRecon)
 set.seed(42)
-
+setwd("experiment/simulation")
 
 simulate_series <- function(param_a,
                             n,
@@ -89,7 +89,6 @@ doParallel::registerDoParallel(cl)
 
 
 cal_singleBase <- function(hist){
-  # generate base forecast
   f1 <- binARforecast(hist[, 1], 1)
   f2 <- binARforecast(hist[, 2], 1)
   f3 <- binARforecast(rowSums(hist), 1, total = TRUE)
@@ -98,10 +97,12 @@ cal_singleBase <- function(hist){
 
 library(dplyr)
 
-cal_Base <- function(series, history_length, window_length){
+cal_Base <- function(series, window_length, history_length){
   trainBase <- list()
-  for (i in 1:window_length){
-    trainBase[[i]] <- cal_singleBase(series[i:(i+history_length),])
+  t <- NROW(series)
+  for (i in window_length : 1){
+    trainBase[[(window_length - i + 1)]] <- 
+      cal_singleBase(series[(t-i-history_length+1):(t - i),])
   }
   base <- list()
   base[[1]] <- t(sapply(trainBase, function(x){x[[3]]}))
@@ -116,90 +117,62 @@ cal_Base <- function(series, history_length, window_length){
 s_mat <- rbind(c(1, 1), diag(2))
 domain <- rbind(c(0, 0), c(1, 1))
 
-# brier_score of reconciled forecast
-
 res <- foreach(i=1:1000, .packages = c("DiscreteRecon"), 
                .export = c("simulate_series", "llbar1", "binARforecast", "tpbin")) %dopar% {
   output <- list()
   a1 = runif(1, 0.4, 0.5)
   a2 = runif(1, 0.3, 0.5)
-  output$a <- c(a1, a2)
-  series <- simulate_series(output$a, n)
-  output$train <- try(cal_Base(series, history_length, window_length), silent = TRUE)
-  output$test <- try(cal_Base(series[(window_length+1): n,], history_length, test_length), silent = TRUE)
+  series <- simulate_series(c(a1, a2), n)
+  bf <- try(cal_Base(series, window_length + test_length, history_length), silent = TRUE)
   if (is.element('try-error', class(output$train)) | is.element('try-error', class(output$test))){
     print(class(output$train))
     output <- list()
     return(output)
   }
+  bf_train <- lapply(bf, function(x){ x[1:window_length,] })
+  bf_test <- lapply(bf, function(x){ x[(window_length+1):(window_length+test_length),] })
+  list(series=series, 
+       fcasts = list(base_train=bf_train, base_test=bf_test))
+}
+
+saveRDS(res, 'results/cs-res.rds')
+
+res <- foreach(dt=iterators::iter(res), .packages = c("DiscreteRecon")) %dopar% {
+  obs <- dt$series[n - ((window_length + test_length):1) + 1,]
   
-  train_dhts <- dhts(series[(history_length+1): (history_length+window_length),],
-                     s_mat = s_mat,
-                     domain)
-  test_dhts <- dhts(series[(history_length+window_length+1): (history_length+test_length+window_length),],
-                    s_mat = s_mat,
-                    domain)
-  dfr <- reconcile_train(output$train, train_dhts, step_wise = FALSE)
-  dfr <- reconcile(dfr, output$test, meta=train_dhts$meta)
+  obs_train <- obs[1:window_length,]
+  obs_test <- obs[(window_length+1):(window_length + test_length),]
   
-  td <- topdown.train(train_dhts)
-  td <- reconcile(td, output$test)
+  bf_train <- dt$fcasts$base_train
+  bf_test <- dt$fcasts$base_test
   
-  bu <- marginal2Joint(output$test, test_dhts$meta, method='bu')
+  ht <- dhier(s_mat, domain)
+  mdl <- dfr(ht, "dfr", bf_train = bf_train, obs_train = obs_train)
+  recf <- reconcile(mdl, bf_test)
+  
+  td <- dfr(ht, "td", obs_train = obs_train)
+  td <- reconcile(td, bf_test)
+  
+  bu <- dfr(ht, "bu")
+  bu <- reconcile(bu, bf_test)
+  
+  emp <- dfr(ht, method = "emp", obs_train = obs_train)
+  emp <- reconcile(emp, obs_test, h = test_length)
   
   bs_vec <- function(x){ unname(c(x$series, sum(x$hierarchy))) }
+  output <- list()
   
-  output$metric <- list(dfr=bs_vec(brier_score(dfr, test_dhts)),
-                       bu=bs_vec(brier_score(bu, test_dhts)),
-                       td=bs_vec(brier_score(td, test_dhts)),
-                       base=bs_vec(brier_score(output$test, test_dhts)))
+  output$metric <- list(dfr=bs_vec(brier_score(recf, obs_test, ht)),
+                        bu=bs_vec(brier_score(bu, obs_test, ht)),
+                        td=bs_vec(brier_score(td, obs_test, ht)),
+                        base=bs_vec(brier_score(bf_test, obs_test, ht)),
+                        emp=bs_vec(brier_score(emp, obs_test, ht)))
+  output$fcasts <- list(dfr=recf, bu=bu, td=td, emp=emp, 
+                        base_train=bf_train,
+                        base_test=bf_test)
+  output$series <- dt$series
   output
 }
 
-# save results
-saveRDS(res, 'res.rds')
-res <- readRDS("simulation/cross-sectional/res.rds")
-
-# filter out errors
-res <- Filter(function(x){!is.null(x$metric)}, res)
-
-
-# summarise
-accs_list <- list()
-for (m in c("base", "bu", "td", "dfr")){
-  accs_list[[m]] <- sapply(res, function(x){
-    x$metric[[m]]
-  })
-}
-accs_sum <- data.frame(lapply(accs_list, rowMeans))
-row.names(accs_sum) <- c("y_3", "y_1", "y_2", "Y")
-accs_sum*100
-
-library(tsutils)
-
-plot_data <- list()
-for (i in 1:4){
-  plot_data[[i]] <- sapply(accs_list, function(x){
-    x[i,]
-  })
-}
-
-# prevent inaccuracy caused by floating error, the accuracy should be same
-plot_data[[1]][,"td"] <- plot_data[[1]][,"base"]
-plot_data[[2]][,"bu"] <- plot_data[[2]][,"base"]
-plot_data[[3]][,"bu"] <- plot_data[[3]][,"base"]
-
-pdf(file="figures/sim_cross_mcb.pdf", width = 12, height = 4,
-    pointsize = 16)
-par(mfrow=c(1,3))
-nemenyi(plot_data[[1]], plottype = "vmcb", 
-        labels = c("Base", "DBU", "DTD", "DFR"), 
-        main = "MCB Test for total series")
-nemenyi(rbind(plot_data[[2]], plot_data[[3]]), plottype = "vmcb", 
-        labels = c("Base", "DBU", "DTD", "DFR"), 
-        main = "MCB Test for bottom series")
-nemenyi(plot_data[[4]], plottype = "vmcb", 
-        labels = c("Base", "DBU", "DTD", "DFR"), 
-        main = "MCB Test for hierarchy")
-dev.off()
+saveRDS(res, 'results/cs-res.rds')
 
