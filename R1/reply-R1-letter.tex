@@ -24,7 +24,6 @@
 \usepackage{geometry}
 \geometry{margin=1in}
 \usepackage{xcolor, graphicx, color, array, colortbl}
-%\usepackage{natbib}
 \usepackage{longtable,booktabs}
 \let\code=\texttt
 \let\pkg=\texttt
@@ -36,7 +35,7 @@
   \ifentrytype{article}{}{%
   \printtext{\bibstring{in}\intitlepunct}}}
 \DeclareNameAlias{sortname}{family-given}
-\addbibresource{../references.bib}
+\addbibresource{../manuscript/references.bib}
 
 \usepackage{enumitem}
 \setlist[enumerate,itemize]{listparindent=\parindent,leftmargin=1.5em}% Indented paragraphs within lists
@@ -81,12 +80,27 @@
 
     \RE{Thank you for your comment. }
 
+    \textcolor{red}{number of unknown parameters, number of series, domain of the bottom-level series.}
+
     \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimization effort is not required. Hence it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
 
     \RE{Thank you for your suggestion.}
+
+    \textcolor{red}{computational time}
+
+
   \end{enumerate}
 
 \item \textit{Contribution. In the introduction, the authors merely summarized their work without clarifying the contribution. Thus, it is unclear to me the contribution of this research from the existing algorithms in the continuous case. If the problem formulation is an analogue of the continuous case, what about the algorithm design? A review or a brief summarization of forecast reconciliation in the continuous case should be added. The emphasis should be given to what motivates you to develop the new algorithm.}
+
+\textcolor{red}{Rearrange Introduction:
+1. HTS and nonnegative HTS (1 paragraph)
+2. Point reconciliation
+3. Probabilistic reconciliation
+4. Our motivation: pmf to describe full uncertainty, continuous reconciliation not working, (while nonnegative continuous, not nonnegative distribution, lesson learned from continuous case: forecast combination)
+5. Contribution
+}
+
 
 \item \textit{Exposition. This manuscript can benefit from further improvement in terms of exposition and presentation. }
 \begin{enumerate}
@@ -96,6 +110,8 @@
     \item \textit{The introduction of costs (in p.10) can be moved closer to movement restriction since it can be represented either as a penalty or a constraint.}
     
     \RE{We thank the reviewer for the very nice suggestion.}
+
+    \textcolor{red}{remove part of costs, only movement restriction}
 \end{enumerate}
 
 
@@ -111,6 +127,8 @@
     \item \textit{p.9, l.199 explain what ``strictly proper'' means}
 
     \RE{}
+
+    \textcolor{red}{refer to reference about scoring rules and probabilistic forecasting evaluation.}
 
 
     \item \textit{p.9, last line. $k = 1 \rightarrow$ should it be $z_k = 1$?}
@@ -128,6 +146,9 @@
 
 \begin{enumerate}
     \item \textit{However, the discussion on the methodology requires more explanation. The method could use other probabilistic evaluation measures such as discrete ranked probability score.}
+    
+    \textcolor{red}{add some discussion in the methods part, and why we use Brier Score, and how other measures can be used.}
+
     \item \textit{The discussion of the empirical results is difficult to be read.}
     \item \textit{Overall, a good research question was studied, but more clear explanation on the methodology and impactful discussion on the empirical result are needed.}
 \end{enumerate}
@@ -147,6 +168,7 @@
   \item \textit{One advantage of the proposed methodology is its ability to generate reconciled forecast distributions in count form. In evaluating forecast performance, a fair benchmark would involve using existing reconciliation approaches that use integer base forecasts. However, it's important to note that in these cases, the reconciled forecasts may not necessarily be in count form. In such instances, rounding non-integer values to whole numbers may still be effective. Have you considered evaluating the performance of forecasting when non-integer forecast results are both rounded up and rounded down, and comparing these results with your proposed approach?}
 
   \RE{}
+  \textcolor{red}{refer to papers on this, and add a benchmark}
 
 
   \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
@@ -159,7 +181,11 @@
   
   \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
   
+  \textcolor{red}{emprical distribution}
+  
   \item \textit{Considering the emphasis on low-volume data, it raises a question as to why the authors opted for a yearly time series in the empirical section of the study.}
+  
+  \textcolor{red}{replace the Australia mortality with a sales dataset?}
   
   \item \textit{Could the authors provide insights on the computational cost associated with the proposed approach? This aspect becomes particularly crucial when weighing the potential benefits of the proposed approach against simpler methods like rounding forecasts, especially in more realistic scenarios including big hierarchies where high computational costs are a concern.}
 
@@ -169,6 +195,6 @@
 % \newpage
 % \bibliographystyle{agsm}
 % \bibliography{mybib}
-% \printbibliography
+\printbibliography
 
 \end{document}

@@ -11,7 +11,7 @@
 \let\code=\texttt
 \let\proglang=\textsf
 \setcounter{MaxMatrixCols}{20}
-
+\usepackage{soul}
 \hypersetup{
   colorlinks=true,
   linkcolor=blue,
@@ -71,8 +71,11 @@
 \section{Introduction}
 
 Hierarchical time series (HTS) arise in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
-In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
-These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
+\textcolor{red}{In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches, such as the well-known optimal reconciliation framework (\citealp{hyndmanOptimalCombinationForecasts2011, wickramasuriyaOptimalForecastReconciliation2019, panagiotelisProbabilisticForecastReconciliation2022}) and its variants (\Citealp{zhangOptimalReconciliationImmutable2022a, wickramasuriyaOptimalNonnegativeForecast2020}) and also deep learning based approaches (\citealp{rangapuramEndtoEndLearningCoherent2021}).
+These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.} Merge the red sentences with the review below.
+
+
+\textcolor{red}{Combine the next paragraph with the first paragraph. Address discrete-valued HTS, low-count is one of the case.}
 
 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields.
 Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan'' events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
@@ -82,6 +85,8 @@ This paper aims to fill this gap by proposing a discrete reconciliation approach
 Moreover, the approach can be applied to any discrete-valued multivariate random variable that follows some deterministic linear constraints.
 
 
+\textcolor{red}{Split this paragraph. Some parts go to probabilistic hierarchical forecasting introduction, and some go to motivation.}
+
 While point and interval forecasts are most widely applied in practice, it is crucial to consider the probability distribution that describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
 Concerning forecasting count time series, it is natural to produce probabilistic forecasts based on predictive mass functions (pmf).
 Pmfs provide probabilities for each point in their discrete support,
@@ -90,12 +95,14 @@ By utilising joint pmfs, we develop the definitions of coherency and incoherency
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts,
 in the sense that the point forecast for a parent series should equal the sum of the point forecasts for the associated child series.
-Regarding probabilistic forecasts, the same principle is applied to each point to in the domain of support of the joint distribution.
+\st{Regarding probabilistic forecasts, the same principle is applied to each point to in the domain of support of the joint distribution.}
 Historically, this was accomplished by producing forecasts at one level
 and then aggregating or disaggregating them into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}).
 An alternative approach proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{ anagiotelisForecastReconciliationGeometric2021}, and others involves
 first generating independent \textit{base} forecasts for each time series,
 which are then ``optimally'' reconciled to produce coherent forecasts.
+
+\textcolor{red}{Add shanika new published paper, deeplearning methods, (some employ reconciliation idea in their design, some not)}
 
 The reconciliation framework was initially designed to reconcile point forecasts but has since been extended to probabilistic forecasting.
 Earlier approaches created coherent probabilistic forecasts by reconciling samples drawn from base forecasts, resulting in a coherent empirical distribution.
@@ -104,6 +111,14 @@ In contrast, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct c
 where the dependence among bottom time series is restored using empirical copula modelling.
 Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence.
 They also propose an efficient algorithm to compute reconciliation weights by optimising proper scoring rules.
+
+\textcolor{red}{Motivations: discrete nature, so distribution. (some cases can not be continuous, our framework can be used for this cases, while most cases it applies to count time series.)}
+
+\textcolor{red}{Motivations: continuous methods not working, mention the previous nature.}
+
+\textcolor{red}{Motivation: existing framework for count HTSs: can not applied to discrete nature.}
+
+\textcolor{red}{Motivation: lesson learned from continuous cases, we choose a \textit{reconciliation} way}
 
 The forecast reconciliation framework has been proven to enhance forecast accuracy in various scenarios.
 Forecast combination is one of the critical elements contributing to its superior performance (\citealp{hollymanUnderstandingForecastReconciliation2021}).
