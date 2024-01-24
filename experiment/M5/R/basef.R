@@ -81,6 +81,69 @@ recon_f <- function(hist, fcasts) {
 }
 
 
+evaluate <- function(hist, reconf, fcasts, window_length=730, h=1) {
+  m <- length(hist) - 1
+  s_mat <- rbind(rep(1, m), diag(m))
+  train_size <- NROW(fcasts[[1]]$fcasts) - 28
+  test_size <- NROW(reconf)
+  domain <- rbind(rep(0, m), sapply(hist[2:(1+m)], function(x) { max(x) }))
+  ht <- dhier(s_mat, domain)
+  obs <- do.call(cbind, lapply(hist[2:(1+m)], function(x) {x[(length(x) - (train_size + test_size) + 1):length(x)]}))
+  bs <- brier_score(reconf, obs[(train_size+1):(train_size+test_size),], ht)
+  
+  maxs <- c(sum(domain[2,]), domain[2,])
+  test_fcasts <- fcasts <- lapply(seq_along(fcasts), function(x) {
+    dist2prob(fcasts[[x]]$fcasts[(train_size+1):(train_size+test_size),], maxs[x])
+  })
+  
+  mdl_bu <- dfr(ht, method = "bu")
+  reconf_bu <- reconcile(mdl_bu, test_fcasts)
+  bs_bu <- brier_score(reconf_bu, obs[(train_size+1):(train_size+test_size),], ht)
+  
+  mdl_td <- dfr(ht, method = "td", obs_train = obs[1:train_size,])
+  reconf_td <- reconcile(mdl_td, test_fcasts)
+  bs_td <- brier_score(reconf_td, obs[(train_size+1):(train_size+test_size),], ht)
+  
+  mdl_emp <- dfr(ht, method = "emp", obs_train = obs[1:train_size,])
+  reconf_emp <- reconcile(mdl_emp, h = test_size)
+  bs_emp <- brier_score(reconf_emp, obs[(train_size+1):(train_size+test_size),], ht)
+  
+  bs_base <- brier_score(test_fcasts, obs[(train_size+1):(train_size+test_size),], ht)
+  
+  list(bu = bs_bu, td = bs_td, base=bs_base, sdfr=bs, emp=bs_emp)
+}
+
+summary <- function(bs) {
+  output <- lapply(c("base", "bu", "td", "sdfr", "emp"), function(method) {
+    output <- do.call(rbind, lapply(iterators::iter(bs), function(idx) {
+      total <- idx[[method]]$series[1]
+      bottom <- mean(idx[[method]]$series[2:length(idx[[method]]$series)])
+      hierarchy <- sum(idx[[method]]$hierarchy)
+      c(total, bottom, hierarchy)
+    })
+    )
+    colnames(output) <- c("Total", "Bottom", "Hierarchy")
+    colMeans(output)
+  })
+  
+  output <- do.call(cbind, output)
+  colnames(output) <- c("Base", "Bottom-up", "Top-down", "SDFR", "Empirical")
+  output
+}
+library(DiscreteRecon)
+emp_dist <- function(obs, window_length=730) {
+  m <- length(obs) - 1
+  test_size <- 28
+  s_mat <- rbind(rep(1, m), diag(m))
+  domain <- rbind(rep(0, m), sapply(hist[2:(1+m)], function(x) { max(x) }))
+  ht <- dhier(s_mat, domain)
+  hist <- do.call(cbind, lapply(fcasts[2:(1+m)], function(x) {x$test}))
+  
+  mdl <- dfr(ht, method = "emp", obs_train = hist[1:(window_length - test_size+1)])
+  
+}
+
+
 
 
 

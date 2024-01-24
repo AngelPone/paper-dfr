@@ -25,10 +25,61 @@ for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
   saveRDS(dtarget, "bf.rds")
 }
 library(dplyr)
+
+
+dtarget <- readRDS("results/bf.rds") %>% filter(salesmax == 3)
+dtarget$recf <- vector("list", NROW(dtarget))
+for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
+  print(hierarchy_idx)
+  dtarget$recf[[hierarchy_idx]] <- recon_f(dtarget$hierarchy[[hierarchy_idx]], dtarget$fcasts[[hierarchy_idx]])
+}
+
+saveRDS(dtarget, "results/reconf-3.rds")
+
 dtarget <- readRDS("results/bf.rds") %>% filter(salesmax == 4)
 dtarget$recf <- vector("list", NROW(dtarget))
 for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
   print(hierarchy_idx)
   dtarget$recf[[hierarchy_idx]] <- recon_f(dtarget$hierarchy[[hierarchy_idx]], dtarget$fcasts[[hierarchy_idx]])
 }
+
 saveRDS(dtarget, "results/reconf-4.rds")
+
+
+
+
+dtarget <- readRDS("results/reconf-3.rds")
+
+dtarget$bs <- vector('list', NROW(dtarget))
+
+for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
+  print(hierarchy_idx)
+  dtarget$bs[[hierarchy_idx]] <- evaluate(dtarget$hierarchy[[hierarchy_idx]], 
+                                          dtarget$recf[[hierarchy_idx]], 
+                                          dtarget$fcasts[[hierarchy_idx]])
+}
+
+summary(dtarget$bs)
+
+library(polycor)
+library(dplyr)
+dtarget$polycor <- vector('list', NROW(dtarget))
+
+for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
+  print(hierarchy_idx)
+  dtarget$polycor[[hierarchy_idx]] <- sapply(iterators::iter((dtarget$hierarchy[[hierarchy_idx]])), function(x){
+    polychor(x[2:length(x)], x[1:(length(x) - 1)])
+  })
+}
+
+dtarget_cor <- dtarget %>% rowwise() %>%
+  filter(mean(abs(polycor)) > 0.15)
+
+summary(dtarget_cor$bs)
+
+
+
+
+
+
+>>>>>>> f18bc7d (M5 empirical)
