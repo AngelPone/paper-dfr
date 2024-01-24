@@ -1,8 +1,8 @@
 library(gratis)
 library(feasts)
 library(tsibble)
-
-source("config.R")
+setwd("experiment/simulation")
+source("temporal/config.R")
 
 generate_bts <- function(x){
   d <- rep(0, 7)
@@ -124,4 +124,4 @@ basef_temporal <- foreach(s=iterators::iter(series),
                           .packages = c("dplyr", "foreach")) %dopar%
   train_test_prepare(reduction2lst(s))
 
-saveRDS(basef_temporal, paste0("basef.rds"))
+saveRDS(basef_temporal, paste0("results/basef.rds"))

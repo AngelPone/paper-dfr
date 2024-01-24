@@ -1,5 +1,8 @@
 library(tscount)
-library(rslurm)
+library(foreach)
+
+cl <- parallel::makeCluster(8)
+doParallel::registerDoParallel(cl)
 
 TEST_START <- c(2022, 1)
 TEST_END <- c(2022, 20)
@@ -31,58 +34,35 @@ rolling_train <- function(tss){
 
 data <- readRDS('data/data.rds')
 
-data_rolling <- lapply(data, rolling_train)
-# for (i in seq_along(data_rolling)){
-#   data_rolling[[i]] <- lapply(data_rolling[[i]], function(x){
-#     x$id <- i
-#     x
-#   })
-# }
 
-
-# filter all zero series
-data_rolling <- lapply(data_rolling, function(x){Filter(function(y){any(y$train>0)}, x)})
-data_rolling <- do.call(c, data_rolling)
-
-# get train and test
-train_rolling <- Filter(function(x){max(time(x$train)) < 2021.999}, data_rolling)
-test_rolling <- Filter(function(x){max(time(x$train)) >= 2021.999}, data_rolling)
-
-
-Filter(function(x){}, data_rolling)
-# saveRDS(list(train=train_rolling, test=test_rolling), "data/rolling_data.rds")
-
-
-cal_basef <- function(obj){
-  train <- obj$train
-  mdl <- tsglm(train, model = list(past_obs = 1:3, past_mean = 1:4), link = "identity",
+basef_series <- function(x){
+  x <- rolling_train(x)
+  fcasts <- list()
+  test_lst <- list()
+  for (i in seq_along(x)) {
+    train <- x[[i]]$train
+    test <- x[[i]]$test
+    mdl <- tsglm(train, model = list(past_obs = 1:3, past_mean = 1:4), link = "identity",
           distr = "poisson")
-  obj$mean <- predict(mdl, n.ahead = 4)$pred
-  obj
+    mean_bottom <- predict(mdl, n.ahead = 4)$pred
+    
+    # total
+    
+    x_total <- temporalAgg(train)
+    mdl <- tsglm(x_total, model = list(past_obs = 1:2, past_mean = 1:2), link = "identity",
+                 distr = "poisson")
+    fcasts[[i]] <- c(predict(mdl, n.ahead = 1)$pred, mean_bottom)
+    test_lst[[i]] <- test
+  }
+  
+  list(fcasts = do.call(rbind, fcasts), y = do.call(rbind, test_lst))
 }
 
-cal_basef_total <- function(obj){
-  x <- temporalAgg(obj$train)
-  mdl <- tsglm(x, model = list(past_obs = 1:2, past_mean = 1:2), link = "identity",
-               distr = "poisson")
-  obj$mean <- c(predict(mdl, n.ahead = 1)$pred, obj$mean)
-  obj
+basef <- foreach(dt = iterators::iter(data), .packages = "tscount", .errorhandling = "pass") %dopar% {
+  basef_series(dt)
 }
 
+saveRDS(basef, "data/basef.rds")
 
 
-slurm_map(train_rolling,
-          function(x){cal_basef_total(cal_basef(x))},
-          global_objects = ls(),
-          jobname = "dfr_base_train",
-          nodes = 2,
-          cpus_per_node = 32,
-          submit = TRUE)
-slurm_map(test_rolling, 
-          function(x){cal_basef_total(cal_basef(x))},
-          jobname = "dfr_base_test",
-          global_objects = ls(),
-          nodes = 1,
-          cpus_per_node = 32,
-          submit = TRUE)
 
