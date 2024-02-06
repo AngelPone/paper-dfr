@@ -132,7 +132,7 @@ Non-integer forecasts generate additional costs from an operational research per
 
 To the best of our knowledge, existing literature on count HTS forecasting is limited and not tailored for low-count time series.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series.
-The reconciled forecasts are derived by generalizing Bayes’ rule and Monte Carlo sampling.
+The reconciled forecasts are derived by generalising Bayes’ rule and Monte Carlo sampling.
 \cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
 Although this innovative approach yields coherent probabilistic forecasts,
 the conditional manner employed can fail to account for the dependence structure within hierarchical time series.
@@ -220,7 +220,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 
   \label{sec:coherent_df}
 
-  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we represent the resulting predcitive distribution using a mapping function $\hat{\mathcal{H}}$ and a probability vector $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the complete domain.
+  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we represent the resulting predictive distribution using a mapping function $\hat{\mathcal{H}}$ and a probability vector $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the complete domain.
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;
   second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by the function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
@@ -332,7 +332,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
     \subsubsection*{\textbf{Movement restriction}}
-    In addition to minimizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
+    In addition to minimising Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
@@ -369,7 +369,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \end{aligned}
     \]
     which is a combination of minimizing the average Brier score and the movement restriction strategy.
-    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.
+    This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP, ][]{stellatoOSQPOperatorSplitting2020}.
 
 
     \subsection{The DFR algorithm}
@@ -817,7 +817,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      This paper develops a novel forecast reconciliation framework for count hierarchical time series.
      The framework involves assigning probabilities from incoherent points to coherent points, similar to the mapping approach for continuous time series.
-     We further propose a linear reconciliation algorithm that minimizes the penalised brier score of reconciled probabilistic forecasts.
+     We further propose a linear reconciliation algorithm that minimises the penalised brier score of reconciled probabilistic forecasts.
      To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
      We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
 
