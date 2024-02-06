@@ -322,7 +322,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \includegraphics[width=0.5\textwidth]{figures/rolling_window.pdf}
     \caption{\label{fig:rollingwindow} Diagram of expanding window strategy.}
     \end{figure}
-    Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $k=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
+    Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $z_k^{t+h}=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
     The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ expanding windows as
     \begin{align*}
     {\overline{BS}}=& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
@@ -331,7 +331,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \end{align*}
     This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
-    \subsubsection*{\textbf{Costs}}
+    \subsubsection*{\textbf{Movement restriction}}
     In addition to minimizing Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
@@ -343,7 +343,14 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
     \]
     It should be noted that unlike in continuous cases, there may not be a unique nearest coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent.
-    Therefore, discrete reconciliation cannot rely solely on a discrete analogue of projections. It is possible to define costs based on other distance measures such as the $\mathcal{L}_2$ norm and still solve using quadratic programming.
+    Based on the costs, we force $a_{kj}=0$ if
+    \[
+      c_{kj}>\underset{k'}{\min}\,c_{k'j}\,,
+    \]
+    which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$.
+    Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$.
+    In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
+    This movement restriction strategy offers the benefit of reduced parameter number and accelerated computation.
 
 
     \subsubsection*{\textbf{Objective}}
@@ -351,30 +358,19 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     The final objective function is defined as follows:
 
     \[
-    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right] + \lambda\sum\limits_{k=1}^r\sum\limits_{j=1}^q c_{kj}a_{kj}\,
+    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]
     \]
     subject to
     \[
-    0\leq a_{kj}\leq 1,\forall j, k \quad \text{and} \quad
-    \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,
+    \begin{aligned}
+    &0\leq a_{kj}\leq 1,\forall j, k \quad \text{and} \quad
+    \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,\\
+    & a_{kj} = 0 \quad \forall k,j: c_{kj}>\underset{k'}{\min}\,c_{k'j},
+    \end{aligned}
     \]
-    which is a combination of minimizing the average Brier score and a regularising penalty term.
-    The first term is the average Brier Score used to form a minimization problem. The second term applies a penalty to reduce the moving cost by multiplying the assignment weights $a_{kj}$ with $\mathcal{L}_1$ distance $c_{kj}$.
-    The penalty strength can be adjusted using manually specified coefficient $\lambda$.
+    which is a combination of minimizing the average Brier score and the movement restriction strategy.
     This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP,][]{stellatoOSQPOperatorSplitting2020}.
 
-    \subsubsection*{\textbf{Movement restriction}}
-    As the number of variables within the hierarchy and their domains increase, the cardinality of coherent and incoherent domains grows exponentially, resulting in a large number of reconciliation weights to be estimated.
-    To simplify the optimisation, we force $a_{kj}=0$ if
-    \[
-      c_{kj}>\underset{j}{\min}\,c_{kj}\,,
-    \]
-    which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$.
-    Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$.
-    In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
-
-    This movement restriction is similar to using moderate penalty strength on the previous penalised problems.
-    Therefore, it is suggested that this strategy replace the penalty term during practical implementation. It yields similar results with an exponential decrease of parameter numbers and faster computation speeds.
 
     \subsection{The DFR algorithm}
     \label{sec:algorithm1}
