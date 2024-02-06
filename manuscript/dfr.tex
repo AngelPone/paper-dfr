@@ -304,16 +304,16 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \label{sec:algorithm}
 
     Before introducing the objective function used to learn $\bm{A}$, we first introduce the evaluation of the reconciled distribution.
-    Scoring rules are commonly used for this purpose in probabilistic forecasting.
-    These rules assign a numerical score based on the predictive distribution and the actual outcome (\citealp{gneitingStrictlyProperScoring2007}), allowing for an optimisation procedure.
-    Alternative scoring rules that can be used to evaluate discrete distributions include the Brier Score, spherical Score and logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details).
+    Scoring rules $S(.,.)$ are commonly used for this purpose in probabilistic forecasting.
+    These rules assign a numerical score based on the predictive distribution and the actual outcome, allowing for an optimisation procedure.
+    An essential property for scoring rules is propriety. A scoring rule is said to be strictly proper if $\text{E}_Q[S(Q, \mathbf{y})] \leq \text{E}_Q[S(P, \mathbf{y})]$ with equality if and only if $P=Q$, where $P$ is any predictive distribution, $Q$ is the true distribution and $\mathbf{y}$ is an outcome.
+    Alternative strictly proper scoring rules that can be used to evaluate discrete distributions include the Brier Score, spherical Score and logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details).
     The Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
       \text{BS}(\bpi, \mathbf{z}) = \sum_{k=1}^{O}(z_k - \pi_k)^2,
-    \] where $\bpi$, $\mathbf{z}$ and $k$ are defined similarly as in Section~\ref{sec:coherent_df}.
-    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. The score is defined here to be negatively oriented, i.e., smaller score values indicate more accurate forecasts.    $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
-    Brier score is a strictly proper scoring rule that is easy to implement.
-    More importantly, it can seamlessly fit into our framework by formulating an objective function that can be analytically solved through quadratic programming.
+    \] where $\bpi$ is defined similarly as in Section~\ref{sec:coherent_df}.
+    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
+    We choose Brier score instead of other strictly scoring rules because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
 
     Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window (\citealp{hyndmanForecastingPrinciplesPractice2021}).
     Figure~\ref{fig:rollingwindow} depicts the behaviour of the expanding window, where the training data always begins at the same origin, one observation is added to the training data for each window, and forecasts are made $h$ steps ahead. This process continues until the last observation is included in the forecast horizon.
