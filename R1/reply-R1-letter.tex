@@ -130,6 +130,7 @@
 
 
     \item \textit{p.9, last line. $k = 1 \rightarrow$ should it be $z_k = 1$?}
+    
     \RE{Done. Thank you.}
     \item \textit{p.11, l.214. Not clear how to define the costs of $\mathcal{L}_1$ cannot be used}
     
@@ -168,8 +169,9 @@
 \begin{enumerate}
   \item \textit{One advantage of the proposed methodology is its ability to generate reconciled forecast distributions in count form. In evaluating forecast performance, a fair benchmark would involve using existing reconciliation approaches that use integer base forecasts. However, it's important to note that in these cases, the reconciled forecasts may not necessarily be in count form. In such instances, rounding non-integer values to whole numbers may still be effective. Have you considered evaluating the performance of forecasting when non-integer forecast results are both rounded up and rounded down, and comparing these results with your proposed approach?}
 
-  \RE{}
-  \textcolor{red}{refer to papers on this, and add a benchmark}
+  \RE{Thank you for your comment. We should note that rounding coherent non-integer points forecasts leads to incoherent integer point forecasts. For example, consider a hierarchy with four series, denoted by Y=A+B+C. The non-integer forecasts for these series could be 3.2, 0.6, 1.7, 0.9, respectively, and the rounding forecasts are 3, 1, 2, 1, which are not coherent anymore. Similar arguments apply to distributional forecasts. Besides, it can be even more challenging to ``round'' a multivariate predictive distribution.
+  
+  However, it is possible to incorporate rounding in the process of producing base forecasts. As we stated in our paper, our framework allows for arbitrary univariate predictive distribution, including those produced by rounding non-integer forecasts.}
 
 
   \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
@@ -178,6 +180,12 @@
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
+  \RE{Thank you for highlighting this issue. Indeed, we also did not find studies about the cost of rounding non-integer forecasts. We have now removed this sentence ``''.}
+  \textcolor{red}{
+    1. Rounding multivariate predictive distribution is not that easy.
+    2. Benchmark: rounding only bottom-level series
+    }
+
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   
   \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
