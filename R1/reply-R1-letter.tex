@@ -91,14 +91,10 @@
 
   \end{enumerate}
 
-\item \textit{Contribution. In the introduction, the authors merely summarized their work without clarifying the contribution. Thus, it is unclear to me the contribution of this research from the existing algorithms in the continuous case. If the problem formulation is an analogue of the continuous case, what about the algorithm design? A review or a brief summarization of forecast reconciliation in the continuous case should be added. The emphasis should be given to what motivates you to develop the new algorithm.}
+\item \textit{Contribution. In the introduction, the authors merely summarised their work without clarifying the contribution. Thus, it is unclear to me the contribution of this research from the existing algorithms in the continuous case. If the problem formulation is an analogue of the continuous case, what about the algorithm design? A review or a brief summarization of forecast reconciliation in the continuous case should be added. The emphasis should be given to what motivates you to develop the new algorithm.}
 
-\textcolor{red}{Rearrange Introduction:
-1. HTS and nonnegative HTS (1 paragraph)
-2. Point reconciliation
-3. Probabilistic reconciliation
-4. Our motivation: pmf to describe full uncertainty, continuous reconciliation not working, (while nonnegative continuous, not nonnegative distribution, lesson learned from continuous case: forecast combination)
-5. Contribution
+\RE{
+  Thank you for your valuable feedback. In response, we have revised our Introduction to enhance clarity and logical flow. The revised version now presents a review of continuous reconciliation approaches in the second and third paragraphs. This is followed by a detailed discussion of the three primary motivations for our study, including a review of existing methodologies for count hierarchical time series. Lastly, we summarise our contributions to the field.  
 }
 
 
@@ -106,7 +102,7 @@
 \begin{enumerate}
     \item \textit{There are parts that are hard to read and sentences with grammatical errors and spelling errors e.g. the last sentence in p.2.}
     
-    \RE{We thank the reviewer for the very nice suggestion.}
+    \RE{Thank you for pointing out this matter. We have removed this sentence and thoroughly reviewed the remaining text for sentence structure and spelling accuracy.}
     \item \textit{The introduction of costs (in p.10) can be moved closer to movement restriction since it can be represented either as a penalty or a constraint.}
     
     \RE{We thank the reviewer for the very nice suggestion. We have combined the ``Costs'' and ``Movement Restriction'' subsections and removed the $\mathcal{L}_1$ cost part from the objective function. The $\mathcal{L}_1$ cost now only serves as a measure of how close an incoherent point to a coherent point.}
@@ -178,11 +174,11 @@
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
-  \RE{Thank you for highlighting this issue. Indeed, we also did not find studies about the cost of rounding non-integer forecasts. We have now removed this sentence ``''.}
-  \textcolor{red}{
-    1. Rounding multivariate predictive distribution is not that easy.
-    2. Benchmark: rounding only bottom-level series
-    }
+  \RE{Thank you for highlighting this issue. Indeed, we also did not find studies about the cost of rounding non-integer forecasts. We have now revised and clarified the possibility of rounding non-integer forecasts as follows:
+  
+  ``Regarding point forecasts, the reconciliation approaches yields non-integer forecasts because they project base forecasts from an incoherent real space onto a coherent real subspace (\citealp{panagiotelisForecastReconciliationGeometric2021}).
+  While rounding is a practical way to dealing with non-integer forecasts, the rounded forecasts may not be coherent anymore.
+  In terms of distributional forecasts, it can even be more challenging to discretise the distributions while maintaining the probabilistic coherence.''}
 
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   
