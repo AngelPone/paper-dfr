@@ -12,7 +12,9 @@ for (m in c("base", "bu", "td", "dfr", "emp")){
 }
 accs_sum <- data.frame(lapply(accs_list, rowMeans))
 row.names(accs_sum) <- c("y_3", "y_1", "y_2", "Y")
-accs_sum*100
+
+write.csv(format(accs_sum*100, digits=2, nsmall=2), "experiment/simulation/results/cs-bs.csv")
+
 
 library(tsutils)
 
@@ -41,3 +43,4 @@ nemenyi(plot_data[[4]], plottype = "vmcb",
         labels = c("Base", "DBU", "DTD", "DFR", "Empirical"), 
         main = "MCB Test for hierarchy")
 dev.off()
+

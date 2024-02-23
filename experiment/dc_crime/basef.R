@@ -1,7 +1,7 @@
 library(tscount)
 library(foreach)
-
-cl <- parallel::makeCluster(8)
+setwd("experiment/dc_crime/")
+cl <- parallel::makeCluster(6)
 doParallel::registerDoParallel(cl)
 
 TEST_START <- c(2022, 1)

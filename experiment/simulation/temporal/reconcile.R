@@ -10,7 +10,7 @@ basef <- readRDS('results/basef.rds')
 # y_test: 21 * 7
 
 
-cl <- parallel::makeCluster(8)
+cl <- parallel::makeCluster(3)
 doParallel::registerDoParallel(cl)
 
 ht <- dhier(smatrix, domain)
@@ -27,11 +27,11 @@ step_models <- foreach::foreach(bf = iterators::iter(basef), .packages = "Discre
   sdfr = reconcile(mdl, bf_test)
   bu = reconcile(mdl_bu, bf_test)
   td = reconcile(mdl_td, bf_test)
-  emp = reconcile(mdl_emp, bf_test)
+  emp = reconcile(mdl_emp, bf_test, h=NROW(bf$y_test))
   list(
     fcasts = list(sdfr=sdfr, bu=bu, td=td, emp=emp, base=bf_test),
     y = bf$y_test
   )
 }
 
-saveRDS("results/temporal_recf.rds")
+saveRDS(step_models, "results/temporal_recf.rds")

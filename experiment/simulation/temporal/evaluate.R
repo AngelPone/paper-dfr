@@ -1,102 +1,60 @@
-setwd('simulation/temporal')
-
 library(DiscreteRecon)
-res <- readRDS("SFP.rds")
-tdres <- readRDS('td.rds')
-basef <- readRDS('basef.rds')
-step_models <- readRDS('step_models.rds')
+recf <- readRDS('experiment/simulation/results/temporal_recf.rds')
 
-idx <- which(sapply(step_models, length) == 6)
-basef <- basef[idx]
-
-# output_mae <- matrix(0, 8, 4)
-# lst_mae <- list()
-# mae <- function(x, y){mean(abs(x-y))}
-# 
-# output_rmse <- matrix(0, 8, 4)
-# lst_rmse <- list()
-# rmse <- function(x, y){sqrt(mean((x-y)^2))}
+s_mat <- rbind(rep(1, 7), diag(7))
+domain <- rbind(rep(0, 7), rep(1, 7))
 
 lst_bs <- list()
-
-### base forecast ######
-# lst_mae$base <- t(sapply(seq_along(basef), 
-#                          function(x){ point_metric(basef[[x]]$x_test, res[[x]]$y, mae)},
-#                          simplify="array"))
-# 
-# lst_rmse$base <- t(sapply(seq_along(basef), 
-#                           function(x){ point_metric(basef[[x]]$x_test, res[[x]]$y, rmse)},
-#                           simplify="array"))
-lst_bs$base <- lapply(seq_along(basef), function(x){brier_score(basef[[x]]$x_test, res[[x]]$y)})
+hierarchy <- dhier(s_mat, domain)
 
 
-### bottom up #######
-# lst_mae$bu <- t(sapply(seq_along(basef), 
-#                          function(x){ point_metric(marginal2Joint(basef[[x]]$x_test, res[[x]]$y$meta, method = "bu"), res[[x]]$y, mae)},
-#                          simplify="array"))
-# 
-# lst_rmse$bu <- t(sapply(seq_along(basef), 
-#                          function(x){ point_metric(marginal2Joint(basef[[x]]$x_test, res[[x]]$y$meta, method = "bu"), res[[x]]$y, rmse)},
-#                          simplify="array"))
-lst_bs$bu <- lapply(seq_along(basef), function(x){brier_score(marginal2Joint(basef[[x]]$x_test, res[[x]]$y$meta, method = "bu"), res[[x]]$y)})
+ns <- c("base", "bu", "td", "sdfr","emp")
 
-
-### top down ####
-# lst_mae$td <- t(sapply(tdres, function(x){point_metric(x$dist, x$y, mae)},simplify="array"))
-# lst_rmse$td <- t(sapply(tdres, function(x){point_metric(x$dist, x$y, rmse)},simplify="array"))
-
-lst_bs$td <- lapply(tdres, function(x){brier_score(x$dist, x$y)})
-
-### rec ######
-# lst_mae$sfr <- t(sapply(res, function(x){point_metric(x$dist, x$y, mae)},simplify="array"))
-# lst_rmse$sfr <- t(sapply(res, function(x){point_metric(x$dist, x$y, rmse)},simplify="array"))
-
-lst_bs$sfr <- lapply(res, function(x){brier_score(x$dist, x$y)})
-
-
-### summarize ######
-ns <- c("base", "bu", "td", "sfr")
-# output_mae <- sapply(ns, function(x){colMeans(lst_mae[[x]])})
-# output_rmse <- sapply(ns, function(x){colMeans(lst_rmse[[x]])})
-output_bs_series <- sapply(ns, function(x){rowMeans(sapply(lst_bs[[x]], function(x){x$series}))})
-output_bs_hierarchy <- sapply(ns, function(x){mean(sapply(lst_bs[[x]], function(x){sum(x$hierarchy)}))})
+### Calculate brier score ####
+for (method in ns){
+  lst_bs[[method]] <- lapply(iterators::iter(recf), 
+  function(x) {
+    fcasts <- x$fcasts[[method]]
+    y <- x$y
+    bs <- brier_score(fcasts, y, hierarchy)
+    c(sum(bs$hierarchy), bs$series)
+  })
+  lst_bs[[method]] <- do.call(rbind, lst_bs[[method]])
+}
 
 
 ### MCB Test #####
 library(tsutils)
 
-# sapply(ns, function(x){lst_mae[[x]][,1]}, simplify = "array") %>%
-#   mcb_plot("MAE", "total")
-# sapply(ns, function(x){as.vector(lst_mae[[x]][,2:8])}, simplify = "array") %>%
-#   mcb_plot("MAE", "bottom")
-
-# sapply(ns, function(x){lst_rmse[[x]][,1]}, simplify = "array") %>%
-#   mcb_plot("RMSE", "total")
-# sapply(ns, function(x){as.vector(lst_rmse[[x]][,2:8])}, simplify = "array") %>%
-#   mcb_plot("RMSE", "bottom")
-
-pdf(sprintf("../../figures/temporal_mcb.pdf"),
+pdf(sprintf("manuscript/figures/temporal_mcb.pdf"),
     width = 12, height = 4, pointsize = 16)
 par(mfrow=c(1,3), mar = c(5.1, 6, 4.1, 2.1))
-dat <- sapply(ns, function(x){sapply(lst_bs[[x]], function(x){x$series[1]})}, simplify = "array")
+dat <- sapply(ns, function(x){ lst_bs[[x]][,2]}, simplify="array")
 dat[,"td"] <- dat[,"base"]
 nemenyi(dat, 
         plottype="vmcb", 
-        labels=c("Base", "DBU", "DTD", "SDFR"),
+        labels=c("Base", "DBU", "DTD", "SDFR", "Empirical"),
         main = sprintf("MCB Test for total series"))
-dat <- sapply(ns, function(x){as.vector(sapply(lst_bs[[x]], function(x){x$series[2:8]}))}, simplify = "array")
+dat <- sapply(ns, function(x){as.vector(lst_bs[[x]][,3:9])}, simplify = "array")
 dat[,"bu"] <- dat[,"base"]
 nemenyi(dat, 
         plottype="vmcb", 
-        labels=c("Base", "DBU", "DTD", "SDFR"),
+        labels=c("Base", "DBU", "DTD", "SDFR", "Empirical"),
         main = sprintf("MCB Test for bottom series"))
-nemenyi(sapply(ns, function(x){sapply(lst_bs[[x]], function(x){sum(x$hierarchy)})}, simplify = "array"), 
+nemenyi(sapply(ns, function(x){lst_bs[[x]][,1]}, simplify = "array"), 
         plottype="vmcb", 
-        labels=c("Base", "DBU", "DTD", "SDFR"),
+        labels=c("Base", "DBU", "DTD", "SDFR", "Empirical"),
         main = sprintf("MCB Test for hierarchy"))
 dev.off()
 
 
+tb <- sapply(ns, function(x){
+  colMeans(lst_bs[[x]]) * 100
+})
+
+rownames(tb) <- c("Y", paste0("Y", 1:8))
+
+write.csv(format(tb, digits=2, nsmall=2), "experiment/simulation/results/temporal_bs.csv")
 # sapply(ns, function(x){sapply(lst_bs[[x]], function(x){sum(x$hierarchy)})}, simplify = "array") %>%
 #   mcb_plot("Brier Score", "hierarchy")
 # sapply(ns, function(x){sapply(lst_bs[[x]], function(x){x$series[1]})}, simplify = "array") %>%
