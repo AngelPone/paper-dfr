@@ -78,15 +78,12 @@
   \begin{enumerate}
     \item \textit{The authors pointed out (in p.26, l.552) that the algorithm ``cannot be easily applied to a large hierarchy'' due to the dimensionality issues. This limits the applicability of the proposed algorithm. From a practical perspective, it may be necessary to offer guidelines as to which hierarchies fall into the ``large'' category. }
 
-    \RE{Thank you for your comment. }
+    \RE{Thank you for your comment. We have added a paragraph in Discussion about the computation time and size of hierarchy. It is worth noting that we have added the Table~7, which includes multiple hierarchies of different sizes, and corresponding computational time. Readers are able to tell if a hierarchy is ``large'' according to computational time and number of parameters.}
 
-    \textcolor{red}{number of unknown parameters, number of series, domain of the bottom-level series.}
 
     \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimization effort is not required. Hence it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
 
-    \RE{Thank you for your suggestion.}
-
-    \textcolor{red}{computational time}
+    \RE{Thank you for your suggestion. As we have mentioned in last comment, we have added Table~7 to illustrate relationship between the size of hierarchy and computational time.}
 
 
   \end{enumerate}
@@ -144,8 +141,11 @@
 
 \begin{enumerate}
     \item \textit{However, the discussion on the methodology requires more explanation. The method could use other probabilistic evaluation measures such as discrete ranked probability score.}
+   
+    \RE{Thank you for your comment. As we have mentioned in Section~3.2, our method could employ other probabilistic evaluation measures, such as spherical score and logarithmic score. We choose Brier score instead of others because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
     
-    \textcolor{red}{add some discussion in the methods part, and why we use Brier Score, and how other measures can be used.}
+    However, Incorporating discrete ranked probability score (DRPS) into our method is challenging because DRPS is undefined on multivariate discrete distribution. The problem of defining a rank between discrete values has not been solved in the literature. For example, it is hard to compare the value (1, 0) and (0, 1).
+    }
 
     \item \textit{The discussion of the empirical results is difficult to be read.}
     \item \textit{Overall, a good research question was studied, but more clear explanation on the methodology and impactful discussion on the empirical result are needed.}
@@ -170,7 +170,7 @@
 
   \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
 
-  \RE{}
+  \RE{Thank you for your suggestion. Our second simulation experiment simulates daily series of intermittent nature, which is a common scenario widely seen in supply chain and retail. Furthermore, we have replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
@@ -182,15 +182,19 @@
 
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   
+  \RE{Thank you for your suggestion. We have now replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+
   \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
   
-  \textcolor{red}{emprical distribution}
+  \RE{Thank you for your advice. We have now included the empirical distribution as one of the benchmarks in both our simulation and empirical studies. While it is competitive compared to base forecast, discrete bottom-up and discrete top-down, the proposed methodology outperforms it in most cases.}
   
   \item \textit{Considering the emphasis on low-volume data, it raises a question as to why the authors opted for a yearly time series in the empirical section of the study.}
-  
-  \textcolor{red}{replace the Australia mortality with a sales dataset?}
+ 
+  \RE{Thank you for pointing our this issue. We have now replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
   
   \item \textit{Could the authors provide insights on the computational cost associated with the proposed approach? This aspect becomes particularly crucial when weighing the potential benefits of the proposed approach against simpler methods like rounding forecasts, especially in more realistic scenarios including big hierarchies where high computational costs are a concern.}
+  
+  \RE{Thank you for your advice. We have added a paragraph in Discussion about the computation time and size of hierarchy. It is worth noting that we have added the Table~7, which includes multiple hierarchies of different sizes, and corresponding computational time.}
 
 
 \end{enumerate}

@@ -692,7 +692,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \end{table}
 
      \begin{figure}[h]
-       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the four approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+       \caption{\label{fig:application_crime}Average ranks and 95\% confidence intervals for the five approaches in the crime forecasting application. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \centering
        \includegraphics[width=\textwidth]{figures/dc_crime_mcb.pdf}
      \end{figure}
@@ -700,59 +700,39 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
 
-     \subsection{Application: forecasting mortality threshold exceedance in Australia}
-     \label{sec:application_mortality}
-     The high mortality rate among the population is a major concern for practitioners.
-     Of particularly concern to life insurers are risks that arise when mortality exceeds a certain threshold. To hedge against mortality risks, a number of so-called catastrophe bond products have been developed.
-     One typical example is the Vita Capital mortality catastrophe bonds, which cover excess mortality risks in various areas.
-     If the mortality rate in one or more areas surpasses specific thresholds, investors may not receive their principal payments from the issuer.
-     Joint probabilistic forecasts become essential in these situations as they offer a comprehensive view of potential future outcomes.
-     These forecasts are especially critical when there is dependence between mortality across target areas.
+     \subsection{Application: forecasting intermittent demand in M5 dataset}
 
-     We conduct an experiment using yearly mortality data collected from 1921 to 2020 in Australia.
-     The data is grouped by age, and we focus on the mortality of elder groups: $[55, 64]$, $[65, 74]$, $[75, 84]$, and $[85, )$.
-     We construct a two-level hierarchy, where the bottom level includes
-     $4$ binary series that indicates whether the mortality of each corresponding age group exceeds a given threshold for that year.
-     We then aggregate these bottom-level series to obtain a total series indicating how many groups exceed their thresholds.
+     Intermittent time series are commonly observed in the modern database systems, where finer and finer granularity of data in hierarchies are collected. 
+     Such time series are prevalent in the fields of inventory and supply chain management, supporting daily store replenishment, transportation plans, after-sales services and other applications(\citealp{babaiDemandForecastingSupply2022}).
+     Coherent predictive distributions are critical for these fine-granularity hierarchies. 
+     In this subsection, we apply the proposed SDFR algorithm to a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset, which comprises $3049$ units of products sold by Walmart at ten stores located in three states in the USA from January 29, 2011 to May 23, 2016 (1941 days).
+     
+    We construct a cross-sectional State-Store hierarchy for single unit of product, where total series represents sales of the unit sold at a specific state, while bottom series represent sales of the unit sold at all stores at that state. 
+    In order to restrict our attention to low-count intermittent time series, we exclude the hierarchies whose maximum sale of bottom series is greater than $4$. 
+    In this experiment, we consider one-step-ahead forecast and employ the rolling origin strategy. The starting window size is chosen so that totally $730$ samples are produced, with the last $28$ samples are used for evaluation.
+    Hierarchies that do not contain enough observations are also excluded.
+    Finally, we obtain $665$ hierarchies to evaluate performance of different approaches. 
+    The base forecasts are produced using the model that combines SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and negative binomial distribution proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
 
-     There are no ready-to-use thresholds available for specific age groups and years.
-     To address this, we establish a custom rule for illustrative purposes in this experiment.
-     We assume that mortality decreases linearly over a short period (e.g., ten years) due to advancements in technology, economy, medical conditions and other factors.
-     Under this assumption, we determine the ``expected'' threshold for a particular age group in a specific year by applying the following formula:
-     \[
-       \text{threshold}_t = 1.005 \times (d_t - (d_{t-11} - d_{t-1})/10),
-     \]
-     where $d_t$ represents the observed mortality at year $t$, and $1.005$ is a manually specified excess death coefficient.
-     We then transform the mortality series into binary series by comparing actual mortality rates to the ``expected'' thresholds.
+    Table~\ref{tab:M5} presents accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}.
 
-     In this experiment, we also employ the rolling origin strategy with a starting window size of $20$, resulting in $69$ samples.
-     The first $59$ of them are utilised for training the DFR model, while the remaining samples are used to test forecast performances.
-     INGARCH(3, 5) models generated base forecasts for all series.
-
-     Brier Scores are evaluated for each age group, the total series and the entire hierarchy.
-     Table~\ref{tab:mortality_age} presents an overview of the average Brier Scores across the ten testing samples.
-     The DFR approach yields the most accurate joint forecasts for the hierarchy and outperforms other methods for most single series as well.
-     It is disappointing to note that the performance of the oldest group (i.e., $ \ge 85$) decreases, given that this group is typically a priority in practice.
-     However, this phenomenon also occurs with reconciliation frameworks in continuous cases.
-     Although such frameworks generally improve forecast accuracy across all series, some individual series may experience decreased accuracy (\citealp{zhangOptimalReconciliationImmutable2022a}).
+    \begin{table}
+        \centering
+        \begin{tabular}{llllll}\toprule
+            ~ & Base & DBU & DTD & SDFR & Empirical \\ \midrule
+            Total & 50.86 & 50.57 & 50.86 & \textbf{50.34} & 50.35 \\ 
+            Bottom & 23.97 & 23.97 & 23.90 & 23.83 & \textbf{23.82} \\ 
+            Hierarchy & 62.74 & 55.87 & 56.02 & \textbf{55.63} & 55.64 \\ \bottomrule
+        \end{tabular}
+        \caption{\label{tab:M5}Accuracy of approaches  in terms of average Brier Score in experiments on M5 dataset. Row-wise minimum values are displayed in bold.}
+    \end{table}
 
 
-     \begin{table}
-       \centering
-       \caption{\label{tab:mortality_age} Probabilistic forecast performance summary of mortality application with Brier Score ($\times 10^{-2}$).}
-       \begin{tabular}{lcccc}
-       \toprule
-       % \multicolumn{5}{c}{Brier Score ($\times 10^{-3}$)}\\
-       & Base & DBU & DTD & DFR \\\midrule
-       Total & 63.8 & 62.7 & 63.8 & \textbf{59.1} \\
-       $[55, ~ 64]$ & \textbf{17.4} & \textbf{17.4} & 20.3 & 17.5 \\
-       $[65, ~ 74]$ & 13.8 & 13.8 & 14.3 & \textbf{12.9}\\
-       $[75, ~ 84]$ & 20.6 & 20.6 & 32.4 & \textbf{16.0}\\
-       $\ge 85$ & 49.5 & 49.5 & \textbf{44.4} & 52.2\\
-       Hierarchy & 88.2 & 69.7 & 73.7 & \textbf{67.5} \\
-       \bottomrule
-      \end{tabular}
-     \end{table}
+    \begin{figure}[h]
+      \caption{\label{fig:application_M5}Average ranks and 95\% confidence intervals for the five approaches in the M5 application. The overall ranks of the approaches in terms of average Brier scores are shown to the right of their names.}
+      \centering
+      \includegraphics[width=\textwidth]{figures/M5_mcb.pdf}
+    \end{figure}
 
      \section{Discussion}
      \label{sec:discussion}

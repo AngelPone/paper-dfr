@@ -231,21 +231,21 @@ summary <- function(bs, fig_path) {
       idx[[method]]$series[1]
     }))
   })
-  colnames(total) <- c("Base", "Bottom-up", "Top-down", "SDFR", "Empirical")
+  colnames(total) <- c("Base", "DBU", "DTD", "SDFR", "Empirical")
 
   bottom <- sapply(c("base", "bu", "td", "sdfr", "emp"), function(method) {
     do.call(c, lapply(iterators::iter(bs), function(idx) {
       idx[[method]]$series[2:length(idx[[method]]$series)]
     }))
   })
-  colnames(bottom) <- c("Base", "Bottom-up", "Top-down", "SDFR", "Empirical")
+  colnames(bottom) <- c("Base", "DBU", "DTD", "SDFR", "Empirical")
 
   hierarchy <- sapply(c("base", "bu", "td", "sdfr", "emp"), function(method) {
     do.call(c, lapply(iterators::iter(bs), function(idx) {
       sum(idx[[method]]$hierarchy)
     }))
   })
-  colnames(hierarchy) <- c("Base", "Bottom-up", "Top-down", "SDFR", "Empirical")
+  colnames(hierarchy) <- c("Base", "DBU", "DTD", "SDFR", "Empirical")
 
   pdf(paste0(fig_path, "M5_mcb.pdf"), width = 15, height = 5, pointsize = 16)
   par(mfrow = c(1, 3))
@@ -266,7 +266,7 @@ summary <- function(bs, fig_path) {
 
   output <- sapply(list(total, bottom, hierarchy), colMeans, na.rm = TRUE) %>% t()
   rownames(output) <- c("Total", "Bottom", "Hierarchy")
-  colnames(output) <- c("Base", "Bottom-up", "Top-down", "SDFR", "Empirical")
+  colnames(output) <- c("Base", "DBU", "DTD", "SDFR", "Empirical")
   write.csv(round(output * 100, 2), paste0(fig_path, "M5.csv"))
 }
 library(DiscreteRecon)
