@@ -50,7 +50,7 @@
   \begin{abstract}
 
     While forecast reconciliation has seen great success for real valued data, the method has not yet been comprehensively extended to the discrete case. This paper defines and develops a formal discrete forecast reconciliation framework based on optimising scoring rules using quadratic programming. The proposed framework produces coherent joint probabilistic forecasts for count hierarchical time series.
-    Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast  criminal offences in Washington D.C. and the exceedance of thresholds in age-specific mortality rates in Australia. Compared to the top-down and bottom-up approaches, the proposed framework shows superior performance in both simulations and empirical studies.
+    Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast  criminal offences in Washington D.C. and sales of product units in M5 dataset. Compared to benchmarks, the proposed framework shows superior performance in both simulations and empirical studies.
 
   \end{abstract}
 
@@ -70,7 +70,6 @@
 
 \section{Introduction}
 
-% Hierarchical time series (HTS) arise in many applications, such as supply chain management (\citealp{babaiDemandForecastingSupply2022}), tourism management (\citealp{kourentzesCrosstemporalCoherentForecasts2019}), energy (\citealp{nystrupTemporalHierarchiesAutocorrelation2020}), and mortality (\citealp{liHierarchicalMortalityForecasting2022}).
 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields.
 Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan'' events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
 Count hierarchical time series (HTS) are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
@@ -122,7 +121,7 @@ Secondly, we utilise these concepts to establish a formal reconciliation framewo
 Thirdly, we adopt the Brier score as a metric for evaluating forecasts and present a reconciliation algorithm that optimises this metric.
 We also demonstrate how this algorithm can be solved through quadratic programming, and to speed up the computation, we develop a second stepwise algorithm.
 Fourthly, two simulation experiments are performed to verify the applicability in both temporal and cross-sectional settings.
-Lastly, we conduct two empirical experiments using real data. The first experiment analyses a crime dataset with a temporal hierarchy, and the other employs cross-sectional mortality data.
+Lastly, we conduct two empirical experiments using real data. The first experiment analyses a crime dataset with a temporal hierarchy, and the other employs cross-sectional sales data in the M5 dataset.
 
 The remainder of this paper is organised as follows.
 Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
@@ -644,7 +643,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \label{sec:application}
      This section uses the proposed DFR algorithm to forecast two publicly available real-world datasets.
      Section~\ref{sec:application_crime} concentrates on temporal hierarchy and forecasts the number of criminal offences in Washington D.C.
-     Meanwhile, Section~\ref{sec:application_mortality} constructs and forecasts cross-sectional count hierarchical time series of the exceedance of thresholds in age-specific mortality rates in Australia.
+     Meanwhile, Section~\ref{sec:M5} constructs and forecasts cross-sectional count hierarchical time series in the M5 dataset.
 
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
@@ -701,6 +700,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
 
      \subsection{Application: forecasting intermittent demand in M5 dataset}
+     \label{sec:M5}
 
      Intermittent time series are commonly observed in the modern database systems, where finer and finer granularity of data in hierarchies are collected. 
      Such time series are prevalent in the fields of inventory and supply chain management, supporting daily store replenishment, transportation plans, after-sales services and other applications(\citealp{babaiDemandForecastingSupply2022}).
@@ -714,7 +714,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     Finally, we obtain $665$ hierarchies to evaluate performance of different approaches. 
     The base forecasts are produced using the model that combines SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and negative binomial distribution proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
 
-    Table~\ref{tab:M5} presents accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}.
+    Table~\ref{tab:M5} presents accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. SDFR significantly outperforms the discrete top-down method and base forecasts across all levels. While it fails to outperform discrete bottom-up or empirical distribution on single level, it performs best in terms of brier score of the hierarchy. 
+    Interestingly, the empirical distribution shows a competitive accuracy in this experiment. 
+    One of the possible reason is that the time series in this application shows weak auto-correlation, making time series model offer less benefits.
+    However, our SDFR model still improves the accuracy of the whole hierarchy compared to benchmarks in such circumstances.
 
     \begin{table}
         \centering
@@ -751,7 +754,21 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
+     In order to shed more lights on how the curse of dimensionality affect the computation and understanding the capacity of the proposed approach, we summarise the number of series, the number of parameters and single-run computational time of our approach in our experiments. The results are shown in Table~\ref{}
      We suggest applying the proposed algorithm to small to moderate-sized hierarchies. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
+
+     \begin{table}
+       \centering
+       \begin{tabular}{lcccc}
+        \toprule
+        & Section~\ref{sec:cross-sectional_simu} & Section~\ref{sec:simulation} & Section~\ref{sec:application_crime} & Section~\ref{sec:M5}\\ \midrule
+        Number of bottom-level series & 2 & 7 \\
+        Maximum of bottom-level series & 1 & 1 \\
+        Number of parameters to estimate &  &\\ 
+        Algorithm & DFR & SDFR & DFR & SDFR \\
+        Computational time for training the model & & \\ \bottomrule
+       \end{tabular} 
+     \end{table}
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
      We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately.
@@ -759,12 +776,6 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Thirdly, the parameters of the employed models are not optimally estimated.
      To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and the corresponding parameters.
 
-     This paper presents two simulation experiments and two empirical studies.
-     While the experiment results significantly improve accuracy, the applications are not entirely natural.
-     For instance, in the crime forecasting experiment, where extreme values are usually crucial, we truncate the infinite domain of crime numbers.
-     In the mortality experiment, binary series are created based on custom thresholds.
-     Future research could apply our proposed frameworks to real scenarios where time series have finite domains and deterministic constraints exist between them.
-     It is important to note that these constraints may not only be based on aggregation but can also be other deterministic functions such as logical operators.
 
 
 
@@ -779,7 +790,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
 
      Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy.
-     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and mortality threshold exceedance of elder groups in Australia with promising results.
+     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and sales of product units in the M5 dataset with promising results.
      The results indicate the potential of the proposed algorithms to be applied in reality.
 
      One key factor contributing to our strong results is the utilisation of forecast combinations.
