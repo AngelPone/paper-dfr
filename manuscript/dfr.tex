@@ -515,12 +515,16 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
     We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
 
+
+    We consider four benchmarks in this experiment and all other experiments in the rest of this paper, including base forecasts, discrete bottom-up, discrete top-down and empirical distribution. 
+    The empirical distribution is a commonly used benchmark in field of low-count time series forecasting.
+
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times.
-    Table~\ref{tab:sim_crosssectional_res_dist} summarises the average Brier Scores of the $1000$ samples, compared with base forecasts, discrete bottom-up and discrete top-down methods.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarises the average Brier Scores of the $1000$ samples, compared with four benchmarks.
     The best average performance of the four approaches is indicated by bold text in each row.
-    DFR performs the best for both the single series and the hierarchy.
-    The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
+    DFR performs the best for both the total series and the hierarchy.
+    % The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
     Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
@@ -528,28 +532,28 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy among these approaches.
     This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
     Non-overlapping grey intervals indicate statistically significant differences between methods.
-    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs significantly better than all other approaches.
+    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs significantly better than all other approaches for total series and the hierarchy.
     Note that MCB tests for the bottom series are conducted on all samples at the bottom level.
 
     \begin{figure}
       \centering
       \label{fig:mcb_crosssectional}
       \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
-      \includegraphics[width=\textwidth]{figures/cross_sectional_mcb.pdf}
+      \includegraphics[width=\textwidth]{figures/sim_cross_mcb.pdf}
     \end{figure}
 
 
     \begin{table}
       \centering
       \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with Brier Score ($\times 10^{-2}$).}
-      \begin{tabular}{lcccc}
+      \begin{tabular}{lccccc}
       \toprule
       % \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\
-      & Base & DBU & DTD & DFR \\\midrule
-      $Y_1$ & 25.4 & 25.4 & 34.9 & \textbf{24.4} \\
-      $Y_2$ & 27.8 & 27.8 & 34.8 & \textbf{25.7}\\
-      $Y_3$ & 49.7 & 49.5 & 49.7 & \textbf{42.0} \\
-      $\bY$ & 74.4 & 47.8 & 56.1 & \textbf{44.0} \\
+      ~ & Base & DBU & DTD & DFR & Empirical \\ \midrule
+      $Y_1$ & \textbf{46.52} & \textbf{46.52} & 47.25 & 46.78 & 50.41 \\ 
+      $Y_2$ & \textbf{46.87} & \textbf{46.87} & 47.79 & 47.32 & 50.43 \\ 
+      $Y_3$ & 67.07 & 67.13 & 67.07 & \textbf{64.57} & 67.15 \\ 
+      Y & 88.65 & 71.23 & 72.00 & \textbf{69.60} & 72.9 \\ 
       \bottomrule
       \end{tabular}
     \end{table}
@@ -601,10 +605,11 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \subsubsection{Simulation results}
      We repeated the simulation process $1000$ times.
-     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model in comparison to base forecasts, discrete bottom-up and discrete top-down methods.
+     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model in comparison to four benchmarks.
      $Y_1,\dots,Y_7$ represent the daily series at the bottom level, while $Y_8$ denotes the weekly series at the total level.
-     Although SDFR does not enhance forecast accuracies for all series, the results
-     demonstrate a compromise between discrete top-down and discrete bottom-up methods.
+     Although SDFR does not enhance forecast accuracies for all series, the results demonstrate a compromise between discrete top-down and discrete bottom-up methods.
+     The bad performance of discrete top-down and empirical distribution for the bottom-level series and the hierarchy may primarily be due to it ignores the autocorrelation hidden in the time series. 
+     
      One intriguing observation is that the forecasting accuracy improves for $Y_4$ through $Y_7$.
      This could be attributed to the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of the previous series must be adjusted multiple times to construct the final joint distribution, thereby introducing uncertainty.
      Another explanation could be the effective utilisation of forecast combination, where the bottom-level series corresponding to the end of the week incorporate more forecasts than preceding ones.
@@ -612,23 +617,24 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      It is crucial to note that the results could vary if the SDFR algorithm is implemented in a different step order.
      Additionally, the performance could be enhanced if we average multiple reconciled forecasts from various orderings.
 
+
      Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test the significance of differences in forecast performance among these approaches. Similar to the conclusions drawn from Table~\ref{tab:sim_temporal_res_dist}, SDFR significantly outperforms the other approaches in forecasting the bottom series and the hierarchy, while its forecasts for the total series does not deviate much from base forecasts.
 
      \begin{table}
      \centering
      \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-2}$).}
-     \begin{tabular}{lcccc}
+     \begin{tabular}{lccccc}
      \toprule
-      & Base & DBU & DTD & SDFR \\\midrule
-     $Y_1$ & \textbf{40.8} & \textbf{40.8} & 49.4 & 41.0 \\
-     $Y_2$ & \textbf{41.4} & \textbf{41.4} & 49.6 & 41.6\\
-     $Y_3$ & \textbf{42.1} & \textbf{42.1} & 49.9 & 42.1\\
-     $Y_4$ & 43.0 & 43.0  & 50.0          & \textbf{42.8}\\
-     $Y_5$ & 43.6 & 43.6  & 50.2          & \textbf{43.1} \\
-     $Y_6$ & 44.0 & 44.0  & 50.3          & \textbf{43.3} \\
-     $Y_7$ & 44.3 & 44.3  & 50.3          & \textbf{43.9} \\
-     $Y_8$ & \textbf{82.6} & 83.5          & \textbf{82.6} & 83.1\\
-     $\bY$ & 99.5 & 97.8  & 99.4          & \textbf{97.7} \\
+      & Base & DBU & DTD & SDFR & Empirical \\\midrule
+      $Y_1$ & \textbf{40.78} & \textbf{40.78} & 49.40 & 40.95 & 49.79 \\ 
+      $Y_2$ & \textbf{41.39} & \textbf{41.39} & 49.61 & 41.52 & 49.75 \\ 
+      $Y_3$ & \textbf{42.06} & \textbf{42.06} & 49.86 & 42.07 & 49.73 \\ 
+      $Y_4$ & 43.02 & 43.02 & 50.03 & \textbf{42.78} & 49.72 \\ 
+      $Y_5$ & 43.56 & 43.56 & 50.22 & \textbf{43.09} & 49.73 \\ 
+      $Y_6$ & 44.00 & 44.00 & 50.27 & \textbf{43.33} & 49.73 \\ 
+      $Y_7$ & 44.31 & 44.31 & 50.28 & \textbf{43.92} & 49.78 \\ 
+      $Y_8$ & 82.58 & 83.48 & 82.58 & 83.11 & \textbf{82.55} \\ 
+      $Y$ & 99.54 & 97.77 & 99.36 & \textbf{97.74} & 99.12 \\ 
      \bottomrule
      \end{tabular}
      \end{table}
@@ -672,20 +678,18 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      These reconciled forecasts are then used to evaluate forecasting performance.
 
      We calculate Brier Scores for each sample at the total level, the bottom level and the entire hierarchy.
-     Table~\ref{tab:crime_bs} summarises the mean and median Brier Score of the $3696$ samples.
+     Table~\ref{tab:crime_bs} summarises the mean Brier Score of the $3696$ samples.
      We also perform MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
 
      \begin{table}[h]
        \centering
        \caption{\label{tab:crime_bs}Summarised Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
-       \begin{tabular}{ccccccccc}
+       \begin{tabular}{cccccc}
        \toprule
-       &\multicolumn{4}{c}{Mean}
-       & \multicolumn{4}{c}{Median} \\ \cmidrule(lr){2-5} \cmidrule(lr){6-9}
-        & Base & DBU & DTD & DFR &  Base & DBU & DTD & DFR \\\midrule
-       Total & 58.47 & \textbf{58.07} & 58.47 & 58.12 & 66.64 & 65.28 & 66.64 & \textbf{64.75} \\
-       Bottom & 34.41 & 34.41 & 34.80 & \textbf{34.30} & 13.73 & 13.73 & 13.28 & \textbf{10.82}\\
-       Hierarchy & 73.87 & \textbf{67.87} & 68.33 & 67.97 & 97.66 & 92.70 & 93.08 & \textbf{92.42}\\
+       ~ & Base & DBU & DTD & DFR & Empirical \\\midrule 
+       Total & 58.36 & \textbf{58.02} & 58.36 & 58.09 & 59.12 \\ 
+       Bottom & 34.34 & 34.34 & 34.73 & \textbf{34.25} & 34.54 \\ 
+       Hierarchy & 73.73 & \textbf{67.75} & 68.18 & {67.85} & 68.69 \\ 
        \bottomrule
        \end{tabular}
        \end{table}
@@ -697,7 +701,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \end{figure}
 
 
-     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of median Brier scores from the right panel. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods, supporting the conclusion drawn from Table~\ref{tab:crime_bs}. These findings imply that DFR is more effective than other approaches for more HTSs.
+     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of average ranks. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods for bottom-level series. These findings imply that DFR is more effective than other approaches for more HTSs.
 
      \subsection{Application: forecasting intermittent demand in M5 dataset}
      \label{sec:M5}
@@ -754,20 +758,27 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     In order to shed more lights on how the curse of dimensionality affect the computation and understanding the capacity of the proposed approach, we summarise the number of series, the number of parameters and single-run computational time of our approach in our experiments. The results are shown in Table~\ref{}
-     We suggest applying the proposed algorithm to small to moderate-sized hierarchies. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
+     In order to shed more lights on how the curse of dimensionality affect the computation and understanding the capacity of the proposed approaches, we summarise the number of series, the number of parameters and estimated single-run computational time for training the reconciliation model in our experiments. 
+     The results are shown in Table~\ref{tab:time}. 
+     Note that due to varying hierarchy in empirical studies, we only report values of the largest hierarchy. 
+     Computational time were evaluated on a machine equipped with a Microsoft Windows 10 system, an Intel Core i7-8700 processor clocked at 3.20GHz, providing six cores, and 16GB of memory.
+     We suggest applying the proposed algorithm to small to moderate-sized hierarchies that have similar-size domains in our experiments. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
 
      \begin{table}
        \centering
+       \resizebox{\textwidth}{!}{
        \begin{tabular}{lcccc}
         \toprule
         & Section~\ref{sec:cross-sectional_simu} & Section~\ref{sec:simulation} & Section~\ref{sec:application_crime} & Section~\ref{sec:M5}\\ \midrule
-        Number of bottom-level series & 2 & 7 \\
-        Maximum of bottom-level series & 1 & 1 \\
-        Number of parameters to estimate &  &\\ 
+        Number of bottom-level series & 2 & 7 & 4 & 4\\
+        Maximum of bottom-level series & 1 & 1 & 2 & 4\\
+        Cardinality of coherent domain & 4 & 128 & 81 & 625\\
+        Cardinality of incoherent domain & 12 & 1024 & 729 & 10625 \\
+        Number of parameters to estimate & 22 & 1312 & 9342 & 25420 \\ 
         Algorithm & DFR & SDFR & DFR & SDFR \\
-        Computational time for training the model & & \\ \bottomrule
-       \end{tabular} 
+        Computational time (seconds) & 0.1 & 1.6 & 311 & 1558\\ \bottomrule
+       \end{tabular}}
+       \caption{\label{tab:time} Reconciliation model size and computational time in four experiments.}
      \end{table}
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.

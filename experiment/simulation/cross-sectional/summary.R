@@ -13,7 +13,7 @@ for (m in c("base", "bu", "td", "dfr", "emp")){
 accs_sum <- data.frame(lapply(accs_list, rowMeans))
 row.names(accs_sum) <- c("y_3", "y_1", "y_2", "Y")
 
-write.csv(format(accs_sum*100, digits=2, nsmall=2), "experiment/simulation/results/cs-bs.csv")
+write.csv(format(accs_sum*100, digits=2, nsmall=2), "manuscript/figures/simulation-cs-bs.csv")
 
 
 library(tsutils)

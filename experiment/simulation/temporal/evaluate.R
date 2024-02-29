@@ -11,15 +11,20 @@ hierarchy <- dhier(s_mat, domain)
 ns <- c("base", "bu", "td", "sdfr","emp")
 
 ### Calculate brier score ####
-for (method in ns){
-  lst_bs[[method]] <- lapply(iterators::iter(recf), 
-  function(x) {
+for (method in c("emp")){
+  res <- NULL
+  for (i in 1:1000) {
+    x <- recf[[i]]
     fcasts <- x$fcasts[[method]]
     y <- x$y
+    if (method == "emp") {
+      fcasts <- matrix(fcasts, byrow = TRUE, ncol = 128, nrow = dim(y)[1])
+    }
     bs <- brier_score(fcasts, y, hierarchy)
-    c(sum(bs$hierarchy), bs$series)
-  })
-  lst_bs[[method]] <- do.call(rbind, lst_bs[[method]])
+    bs <- c(sum(bs$hierarchy), bs$series)
+    res <- rbind(res, bs)
+  }
+  lst_bs[[method]] <- res
 }
 
 
@@ -54,12 +59,6 @@ tb <- sapply(ns, function(x){
 
 rownames(tb) <- c("Y", paste0("Y", 1:8))
 
-write.csv(format(tb, digits=2, nsmall=2), "experiment/simulation/results/temporal_bs.csv")
-# sapply(ns, function(x){sapply(lst_bs[[x]], function(x){sum(x$hierarchy)})}, simplify = "array") %>%
-#   mcb_plot("Brier Score", "hierarchy")
-# sapply(ns, function(x){sapply(lst_bs[[x]], function(x){x$series[1]})}, simplify = "array") %>%
-#   mcb_plot("Brier Score", "total")
-# sapply(ns, function(x){as.vector(sapply(lst_bs[[x]], function(x){x$series[2:8]}))}, simplify = "array") %>%
-#   mcb_plot("Brier Score", "bottom")
+write.csv(format(tb, digits=2, nsmall=2), "manuscript/figures/simulation-temporal_bs.csv")
 
 
