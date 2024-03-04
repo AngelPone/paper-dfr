@@ -39,18 +39,16 @@
   \author[label1]{Bohan Zhang}
   \address[label1]{School of Economics and Management, Beihang University, Beijing, China}
   \author[label2]{Anastasios Panagiotelis}
-  \author[label3]{Feng Li}
 
   \author[label1]{Yanfei Kang\corref{cor1}}
   \ead{yanfeikang@buaa.edu.cn}
   \cortext[cor1]{Corresponding author.}
   \address[label2]{The University of Sydney Business School, NSW 2006, Australia}
-  \address[label3]{School of Statistics and Mathematics, Central University of Finance and Economics, Beijing, China}
 
   \begin{abstract}
 
     While forecast reconciliation has seen great success for real valued data, the method has not yet been comprehensively extended to the discrete case. This paper defines and develops a formal discrete forecast reconciliation framework based on optimising scoring rules using quadratic programming. The proposed framework produces coherent joint probabilistic forecasts for count hierarchical time series.
-    Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast  criminal offences in Washington D.C. and sales of product units in M5 dataset. Compared to benchmarks, the proposed framework shows superior performance in both simulations and empirical studies.
+    Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast criminal offences in Washington D.C. and sales of product units in M5 dataset. Compared to benchmarks, the proposed framework shows superior performance in both simulations and empirical studies.
 
   \end{abstract}
 
@@ -95,14 +93,14 @@ Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a
 They also propose an efficient algorithm to compute reconciliation weights by optimising proper scoring rules.
 
 
-Despite the rapid development of reconciliation approaches, most existing approaches can not be easily adopted to count time series.
+Despite the rapid development of reconciliation approaches, most existing approaches can not be easily adapted to count time series.
 Regarding point forecasts, the reconciliation approaches yield non-integer forecasts because they project base forecasts from an incoherent real space onto a coherent real subspace (\citealp{panagiotelisForecastReconciliationGeometric2021}).
 While rounding is a practical way to deal with non-integer forecasts, the rounded forecasts may not be coherent anymore.
 In terms of distributional forecasts, it can even be more challenging to discretise the distributions while maintaining the probabilistic coherence.
 Therefore, it makes more sense to develop a hierarchical forecasting approach that handles discrete distributions directly.
 
 Another motivation of our study lies in forecast combination, which serves as one of the crucial elements contributing to superior performance of forecast reconciliation (\citealp{hollymanUnderstandingForecastReconciliation2021}).
-In which, every reconciled forecast is a weighted combination of all base forecasts that can incorporate external information using arbitrary forecasting methods.
+In forecast reconciliation, every reconciled forecast is a weighted combination of all base forecasts that can incorporate external information using arbitrary forecasting methods.
 More importantly, the reconciliation process avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence.
 Given these advantages, the reconciliation framework is a reasonable choice for forecasting count HTSs while allowing existing univariate count forecasting approaches in the literature to be employed effectively.
 
@@ -200,7 +198,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;
   second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by the function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
-  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterise a probability mass function, `probability vectors', `pmfs' and `distribution' will be used interchangeably throughout the rest of the paper.
+  Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterises a probability mass function, `probability vectors', `pmfs' and `distribution' will be used interchangeably throughout the rest of the paper.
 
   The predictive distribution is incoherent provided there exists some $\hat{\pi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold.
   This situation usually occurs in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence.
@@ -247,7 +245,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
 \label{sec:method}
 
 This section introduces a formal framework for discrete forecast reconciliation based on the discrete coherence defined in Section~\ref{sec:coherence}.
-We then present an algorithm that optimises Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Section~\ref{sec:algorithm1}.
+We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Section~\ref{sec:algorithm1}.
 To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that decomposes the hierarchy in Section~\ref{sec:algorithm2}.
 Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
 
@@ -273,7 +271,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \sum\limits_{k=1}^r a_{kj} = 1 , ~ \forall j.
     \end{align*}
     The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
-    Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points  within the coherent domain.
+    Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points within the coherent domain.
     This process resembles the assignment problem commonly encountered in operational research.
 
     \subsection{Score optimal reconciliation}
@@ -289,7 +287,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
       \text{BS}(\bpi, \mathbf{z}) = \sum_{k=1}^{O}(z_k - \pi_k)^2,
     \] where $\bpi$ is defined similarly as in Section~\ref{sec:coherent_df}.
     $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
-    We choose Brier score instead of other strictly scoring rules because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
+    We choose the Brier score instead of other strictly scoring rules because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
 
     Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window (\citealp{hyndmanForecastingPrinciplesPractice2021}).
     Figure~\ref{fig:rollingwindow} depicts the behaviour of the expanding window, where the training data always begins at the same origin, one observation is added to the training data for each window, and forecasts are made $h$ steps ahead. This process continues until the last observation is included in the forecast horizon.
@@ -308,7 +306,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
     \subsubsection*{\textbf{Movement restriction}}
-    In addition to minimising Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
+    In addition to minimising the Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
     This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
     We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
@@ -326,7 +324,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$.
     Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$.
     In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
-    This movement restriction strategy offers the benefit of reduced parameter number and accelerated computation.
+    This movement restriction strategy offers the benefit of reduced parameter numbers and accelerated computation.
 
 
     \subsubsection*{\textbf{Objective}}
@@ -363,10 +361,10 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     The architecture of the proposed architecture is illustrated in Figure~\ref{fig:dfr}.
     It consists of two stages: training and forecasting.
     In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows.
-    For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools and assuming independence, and compared to corresponding realisations $\mathbf{z}$.
+    For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools, assuming independence, and compared to corresponding realisations $\mathbf{z}$.
     Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
     In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with the base incoherent distribution.
-    Furthermore, We obtain multistep ahead forecasts by building a separate reconciliation model for each step.
+    Furthermore, we obtain multistep ahead forecasts by building a separate reconciliation model for each step.
 
     \begin{figure}
     \centering
@@ -384,7 +382,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     Instead of reconciling forecasts of all series at once,  SDFR
     decomposes a high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step using the DFR algorithm shown in \ref{sec:algorithm1}.
     This reduces the number of unknown parameters of each reconciliation process order $O(n^3)$.
-    Given reasonable assumptions, we adjust the reconciled forecasts for these sub-hierarchies to construct joint forecasts for the entire hierarchy. As in the DFR algorithm, SDFR also consists of a training stage and a forecasting stage. The forecasting stage is shown in Algorithm \ref{alg:stepwise}, while training has a similar procedure.
+    Given reasonable assumptions, we adjust the reconciled forecasts for these sub-hierarchies to construct joint forecasts for the entire hierarchy. As in the DFR algorithm, SDFR also consists of training and forecasting stages. The forecasting stage is shown in Algorithm \ref{alg:stepwise}, while training has a similar procedure.
     \begin{algorithm}[ht]
     \caption{\label{alg:stepwise}\textbf{S}tepwise \textbf{D}iscrete \textbf{F}orecast \textbf{R}econciliation (\textbf{SDFR})}
     \SetKwFunction{reconcile}{DFR$_i$}
@@ -527,7 +525,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     % The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
     Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
     Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
+    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
 
     We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% confidence level to test the statistical significance of differences in accuracy among these approaches.
     This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
@@ -545,7 +543,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
     \begin{table}
       \centering
-      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with Brier Score ($\times 10^{-2}$).}
+      \caption{\label{tab:sim_crosssectional_res_dist} Probabilistic forecast performance summary for cross-sectional setting with Brier Score ($\times 10^{-2}$). Row-wise minimum values are displayed in \textbf{bold}.}
       \begin{tabular}{lccccc}
       \toprule
       % \multicolumn{5}{c}{Brier Score ($\times 10^{-2}$)}\\
@@ -572,7 +570,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      Based on this understanding, we initially simulate weekly time series with a seasonal period of four, which are subsequently disaggregated into daily time series.
 
      Assuming that the weekly time series follows a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average (ARIMA) process. This procedure is implemented with the \code{gratis} package \citep{gratis}
-     for the \proglang{R} programming language. We set the seasonal period, number of autoregressive terms, difference order and seasonal difference order to $4$, $3$, $0$ and $0$ respectively. 
+     for the \proglang{R} programming language. We set the seasonal period, number of autoregressive terms, difference order and seasonal difference order to $4$, $3$, $0$ and $0$, respectively. 
      Additional parameters are randomly produced by the package to ensure the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
      Given that the domain of the weekly time series in our context is finite (i.e., $\leq 7$), we linearly map the generated conditional mean series into the range of $[2.5, 4.5]$.
      Subsequently, we simulate the Poisson distributed series based on the conditional mean series. Values exceeding $7$ are set to $7$.
@@ -604,24 +602,24 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \subsubsection{Simulation results}
      We repeated the simulation process $1000$ times.
-     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model in comparison to four benchmarks.
+     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model compared to four benchmarks.
      $Y_1,\dots,Y_7$ represent the daily series at the bottom level, while $Y_8$ denotes the weekly series at the total level.
      Although SDFR does not enhance forecast accuracies for all series, the results demonstrate a compromise between discrete top-down and discrete bottom-up methods.
-     The bad performance of discrete top-down and empirical distribution for the bottom-level series and the hierarchy may primarily be due to it ignores the autocorrelation hidden in the time series. 
+     The inadequate performance exhibited by discrete top-down and empirical distribution models when applied to bottom-level series and the hierarchical might stem from their oversight of the autocorrelation embedded within the time series. 
      
      One intriguing observation is that the forecasting accuracy improves for $Y_4$ through $Y_7$.
      This could be attributed to the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of the previous series must be adjusted multiple times to construct the final joint distribution, thereby introducing uncertainty.
-     Another explanation could be the effective utilisation of forecast combination, where the bottom-level series corresponding to the end of the week incorporate more forecasts than preceding ones.
+     Another explanation could be the effective utilisation of forecast combination, where the bottom-level series corresponding to the end of the week incorporates more forecasts than preceding ones.
      Surprisingly, the forecast accuracy of the total series does not exhibit significant deviation from base forecasts,  even though it is adjusted most frequently, showcasing the robustness of SDFR.
      It is crucial to note that the results could vary if the SDFR algorithm is implemented in a different step order.
      Additionally, the performance could be enhanced if we average multiple reconciled forecasts from various orderings.
 
 
-     Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test the significance of differences in forecast performance among these approaches. Similar to the conclusions drawn from Table~\ref{tab:sim_temporal_res_dist}, SDFR significantly outperforms the other approaches in forecasting the bottom series and the hierarchy, while its forecasts for the total series does not deviate much from base forecasts.
+     Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test the significance of differences in forecast performance among these approaches. Similar to the conclusions drawn from Table~\ref{tab:sim_temporal_res_dist}, SDFR significantly outperforms the other approaches in forecasting the bottom series and the hierarchy, while its forecasts for the total series do not deviate much from base forecasts.
 
      \begin{table}
      \centering
-     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-2}$).}
+     \caption{\label{tab:sim_temporal_res_dist} Probabilistic forecast performance summary of temporal setting with Brier Score ($\times 10^{-2}$). Row-wise minimum values are displayed in \textbf{bold}.}
      \begin{tabular}{lccccc}
      \toprule
       & Base & DBU & DTD & SDFR & Empirical \\\midrule
@@ -682,7 +680,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}[h]
        \centering
-       \caption{\label{tab:crime_bs}Summarised Brier Score ($\times 10^{-2}$) of test samples in crime forecasting application.}
+       \caption{\label{tab:crime_bs}Summarised Brier Score ($\times 10^{-2}$) of test samples in crime forecasting application. Row-wise minimum values are displayed in \textbf{bold}.}
        \begin{tabular}{cccccc}
        \toprule
        ~ & Base & DBU & DTD & DFR & Empirical \\\midrule 
@@ -714,10 +712,10 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     In order to restrict our attention to low-count intermittent time series, we exclude the hierarchies whose maximum sale of bottom series is greater than $4$. 
     In this experiment, we consider one-step-ahead forecast and employ the rolling origin strategy. The starting window size is chosen so that totally $730$ samples are produced, with the last $28$ samples are used for evaluation.
     Hierarchies that do not contain enough observations are also excluded.
-    Finally, we obtain $665$ hierarchies to evaluate performance of different approaches. 
+    Finally, we obtain $665$ hierarchies to evaluate the performance of different approaches. 
     The base forecasts are produced using the model that combines SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and negative binomial distribution proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
 
-    Table~\ref{tab:M5} presents accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. SDFR significantly outperforms the discrete top-down method and base forecasts across all levels. While it fails to outperform discrete bottom-up or empirical distribution on single level, it performs best in terms of brier score of the hierarchy. 
+    Table~\ref{tab:M5} presents the accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. SDFR significantly outperforms the discrete top-down method and base forecasts across all levels. While it fails to outperform discrete bottom-up or empirical distribution on single level, it performs best in terms of brier score of the hierarchy. 
     Interestingly, the empirical distribution shows a competitive accuracy in this experiment. 
     One of the possible reason is that the time series in this application shows weak auto-correlation, making time series model offer less benefits.
     However, our SDFR model still improves the accuracy of the whole hierarchy compared to benchmarks in such circumstances.
@@ -730,7 +728,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
             Bottom & 23.97 & 23.97 & 23.90 & 23.83 & \textbf{23.82} \\ 
             Hierarchy & 62.74 & 55.87 & 56.02 & \textbf{55.63} & 55.64 \\ \bottomrule
         \end{tabular}
-        \caption{\label{tab:M5}Accuracy of approaches  in terms of average Brier Score in experiments on M5 dataset. Row-wise minimum values are displayed in bold.}
+        \caption{\label{tab:M5}Summarised Brier Score ($\times 10^{-2}$) of test samples in M5 forecasting application. Row-wise minimum values are displayed in \textbf{bold}.}
     \end{table}
 
 
@@ -755,7 +753,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      From a machine learning perspective, this procedure can be viewed as a classification problem with an $r$ dimensional output representing class probabilities and a $q$-dimensional input. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
      When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. This poses an interesting avenue for future research.
 
-     One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
+     One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy, which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
      In order to shed more light on how the curse of dimensionality affects the computation and understand the capacity of the proposed approaches, we summarise the number of series, the number of parameters and the estimated single-run computational time for training the reconciliation model in our experiments. 
      The results are shown in Table~\ref{tab:time}. 
@@ -812,7 +810,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 \section*{Acknowledgments}
 
-Yanfei Kang is supported by the National Natural Science Foundation of China (No. 72171011). Feng Li is supported by the Beijing Universities Advanced Disciplines Initiative (No. GJJ2019163) and the Emerging Interdisciplinary Project of CUFE. This research was supported by international joint doctoral
+Yanfei Kang is supported by the National Natural Science Foundation of China (No. 72171011). This research was supported by international joint doctoral
 education fund of Beihang University and the high-performance computing (HPC) resources at Beihang University.
 
 
