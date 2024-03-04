@@ -78,7 +78,7 @@
   \begin{enumerate}
     \item \textit{The authors pointed out (in p.26, l.552) that the algorithm ``cannot be easily applied to a large hierarchy'' due to the dimensionality issues. This limits the applicability of the proposed algorithm. From a practical perspective, it may be necessary to offer guidelines as to which hierarchies fall into the ``large'' category. }
 
-    \RE{Thank you for your comment. We have included a paragraph in the Discussion section to discuss how the curse of dimensionality in a reconciliation model affects the corresponding computation time. We have also added Table~5, which shows characteristics of multiple hierarchies, and the corresponding computational time used for implementing the proposed algorithm. Readers/Users are able to tell if a hierarchy is ``large'' accordingly.}
+    \RE{Thank you for your comment. We have included a paragraph in the Discussion section to discuss how the curse of dimensionality in a reconciliation model affects the corresponding computation time. We have also added Table~5, which shows the characteristics of multiple hierarchies and the corresponding computational time used to implement the proposed algorithms. Readers/Users are able to tell if a hierarchy is ``large'' accordingly.}
 
 
     \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimization effort is not required. Hence it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
@@ -144,7 +144,7 @@
    
     \RE{Thank you for your comment. As we have mentioned in Section~3.2, our method could employ other probabilistic evaluation measures, such as spherical score and logarithmic score. We choose Brier score instead of others because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
     
-    However, incorporating discrete ranked probability score (DRPS) into our method is challenging because DRPS is undefined on multivariate discrete distribution. The problem of defining a rank between discrete values has not been solved in the literature. For example, comparing the values (1, 0) and (0, 1) is hard. Therefore, we keep using Brier score in the paper and clarify the applicability of other probabilistic evaluation measures in Section~3.2.
+    However, incorporating discrete ranked probability score (DRPS) into our method is challenging because DRPS is undefined on multivariate discrete distribution. The problem of defining a rank between discrete values has not been solved in the literature. For example, comparing the values (1, 0) and (0, 1) is hard. Therefore, we keep using the Brier score in the paper and clarify the applicability of other probabilistic evaluation measures in Section~3.2.
     }
 
     \item \textit{The discussion of the empirical results is difficult to be read.}
@@ -165,36 +165,36 @@
 \begin{enumerate}
   \item \textit{One advantage of the proposed methodology is its ability to generate reconciled forecast distributions in count form. In evaluating forecast performance, a fair benchmark would involve using existing reconciliation approaches that use integer base forecasts. However, it's important to note that in these cases, the reconciled forecasts may not necessarily be in count form. In such instances, rounding non-integer values to whole numbers may still be effective. Have you considered evaluating the performance of forecasting when non-integer forecast results are both rounded up and rounded down, and comparing these results with your proposed approach?}
 
-  \RE{Thank you for your comment. We should note that rounding coherent non-integer points forecasts leads to incoherent integer point forecasts. For example, consider a hierarchy with four series, denoted by Y=A+B+C. The non-integer forecasts for these series could be 3.2, 0.6, 1.7, 0.9, respectively, and the rounding forecasts are 3, 1, 2, 1, which are not coherent anymore. Similar arguments apply to distributional forecasts. Besides, it can be even more challenging to ``round'' a multivariate predictive distribution.}
+  \RE{Thank you for your comment. We should note that rounding coherent non-integer point forecasts leads to incoherent integer point forecasts. For example, consider a hierarchy with four series, denoted by Y=A+B+C. The non-integer forecasts for these series could be 3.2, 0.6, 1.7, 0.9, respectively, and the rounding forecasts are 3, 1, 2, 1, which are not coherent anymore. Similar arguments apply to distributional forecasts. Besides, it can be even more challenging to ``round'' a multivariate predictive distribution. We have now mentioned the problem of rounding in dealing with non-integer forecasts when we motivate this study in the Introduction section.}
 
 
   \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
 
-  \RE{Thank you for your suggestion. Our second simulation experiment simulates daily series of intermittent nature, which is a common scenario widely seen in supply chain and retail. Furthermore, we have replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+  \RE{Thank you for your suggestion. Our second simulation experiment simulates daily series of intermittent nature, which is a common scenario widely seen in supply chain and retail. Furthermore, following your suggestion, we have now replaced our second empirical experiment with a subset of M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
-  \RE{Thank you for highlighting this issue. Indeed, we also did not find studies about the cost of rounding non-integer forecasts. We have now revised and clarified the possibility of rounding non-integer forecasts as follows:
+  \RE{Thank you for highlighting this issue. We agree with you that there is no study on quantifying the cost of rounding non-integer forecasts. We have now rephrased and clarified the possibility of rounding non-integer forecasts as follows:
   
-  ``Regarding point forecasts, the reconciliation approaches yields non-integer forecasts because they project base forecasts from an incoherent real space onto a coherent real subspace (\citealp{panagiotelisForecastReconciliationGeometric2021}).
-  While rounding is a practical way to dealing with non-integer forecasts, the rounded forecasts may not be coherent anymore.
-  In terms of distributional forecasts, it can even be more challenging to discretise the distributions while maintaining the probabilistic coherence.''}
+  ``Regarding point forecasts, the reconciliation approaches yield non-integer forecasts because they project base forecasts from an incoherent real space onto a coherent real subspace (\citealp{panagiotelisForecastReconciliationGeometric2021}).
+While rounding is a practical way to deal with non-integer forecasts, the rounded forecasts may not be coherent anymore.
+In terms of distributional forecasts, it can even be more challenging to discretise the distributions while maintaining the probabilistic coherence.''}
 
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   
-  \RE{Thank you for your suggestion. We have now replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+  \RE{Thank you for your suggestion. We have now replaced our second empirical experiment with a subset of M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
 
   \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
   
-  \RE{Thank you for your advice. We have now included the empirical distribution as one of the benchmarks in both our simulation and empirical studies. While it is competitive compared to base forecast, discrete bottom-up and discrete top-down, the proposed methodology outperforms it in most cases.}
+  \RE{Very nice advice. We have now included the empirical distribution as one of the benchmarks in both our simulation and empirical studies. While it is competitive compared to base forecast, discrete bottom-up and discrete top-down, the proposed methodology performs better in most cases.}
   
   \item \textit{Considering the emphasis on low-volume data, it raises a question as to why the authors opted for a yearly time series in the empirical section of the study.}
  
-  \RE{Thank you for pointing our this issue. We have now replaced our second empirical experiment with a subset of M5(\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+  \RE{Thank you for pointing out this issue. We have now removed this yearly time series forecasting experiment and used a subset of M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset instead.}
   
   \item \textit{Could the authors provide insights on the computational cost associated with the proposed approach? This aspect becomes particularly crucial when weighing the potential benefits of the proposed approach against simpler methods like rounding forecasts, especially in more realistic scenarios including big hierarchies where high computational costs are a concern.}
   
-  \RE{Thank you for your advice. We have added a paragraph in Discussion about the computation time and size of hierarchy. It is worth noting that we have added the Table~7, which includes multiple hierarchies of different sizes, and corresponding computational time.}
+  \RE{Thank you for your advice. We have added a paragraph in the Discussion section to discuss how the curse of dimensionality in a reconciliation model affects the corresponding computation time. We have also added Table 5, which shows the characteristics of multiple hierarchies and the corresponding computational time used to implement the proposed algorithms.}
 
 
 \end{enumerate}
