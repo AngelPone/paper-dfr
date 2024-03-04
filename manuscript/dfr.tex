@@ -517,7 +517,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 
     We consider four benchmarks in this experiment and all other experiments in the rest of this paper, including base forecasts, discrete bottom-up, discrete top-down and empirical distribution. 
-    The empirical distribution is a commonly used benchmark in field of low-count time series forecasting.
+    The empirical distribution is a commonly used benchmark in the field of low-count time series forecasting.
 
     \subsubsection{Simulation results}
     The above procedure was repeated $1000$ times.
@@ -529,7 +529,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     Similar results were obtained from forecast reconciliation for continuous variables as well.
     Note that Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
 
-    We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% level of confidence to test the statistical significance of differences in accuracy among these approaches.
+    We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% confidence level to test the statistical significance of differences in accuracy among these approaches.
     This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
     Non-overlapping grey intervals indicate statistically significant differences between methods.
     As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs significantly better than all other approaches for total series and the hierarchy.
@@ -758,9 +758,9 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy which requires more observations and computational resources due to the curse of dimensionality.
      While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     In order to shed more lights on how the curse of dimensionality affect the computation and understanding the capacity of the proposed approaches, we summarise the number of series, the number of parameters and estimated single-run computational time for training the reconciliation model in our experiments. 
+     In order to shed more light on how the curse of dimensionality affects the computation and understand the capacity of the proposed approaches, we summarise the number of series, the number of parameters and the estimated single-run computational time for training the reconciliation model in our experiments. 
      The results are shown in Table~\ref{tab:time}. 
-     Note that due to varying hierarchy in empirical studies, we only report values of the largest hierarchy. 
+     Note that we only report values of the largest hierarchy due to varying hierarchies in empirical studies. 
      Computational time were evaluated on a machine equipped with a Microsoft Windows 10 system, an Intel Core i7-8700 processor clocked at 3.20GHz, providing six cores, and 16GB of memory.
      We suggest applying the proposed algorithm to small to moderate-sized hierarchies that have similar-size domains in our experiments. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
 
@@ -774,11 +774,11 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
         Maximum of bottom-level series & 1 & 1 & 2 & 4\\
         Cardinality of coherent domain & 4 & 128 & 81 & 625\\
         Cardinality of incoherent domain & 12 & 1024 & 729 & 10625 \\
-        Number of parameters to estimate & 22 & 1312 & 9342 & 25420 \\ 
+        Number of parameters & 22 & 1312 & 9342 & 25420 \\ 
         Algorithm & DFR & SDFR & DFR & SDFR \\
         Computational time (seconds) & 0.1 & 1.6 & 311 & 1558\\ \bottomrule
        \end{tabular}}
-       \caption{\label{tab:time} Reconciliation model size and computational time in four experiments.}
+       \caption{\label{tab:time} Reconciliation model size and computational time (in seconds) in the four experiments implemented in different sections.}
      \end{table}
 
      In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
