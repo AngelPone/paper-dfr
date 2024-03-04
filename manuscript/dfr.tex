@@ -559,8 +559,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
     \end{table}
 
 
-     \subsection{Temporal hierarchy}
-
+     \subsection{Temporal hierarchy}\label{sec:temporal_simu}
      We now consider a daily temporal scenario consisting of one total series and seven bottom-level series.
      This setting is frequently encountered in supply chain management, where daily and weekly forecasts are required to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
      The bottom-level time series are restricted to values of 0 or 1.
@@ -683,7 +682,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \begin{table}[h]
        \centering
-       \caption{\label{tab:crime_bs}Summarised Brier Score($\times 10^{-2}$) of test samples in crime forecasting application.}
+       \caption{\label{tab:crime_bs}Summarised Brier Score ($\times 10^{-2}$) of test samples in crime forecasting application.}
        \begin{tabular}{cccccc}
        \toprule
        ~ & Base & DBU & DTD & DFR & Empirical \\\midrule 
@@ -769,7 +768,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \resizebox{\textwidth}{!}{
        \begin{tabular}{lcccc}
         \toprule
-        & Section~\ref{sec:cross-sectional_simu} & Section~\ref{sec:simulation} & Section~\ref{sec:application_crime} & Section~\ref{sec:M5}\\ \midrule
+        & Section~\ref{sec:cross-sectional_simu} & Section~\ref{sec:temporal_simu} & Section~\ref{sec:application_crime} & Section~\ref{sec:M5}\\ \midrule
         Number of bottom-level series & 2 & 7 & 4 & 4\\
         Maximum of bottom-level series & 1 & 1 & 2 & 4\\
         Cardinality of coherent domain & 4 & 128 & 81 & 625\\
