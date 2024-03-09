@@ -47,7 +47,7 @@
 
   \begin{abstract}
 
-    While forecast reconciliation has seen great success for real valued data, the method has not yet been comprehensively extended to the discrete case. This paper defines and develops a formal discrete forecast reconciliation framework based on optimising scoring rules using quadratic programming. The proposed framework produces coherent joint probabilistic forecasts for count hierarchical time series.
+    A formal framework defined and algorithms are developed to extend forecast reconciliation to discrete valued data, including low counts. A novel method is introduced based on recasting the optimisation of scoring rules, as an assignment problem, which is solved using quadratic programming. The proposed framework produces coherent joint probabilistic forecasts for count hierarchical time series.
     Two discrete reconciliation algorithms are proposed and compared to generalisations of the top-down and bottom-up approaches to count data. Two simulation experiments and two empirical examples are conducted to validate that the proposed reconciliation algorithms improve forecast accuracy. The empirical applications are to forecast criminal offences in Washington D.C. and sales of product units in M5 dataset. Compared to benchmarks, the proposed framework shows superior performance in both simulations and empirical studies.
 
   \end{abstract}
@@ -69,60 +69,38 @@
 \section{Introduction}
 
 Non-negative time series with discrete values, particularly those with low counts, commonly arise in various fields.
-Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan'' events during a period (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific block.
-Count hierarchical time series (HTS) are naturally constructed when decisions in multiple cross-sectional or temporal aggregation levels must be made.
-In the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches and applications (see \citealp{athanasopoulosForecastReconciliationReview2023} and references wherein).
-However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued data.
-This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS.
+Examples include intermittent demand in the retail industry (\citealp{kourentzesElucidateStructureIntermittent2021}), occurrences of ``black swan'' events (\citealp{nikolopoulosWeNeedTalk2020}) and incidents of violent crime within a specific city block.
+Count hierarchical time series (HTS) naturally arise when decisions must be made across multiple cross-sectional or temporal aggregation levels. Over the past decades, hierarchical forecasting has attracted significant attention from the forecasting community, yielding many innovative approaches and applications (see \citealp{athanasopoulosForecastReconciliationReview2023} and references therein). However, most existing hierarchical approaches are intrinsically designed for continuous-valued time series and can not be directly applied to discrete-valued data. This paper aims to fill this gap by proposing a discrete reconciliation approach to produce coherent forecasts for low-count HTS.
 
 The core objective of hierarchical forecasting is to produce \textit{coherent} forecasts,
-in the sense that the point forecast for a parent series should equal the sum of the point forecasts for the associated child series. Historically, this was accomplished by producing forecasts at one level
+in the sense that the point forecast for a parent series should equal the sum of the point forecasts for the associated child series\footnote{for a discussion of how this can be extended to time series with general linear constraints see \cite{girolimetto2023point}}. Historically, this was accomplished by producing forecasts at one level
 and then aggregating or disaggregating them into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}).
-An alternative approach, also known as \textit{forecast reconciliation}, proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{panagiotelisForecastReconciliationGeometric2021}, and others involves
-first generating independent \textit{base} forecasts for each time series,
-which are then ``optimally'' reconciled to produce coherent forecasts. These state-of-art approaches have shown the ability to produce coherent and potentially more accurate forecasts.
+An alternative approach, also known as \textit{forecast reconciliation}, proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{panagiotelisForecastReconciliationGeometric2021}, and others, involves
+first generating \textit{base} forecasts for each time series,
+then optimally adjusting or \textit{reconciling} these to produce coherent forecasts. Reconciliation can be interpreted as a forecast combination method (\citealp{hollymanUnderstandingForecastReconciliation2021}) that avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence. In addition to achieving coherence, state-of-art reconciliation approaches have been demonstrated to improve forecast accuracy.
 
-Concerning forecasting count time series, it is natural to produce distributional forecasts rather than solely point forecasts.
-The predictive distribution describes the full uncertainty of future events for optimal decision-making (\citealp{gneitingProbabilisticForecasting2014}).
-Forecast reconciliation has already been extended to probabilistic forecasting.
-Earlier approaches created coherent probabilistic forecasts by reconciling samples drawn from base forecasts, resulting in a coherent empirical distribution.
-\cite{jeonProbabilisticForecastReconciliation2019} propose a method that draws samples from the independently modelled predictive distributions and constructs base forecasts using stacking, ranking, or permutation techniques before reconciling them with the reconciliation matrix obtained through cross-validation.
-In contrast, \cite{bentaiebHierarchicalProbabilisticForecasting2020} construct coherent samples through the bottom-up approach,
-where the dependence among bottom time series is restored using empirical copula modelling.
-Recently, \cite{panagiotelisProbabilisticForecastReconciliation2022} introduce a formal framework for probabilistic reconciliation based on the concept of probabilistic coherence.
-They also propose an efficient algorithm to compute reconciliation weights by optimising proper scoring rules.
+In a decision making setting, it is natural to produce distributional forecasts rather than solely point forecasts such as the mean (\citealp{gneitingProbabilisticForecasting2014}). In the continuous data case, reconciliation has been extended to probabilistic forecasting by \cite{panagiotelisProbabilisticForecastReconciliation2022} building upon earlier efforts by \cite{jeonProbabilisticForecastReconciliation2019} and \cite{bentaiebHierarchicalProbabilisticForecasting2020}. Key components of \cite{panagiotelisProbabilisticForecastReconciliation2022} include an understanding that coherent forecasts lie on a linear subspace, that a linear function can map incoherent forecasts to this subspace, and that the weights of this linear function can be found by optimising proper scoring rules using first order methods such as gradient descent. All of these components breakdown in a discrete data setting, necessitating a novel framework for defining coherence and optimally reconciling incoherent forecasts. These are the objectives that we address in this paper.
+
+Before introducing our novel approach, it is important to outline the shortcomings of what would appear to be simpler alternatives. The first, is to simply apply existing forecast reconciliation methods for continuous data, such as OLS or MinT projections to discrete data. This would almost certainly yield non-integer forecasts. While in some settings, this may be acceptable for mean forecasts (since the expected value of a discrete random variable need not be discrete), it will not yield a probabilistic forecast with the correct support. A second, simple solution may be based on rounding non-integer forecasts. Unfortunately, coherence will not, in general, be preserved after rounding. For example, in a hierarchy where $X+Y=Z$, the forecasts $X=0.4$, $Y=0.4$ and $Z=0.8$ are coherent, but rounding these values to the nearest integers leads to incoherence. As such, it makes more sense to develop a hierarchical forecasting approach that handles discrete distributions directly.
 
 
-Despite the rapid development of reconciliation approaches, most existing approaches can not be easily adapted to count time series.
-Regarding point forecasts, the reconciliation approaches yield non-integer forecasts because they project base forecasts from an incoherent real space onto a coherent real subspace (\citealp{panagiotelisForecastReconciliationGeometric2021}).
-While rounding is a practical way to deal with non-integer forecasts, the rounded forecasts may not be coherent anymore.
-In terms of distributional forecasts, it can even be more challenging to discretise the distributions while maintaining the probabilistic coherence.
-Therefore, it makes more sense to develop a hierarchical forecasting approach that handles discrete distributions directly.
 
-Another motivation of our study lies in forecast combination, which serves as one of the crucial elements contributing to superior performance of forecast reconciliation (\citealp{hollymanUnderstandingForecastReconciliation2021}).
-In forecast reconciliation, every reconciled forecast is a weighted combination of all base forecasts that can incorporate external information using arbitrary forecasting methods.
-More importantly, the reconciliation process avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence.
-Given these advantages, the reconciliation framework is a reasonable choice for forecasting count HTSs while allowing existing univariate count forecasting approaches in the literature to be employed effectively.
-
-To the best of our knowledge, existing literature on count HTS forecasting is limited and not tailored for low-count time series.
+There have been other attempts to address count HTS forecasting.
 \cite{coraniProbabilisticReconciliationCount2022} propose a novel reconciliation approach that conditions base probabilistic forecasts of the most disaggregated series on base forecasts of aggregated series.
 The reconciled forecasts are derived by generalising Bayes’ rule and Monte Carlo sampling.
-\cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series.
-Although this innovative approach yields coherent probabilistic forecasts,
-the conditional manner employed can fail to account for the dependence structure within hierarchical time series.
-Incorporating correlation necessitates base predictive distributions that are obtained through multivariate base models, which, notwithstanding advances in methods such as copulas, remain challenging.
+\cite{zambonEfficientProbabilisticReconciliation2022} further extend this idea to accommodate both count time series and real-valued time series. The main distinction between this work, and the methods we propose in those paper, is a distinction between `conditioning' and `mapping'. Both \cite{zambonEfficientProbabilisticReconciliation2022}, and our own work proposed here, take an incoherent multivariate discrete distribution as an input.  \cite{zambonEfficientProbabilisticReconciliation2022} take the reconciled distribution to be a suitably normalised `slice' of the incoherent distribution along the domain where coherence holds. In contrast, what we propose in this paper trains a mapping from the domain where forecasts are incoherent to the domain where they are coherent. We argue that by training this `mapping' we are able to correct for model misspecification in the base forecast, including a proper accounting of dependence in the hierarchy. This is particularly appealing since the for practical reasons, the input 
+multivariate base models usually assume independence since multivariate discrete time series models remain challenging.
 
-In this paper, we seek to address the hierarchical forecasting problem for discrete-valued time series, particularly focusing on low-count time series.
-Firstly, we introduce the notion of ``coherence'' for hierarchical counts,
+In this paper,  we first introduce the notion of ``coherence'' for hierarchical counts,
 bearing a resemblance to the probabilistic coherence proposed by \cite{panagiotelisProbabilisticForecastReconciliation2022}.
-Secondly, we utilise these concepts to establish a formal reconciliation framework for count HTSs, which generally reconciles the forecasts by assigning probability from incoherent to coherent domain points.
+Secondly, we utilise these concepts to establish a formal reconciliation framework for count HTSs, which reconciles the forecasts by assigning probability from incoherent to coherent domain points.
 Thirdly, we adopt the Brier score as a metric for evaluating forecasts and present a reconciliation algorithm that optimises this metric.
 We also demonstrate how this algorithm can be solved through quadratic programming, and to speed up the computation, we develop a second stepwise algorithm.
 Fourthly, two simulation experiments are performed to verify the applicability in both temporal and cross-sectional settings.
 Lastly, we conduct two empirical experiments using real data. The first experiment analyses a crime dataset with a temporal hierarchy, and the other employs cross-sectional sales data in the M5 dataset.
 
 The remainder of this paper is organised as follows.
-Section \ref{sec:coherence} presents the notation and the concept of coherence for count HTSs.
+Section \ref{sec:coherence} presents notation and definitions of coherence and reconciliation for count HTSs.
 Section \ref{sec:method} details the proposed discrete reconciliation framework based on optimising the Brier score through Quadratic programming. The stepwise algorithm is also introduced in this section.
 Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and two empirical experiments are conducted in Section \ref{sec:application}.
 Then, Section \ref{sec:discussion} presents discussions and thoughts on future research. 
@@ -137,8 +115,7 @@ Finally, Section \ref{sec:conclusion} concludes the paper.
 % \subsection{Preliminaries}
 
 Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
-We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables.
-The determined variables are some deterministic functions of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are obtained from aggregating the bottom-level variables differently.
+We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables found as some linear combination of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are their aggregates.
 Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $i = 1, 2, \dots, n$.
 
 \subsection{Discrete coherence}\label{sec:domains}
@@ -186,28 +163,26 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
   \begin{definition}[Discrete coherence]
   
-  A discrete coherent distribution has the property $Pr(\mathbf{Y}=\bm{y})=0, \forall \bm{y}\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
+  A discrete coherent distribution has the property of assigning zero probability to all coherent points, i.e. $Pr(\mathbf{Y}=\bm{y})=0, \forall \bm{y}\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
 
   \end{definition}
 
-  \subsection{Coherency of predictive distribution for discrete-valued HTS}
+  Incoherent distributions arise in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence.For instance, in the simple three-variable example provided, if  $Pr(Y_1=0)=0.2$,~$Pr(Y_2=1)=0.1$,~$Pr(Y_3=0)=0.05$, then under independence $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05=0.001$, which assigns non-zero probability to an incoherent point.
+
+
+  \subsection{Notation for Discrete Forecast Reconciliation}
 
   \label{sec:coherent_df}
 
-  Assuming we aim to make a probabilistic $h$-step ahead forecast for $\bY$ at time $t$, we represent the resulting predictive distribution using a mapping function $\hat{\mathcal{H}}$ and a probability vector $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the complete domain.
-  Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
+  Dealing with an incoherent discrete distribution and a coherent discrete distribution, each with a different domain of support requires the definition of some notational conventions. Consider a $h$-step ahead (incoherent) base forecast for $\bY$ at time $t$. This has support on $q$ points and can thus be described by $q$-dimensional probability vector $\hat{\bpi}^{t+h|t}$, where each element corresponds to the probability of one discrete point in the complete domain. A one-to one mapping function $\hat{\mathcal{H}}:\{1,2,\dots,q\}\rightarrow\hat{\mathcal{D}}(\bY)$, is used to match an index of the elements of $\hat{\bpi}^{t+h|t}$ to a configuration of values that $\bY$ can take. Two notational conventions are used for the elements of $\hat{\bpi}^{t+h|t}$.
   First, $\hat{\pi}_j^{t+h|t}$ denotes the $j^{th}$ element of $\hat{\bpi}^{t+h|t}$;
-  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. These two conventions are linked by the function $\hat{\mathcal{H}}:{1,2,\dots,q}\rightarrow\hat{\mathcal{D}}(\bY)$, which maps each index $j$ to a configuration of values that $\bY$ can take.
+  second, $\hat{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element that corresponds to the forecast probability that $\bY$ takes on a value $(y_1,y_2,\dots,y_n)'$. 
   Using the small example in Section~\ref{sec:domains}, $\hat{\pi}_1^{t+h|t}=\hat{\pi}_{(000)}^{t+h|t}$, $\hat{\pi}_2^{t+h|t}=\hat{\pi}_{(010)}^{t+h|t}$, etc., and $\hat{\mathcal{H}}(1)=(0,0,0)'$, $\hat{\mathcal{H}}(2)=(0,1,0)'$, etc. Since this vector representation uniquely characterises a probability mass function, `probability vectors', `pmfs' and `distribution' will be used interchangeably throughout the rest of the paper.
 
-  The predictive distribution is incoherent provided there exists some $\hat{\pi}^{t+h|t}_j\neq 0$ for which $\hat{\mathcal{H}}(j)\notin\tilde{\mathcal{D}}(\bY)$, i.e., non-zero probabilities are assigned to some points for which the aggregation constraints do not hold.
-  This situation usually occurs in practice when probabilistic forecasts are generated independently for each variable, and the joint forecast is then constructed assuming independence.
-  Such forecasts will generally be incoherent.
-  For instance, in the simple example provided, if we suppose $Pr(Y_1=0)=0.2$,~$Pr(Y_2=1)=0.1$,~$Pr(Y_3=0)=0.05$, then under independence assumption we have $Pr(Y_1=0,Y_2=1,Y_3=0)=0.2\times0.1\times0.05=0.001$, which assigns non-zero probability to an incoherent point.
 
-  On the other hand, a coherent probabilistic forecast can be defined using an $r$-vector $\tilde{\bpi}^{t+h|t}$ where each element corresponds to the probability of one point in the coherent domain.
+  On the other hand, a coherent probabilistic forecast can be defined using an $r$-vector $\tilde{\bpi}^{t+h|t}$ where each element corresponds to the probability assigned to a point in the coherent domain.
   The notation $\tilde{\pi}_k^{t+h|t}$ represents the $k^{th}$ element of $\tilde{\bpi}^{t+h|t}$ and the notation $\tilde{\pi}_{(y_1 y_2 \dots y_n)}^{t+h|t}$ denotes a specific element of this vector that corresponds to the forecast probability that $\bY$ takes on a coherent value $(y_1,y_2,\dots,y_n)'$.
-  The analogue to $\hat{\mathcal{H}}(j)$ is a function  $\tilde{\mathcal{H}}:{1,2,\dots,r}\rightarrow\tilde{\mathcal{D}}(\bY)$, which maps each index $k$ to a coherent configuration of values that $\bY$ can take.
+  The analogue to $\hat{\mathcal{H}}(j)$ is a function  $\tilde{\mathcal{H}}:\{1,2,\dots,r\}\rightarrow\tilde{\mathcal{D}}(\bY)$, which maps each index $k$ to a coherent configuration of values that $\bY$ can take.
   Using the small example in the previous section $\tilde{\pi}_1^{t+h|t}=\tilde{\pi}_{(000)}^{t+h|t}$, $\tilde{\pi}_2^{t+h|t}=\tilde{\pi}_{(011)}^{t+h|t}$, etc., and $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc.
 
   \subsubsection*{\textbf{Example}.}
@@ -241,63 +216,62 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \right]',\]
   where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also, the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique, which does not affect the proposed algorithms.
 
-\section{Method}
-\label{sec:method}
+  \subsection{Discrete forecast reconciliation}\label{sec:discrec}
+  
+   \begin{definition}[Discrete reconciliation]
+  	
+  	Let $\mathcal{C}^{b}$ denote a $b$-dimensional unit simplex and $\psi:\mathcal{C}^{q-1} \rightarrow \mathcal{C}^{q-1}$.	Then a reconciled discrete forecast is given by 
+  	\[
+  	  \tilde{\bpi} = \psi(\hat{\bpi})\,,
+  	\]
+    where the superscript $t+h|t$ dropped for convenience.
+   \end{definition}
+    
+   Loosely speaking, the discrete reconciliation framework constructs the coherent distribution by assigning mass from incoherent points to coherent points in the predictive distribution. This framework is analogous to that described in \cite{panagiotelisProbabilisticForecastReconciliation2022}, where an incoherent probability measure on $\mathbb{R}^n$ is mapped onto the coherent subspace $\mathfrak{s}$.
 
-This section introduces a formal framework for discrete forecast reconciliation based on the discrete coherence defined in Section~\ref{sec:coherence}.
-We then present an algorithm that optimises the Brier Score to find the optimal reconciliation matrix in Section~\ref{sec:algorithm} and Section~\ref{sec:algorithm1}.
-To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that decomposes the hierarchy in Section~\ref{sec:algorithm2}.
-Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
-
-    \subsection{The discrete reconciliation framework}
-
-    Loosely speaking, the discrete reconciliation framework constructs the coherent distribution by assigning mass from incoherent points to coherent points in the predictive distribution.
-    Let $\tilde{\bpi} = \psi(\hat{\bpi})$ with the superscript $t+h|t$ dropped for convenience, where $\psi:[0,1]^q \rightarrow [0,1]^r$ is a reconciliation function that maps mass from the incoherent joint pmf to a coherent one.
-    This framework is analogous to that described in \cite{panagiotelisProbabilisticForecastReconciliation2022}, where an incoherent probability measure on $\mathbb{R}^n$ is mapped onto the coherent subspace $\mathfrak{s}$.
-
-    In this paper, we focus on the linear reconciliation function given by
+   In this paper, we focus on the linear reconciliation function given by
     \begin{equation}
-      \label{eq:framework}
-    \tilde{\bpi}=\bm{A}\hat{\bpi},
+	    \label{eq:framework}
+	    \tilde{\bpi}=\bm{A}\hat{\bpi},
     \end{equation}
-    where $\tilde{\bpi}$ is obtained by multiplying the $r \times q$ matrix of reconciliation weights $\bm{A}$ with the incoherent probability vector $\hat{\bpi}$. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
+   where $\tilde{\bpi}$ is obtained by multiplying the $r \times q$ matrix of reconciliation weights $\bm{A}$ with the incoherent probability vector $\hat{\bpi}$. Letting $a_{kj}$ be the element in row $k$ and column $j$ of $\bm{A}$, this is equivalent to
     \[
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
     for all $k = 1, 2, \dots, r$  and  $j = 1, 2, \dots, q$.
-    Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point $\hat{\mathcal{H}}(j)$ to the coherent point $\tilde{\mathcal{H}}(k)$ (or from element $j$ in $\hat{\bpi}$ to element $k$ in $\tilde{\bpi}$). Note that $a_{kj}$ must meet the following constraints
-    \begin{align*}
-    0\leq a_{kj} \leq 1 , ~ \forall k, j, ~ \textrm{and} ~
-    \sum\limits_{k=1}^r a_{kj} = 1 , ~ \forall j.
+   Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point corresponding to element $j$ in $\hat{\bpi}$ to a coherent point correspoding to element $k$ in $\tilde{\bpi}$ (or from $\hat{\mathcal{H}}(j)$ to point $\tilde{\mathcal{H}}(k)$). Note that $a_{kj}$ must meet the following constraints
+   \begin{align*}
+	 0\leq a_{kj} \leq 1 , ~ \forall k, j, ~ \textrm{and} ~
+	\sum\limits_{k=1}^r a_{kj} = 1 , ~ \forall j.
     \end{align*}
-    The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1.
-    Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points within the coherent domain.
-    This process resembles the assignment problem commonly encountered in operational research.
+    The first constraint guarantees that the elements of $\tilde{\bpi}$ are between 0 and 1, while the second constraint guarantees that the elements of $\tilde{\bpi}$ sum to 1. Moreover, they imply that every point in the incoherent domain has its probability proportionally distributed among all points within the coherent domain. This process resembles the assignment problem commonly encountered in operational research.
+
+\section{Method}
+\label{sec:method}
+
+This section outlines our proposed methods for optimal discrete reconciliation. Section~\ref{sec:algorithm} introduces a framework for training the reconciliation matrix in Section~\ref{sec:discrec} by optimising the Brier Score. To address the issue of dimensionality, we further propose a stepwise reconciliation algorithm that decomposes the hierarchy in Section~\ref{sec:algorithm2}. Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top-down approaches to the discrete case and demonstrates how they can be incorporated into our framework.
 
     \subsection{Score optimal reconciliation}
     \label{sec:algorithm}
 
-    Before introducing the objective function used to learn $\bm{A}$, we first introduce the evaluation of the reconciled distribution.
-    Scoring rules $S(.,.)$ are commonly used for this purpose in probabilistic forecasting.
-    These rules assign a numerical score based on the predictive distribution and the actual outcome, allowing for an optimisation procedure.
-    An essential property for scoring rules is propriety. A scoring rule is said to be strictly proper if $\text{E}_Q[S(Q, \mathbf{y})] \leq \text{E}_Q[S(P, \mathbf{y})]$ with equality if and only if $P=Q$, where $P$ is any predictive distribution, $Q$ is the true distribution and $\mathbf{y}$ is an outcome.
-    Alternative strictly proper scoring rules that can be used to evaluate discrete distributions include the Brier Score, spherical Score and logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details).
+    Scoring rules $S(.,.)$ are commonly used to evaluate probabilistic forecasts and assign a numerical score based on the predictive distribution and the actual outcome.
+    An essential property for scoring rules is to be strictly proper i.e., $\text{E}_Q[S(Q, \mathbf{y})] \leq \text{E}_Q[S(P, \mathbf{y})]$ with equality if and only if $P=Q$, where $P$ is any predictive distribution, $Q$ is the true distribution and $\mathbf{y}$ is an outcome.
+    Strictly proper scoring rules that can be used to evaluate discrete distributions include the Brier Score, spherical Score and logarithmic Score (see \citealp{gneitingStrictlyProperScoring2007} for more details).
     The Brier Score was initially proposed by \cite{brier1950verification}, and it has the following formulation:
     \[
       \text{BS}(\bpi, \mathbf{z}) = \sum_{k=1}^{O}(z_k - \pi_k)^2,
-    \] where $\bpi$ is defined similarly as in Section~\ref{sec:coherent_df}.
-    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$. $\mathbf{z}$ is the vectorization of the observation $\mathbf{y}$ with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and otherwise $0$.
-    We choose the Brier score instead of other strictly scoring rules because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
+    \] where $\bpi$ is defined similarly as in Section~\ref{sec:coherent_df},
+    $k\in \{1,\dots,O\}$ is the index that can be mapped into the potential outcomes of an event through link function $\mathcal{H}$, and $\mathbf{z}$ is a vector with $z_k = 1$ if $\mathcal{H}(k) = \mathbf{y}$ and $0$ otherwise.
+    We choose the Brier score instead of other strictly proper scoring rules since it leads to an objective function that easily can be solved through quadratic programming.
 
     Assume that $\hat{\bpi}^{t+h|t}$ are found for $t\in\mathcal{T}_{\textrm{window}}$, where $\mathcal{T}_{\textrm{window}}$ is an expanding window (\citealp{hyndmanForecastingPrinciplesPractice2021}).
-    Figure~\ref{fig:rollingwindow} depicts the behaviour of the expanding window, where the training data always begins at the same origin, one observation is added to the training data for each window, and forecasts are made $h$ steps ahead. This process continues until the last observation is included in the forecast horizon.
+    Figure~\ref{fig:rollingwindow} depicts the behaviour of the expanding window: training data always begins at the same origin, one observation is added to the training data for each window, and forecasts are made $h$ steps ahead. This process continues until the last observation is included in the forecast horizon.
     \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{figures/rolling_window.pdf}
     \caption{\label{fig:rollingwindow} Diagram of expanding window strategy.}
     \end{figure}
-    Also, let $\mathbf{z}^{t+h}$ be an $r$-vector with element $z_k^{t+h}=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$.
-    The Brier Score can be averaged over the $\mathcal{T}_{\textrm{window}}$ expanding windows as
+    Letting $\mathbf{z}^{t+h}$ be an $r$-vector with element $z_k^{t+h}=1$ if $\tilde{\mathcal{H}}(k)=\bm{y}^{t+h}$ and $0$ otherwise, where $\bm{y}^{t+h}$ is the actual realisation of $Y$ at time $t+h$, the Brier Score can be averaged over the expanding windows as
     \begin{align*}
     {\overline{BS}}=& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
     =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
@@ -306,9 +280,7 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
     \subsubsection*{\textbf{Movement restriction}}
-    In addition to minimising the Brier Score of the reconciled distribution, it is important to consider another property: probabilities are distributed to coherent points that are \emph{nearby} in some sense.
-    This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace using a distance metric defined based on weighted squared distance.
-    We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
+    While the Brier Score of the reconciled distribution can be minimised, this can be computationally costly as $q$ and $r$ grow. This can be mitigated by introducing further restrictions to the elements of $\mathbf{A}$ which we refer to as `movement' restrictions.  The intuition behind these restrictions is as follows. When assigning probability from incoherent points, probabilities should be assigned to coherent points that are \emph{nearby} in some sense. This idea is inspired by the successful use of projections in the reconciliation literature for continuous forecasts, where an incoherent forecast is mapped to the \emph{nearest} point on the coherent subspace. We define the \emph{cost} of moving probability from $\hat{\pi}_j\rightarrow\tilde{\pi}_k$ as
     \[
     c_{kj}=||\hat{\mathcal{H}}(j)-\tilde{\mathcal{H}}(k)||_1\,,
     \]
@@ -316,15 +288,15 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \[
     c_{12}=\left|\left|\begin{pmatrix}0\\1\\0\end{pmatrix}-\begin{pmatrix}0\\0\\0\end{pmatrix}\right|\right|_1=1\,.
     \]
-    It should be noted that unlike in continuous cases, there may not be a unique nearest coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent.
+    It should be noted that unlike the continuous case, there may not be a unique nearest coherent point; for instance, $(0,1,0)'$ is equally distant from $(0,0,0)'$ and $(0,1,1)'$, which are both coherent.
     Based on the costs, we force $a_{kj}=0$ if
     \[
       c_{kj}>\underset{k'}{\min}\,c_{k'j}\,,
     \]
     which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$.
     Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$.
-    In other words, all probability from a coherent point in the incoherent domain is assigned to the same point in the coherent domain.
-    This movement restriction strategy offers the benefit of reduced parameter numbers and accelerated computation.
+    This restriction implies that all probability from a coherent point in the complete domain is assigned to the same point in the coherent domain.
+
 
 
     \subsubsection*{\textbf{Objective}}
@@ -339,32 +311,22 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
     \begin{aligned}
     &0\leq a_{kj}\leq 1,\forall j, k \quad \text{and} \quad
     \sum\limits_{k=1}^r a_{kj} = 1,~\forall j,\\
-    & a_{kj} = 0 \quad \forall k,j: c_{kj}>\underset{k'}{\min}\,c_{k'j},
+    & a_{kj} = 0 \quad \forall k,j: c_{kj}>\underset{k'}{\min}\,c_{k'j}\,.
     \end{aligned}
     \]
-    which is a combination of minimizing the average Brier score and the movement restriction strategy.
     This objective is a standard quadratic programming problem, which can be efficiently solved using quadratic solvers such as the Operator Splitting Solver~\citep[OSQP, ][]{stellatoOSQPOperatorSplitting2020}.
 
-
-    \subsection{The DFR algorithm}
-    \label{sec:algorithm1}
-
-    The proposed framework accepts an incoherent probabilistic forecast as input, which can be generated using any forecasting process.
-    However, due to limited research on multivariate count time series forecasting, we recommend constructing an incoherent base distribution from distributions obtained independently using arbitrary univariate forecasting methods.
-    This approach enables the use of univariate forecasting techniques tailored for low-count time series found in the existing literature.
-    The dependence structure within the hierarchy is captured during the training of the $\bm{A}$ matrix.
-    In general, assuming forecasts are made for each variable, the $k$-th element of the resulting probability vector is calculated as follows: \[
-      \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
+    While the proposed framework could accept any incoherent probabilistic forecast as input, for the remainder of the paper we consider base distributions that are independent with margins derived from univariate forecasting methods for count time series. This approach is motivated by the wider availability of univariate time series models for count data compared to their multivariate counterparts. In this setting, the $j$-th element of the resulting probability vector is calculated as follows: \[
+    \hat{\pi}_j = \hat{\pi}_{(y_1,y_2,\dots,y_n)} = \hat P_{1}(Y_1=y_1)\times\dots\times\hat P_{n}(Y_n=y_n).
     \] 
     
-    Combining all the elements considered above, we propose the Discrete Forecast Reconciliation (DFR) algorithm.
-    The architecture of the proposed architecture is illustrated in Figure~\ref{fig:dfr}.
-    It consists of two stages: training and forecasting.
-    In the training stage, a time series of length $T$ is transformed into $\mathcal{T}_{\text{window}}$ windows.
+    Note that despite independence in the base forecast, reconciliation will induce dependence in the reconciled forecast via the training of the $\bm{A}$ matrix.
+    
+    Combining all the elements considered above, we propose the Discrete Forecast Reconciliation (DFR) algorithm. The architecture of the proposed approach is illustrated in Figure~\ref{fig:dfr}. It consists of two stages: training and forecasting.   In the training stage, a time series of length $T$ is split into $|\mathcal{T}_{\text{window}}|$ windows.
     For each window, $h$-step-ahead base forecasts $\hat \bpi$ are generated using univariate forecasting tools, assuming independence, and compared to corresponding realisations $\mathbf{z}$.
-    Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm1}.
-    In the forecasting stage, coherent joint distribution is obtained by multiplying the reconciliation matrix with the base incoherent distribution.
-    Furthermore, we obtain multistep ahead forecasts by building a separate reconciliation model for each step.
+    Then, we calculate the optimal reconciliation matrix $\mathbf{A}$ by optimising the objective function described in Section~\ref{sec:algorithm}.
+    In the forecasting stage, the coherent joint distribution is obtained by multiplying the trained reconciliation matrix with the vector of probabilities from the base incoherent distribution.
+    Multi-step ahead forecasts are obtained by building a separate reconciliation model for each step.
 
     \begin{figure}
     \centering
@@ -443,28 +405,21 @@ Additionally, Section~\ref{sec:bottomup} extends the classical bottom-up and top
 
     \subsection{Probabilistic extensions of bottom-up and top-down methods for count series}
 
-    Having extended the framework of forecast reconciliation to the discrete case, we can also define discrete analogues to the traditional top-down and bottom-up reconciliation methods. These will be used as benchmarks in our empirical examples. These methods require forecasts at a single level, which they then use to generate forecasts at other levels through disaggregation (top-down) or aggregation (bottom-up).
-    We refer to these algorithms as Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods and both are special cases of our reconciliation framework. 
+    Having extended the framework of forecast reconciliation to the discrete data, we can also define discrete analogues to the traditional top-down and bottom-up reconciliation methods as special cases. We refer to these algorithms as Discrete Bottom-Up (DBU) and Discrete Top-Down (DTD) methods. These will be used as benchmarks in our empirical examples. These methods only require forecasts at a single level.
     
     \subsubsection*{\textbf{Discrete bottom-up}}
     \label{sec:bottomup}
 
     The discrete bottom-up method constructs a coherent distribution by assuming independent bottom-level forecasts.
-    This method follows the same procedure as constructing base forecasts explained in Section~\ref{sec:algorithm1} except that the base forecasts of aggregated series are excluded.
-    Using the three-variables example, $\tilde{\pi}_{(000)} = Pr(Y_1=0)\times Pr(Y_2=0)$.
-    The linear reconciliation framework can also incorporate this method by marginalising out all aggregated time series from the incoherent base distribution, which yields \[
+    This method is a special case of the algorithm described in Section~\ref{sec:algorithm} except that the base forecasts of aggregated series are ignored. A full vector of incoherent probabilities is formed by assuming independence (i.e. in the three-variables example, $\tilde{\pi}_{(000)} = Pr(Y_1=0)\times Pr(Y_2=0)$), and \[
     \mathbf{A} = [\mathbf{I}_4, \quad \mathbf{I}_4, \quad \mathbf{I}_4 ].
     \]
-    Note that the mean point forecasts obtained from this coherent distribution's marginal distribution are identical to those obtained by directly aggregating mean forecasts of bottom-level series.
-    In other words, discrete bottom-up is compatible with the traditional bottom-up methods.
-
-    Although it is possible to learn the dependence structure between bottom-level time series (e.g., empirical copulas used in \citealp{bentaiebHierarchicalProbabilisticForecasting2020}), we stick to the independence assumption due to its simplicity.
-
+    The mean forecast obtained from this coherent distribution is identical to that obtained by directly aggregating mean forecasts of bottom-level series. Alternative bottom up methods, could be derived from learn the dependence structure between bottom-level time series directly in the spirit of \citealp{bentaiebHierarchicalProbabilisticForecasting2020}), however this lies beyond the scope of our current work, which focuses on reconciliation that uses top level forecasts.
+    
     \subsubsection*{\textbf{Discrete top-down}}
 
-    The discrete top-down method extends the traditional top-down by proportionally disaggregating the probabilities of each point of the total series into all possible coherent points, using a ratio computed from historical occurrences.
-    For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed in the three-variables scenario where $Pr(y_3) = 0.4$, the probabilities of possible coherent points would be calculated as follows: $\tilde \pi_{(011)} = 0.4\times 0.4$ and $\tilde \pi_{(101)} = 0.4\times 0.6$.
-    This method can also be considered as a special case of Equation \eqref{eq:framework}, where
+    The discrete top-down method extends the traditional top-down method. A challenge in doing so is to apportion probability to points that lead to the same value of the top-level aggregate. Consider the simple example from Section~\ref{sec:coherence}. While $Pr(Y_3=0)$ and $Pr(Y_3=2)$ should be apportioned to the points $(0,0,0)$ and $(1,1,2)$ respectively, the probability $Pr(Y_3=1)$ could be assigned to either $(0,1,1)$ or $(1,0,1)$. This probability can be split according to historical proportions. For example, if there are $40$ $(0, 1, 1)$ points and $60$ $(1, 0, 1) $ points observed and if  $Pr(Y_3=1) = 0.1$, then $\tilde \pi_{(011)} = 0.1\times 0.4$ and $\tilde \pi_{(101)} = 0.1\times 0.6$.
+    This method can also be considered as a special case of Equation \eqref{eq:framework}, where a full vector of probabilities on the complete domain is found by apportioning the marginal probabilities amongst according to historical proportions and
     \[
     \mathbf{A} = \left[\begin{matrix}
       1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
