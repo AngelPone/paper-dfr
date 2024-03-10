@@ -432,14 +432,12 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
 \section{Simulation}
 \label{sec:simulation}
 
-To showcase the effectiveness of our proposed framework, we conduct two simulation experiments in distinct contexts: one for cross-sectional settings and another for temporal settings.
+To showcase the effectiveness of our proposed framework, we conduct two simulation experiments in distinct contexts: one is a cross-sectional hierarchy the other a temporal hierarchy.
 
   \subsection{Cross-sectional hierarchy}
   \label{sec:cross-sectional_simu}
     \subsubsection{Simulation setup}
-    This subsection considers the three-variables hierarchy depicted in Section~\ref{sec:example}.
-    The binary count time series at the bottom level are generated based on underlying latent variables.
-    We assume that these variables follow a bivariate VAR(1) process
+    This subsection considers the three-variable hierarchy depicted in Section~\ref{sec:example}. The binary count time series at the bottom level have a data generating process based on an underlying latent $2\times 1$ vector $\mathbf{s}_t$ that follows a bivariate VAR(1) process
     \[\mathbf{s}_t = \mathbf{\Phi}\mathbf{s}_{t-1}+\boldsymbol{\eta}_t,\]
     where
     \[
@@ -453,47 +451,22 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
         \begin{matrix}0 \\ 0\end{matrix}
       \right],
     \]
-    and $\alpha$ and $\beta$ are uniformly generated from $[0.4, ~ 0.5]$ and $[0.3, ~ 0.5]$, respectively.
-    This ensures the stationarity of the generated time series.
-    The error term $\boldsymbol{\eta}$ implies a positive correlation between the two series and ensures a reasonable range of the latent state.
-    Observations are transformed from the state series ($\mathbf{s}_{t} := [s_{1t}, s_{2t}]'$) using a sign function:
-    \[
-        Y_{it} = \mathbbm{1}(\sigma(s_{it}) > 0.5), ~ i\in\{1, 2\},\quad \sigma(s_{it}) = \frac{\exp(s_{it})}{1+\exp(s_{it})}.
-    \]
+    Observations $Y_{it}$ for $i=1,2$, are set to 1 when $s_{it}>0$ and 0 otherwise and $Y_{3t}=Y_{1t}+Y_{2t}$. The parameters $\alpha$ and $\beta$ are uniformly generated from $[0.4, ~ 0.5]$ and $[0.3, ~ 0.5]$ respectively, ensuring stationarity. Correlation in the error term $\boldsymbol{\eta}$ implies positive correlation between the observed bottom level series.
 
-    We produce and evaluate one-step-ahead forecasts in this experiment.
-    For each binary series, we generate $480$ observations; the rolling origin strategy with $150$ observations used to train the base forecasting models is employed, yielding $330$ observations.
-    The first $300$ observations are used to train the DFR model, while the remaining $30$ observations are used to test performance.
+   
+    Using the data generating process described above, $480$ observations were simulated. Using a rolling origin strategy with training samples of $150$ observations, we obtain $330$ pairs of one-step ahead forecasts and realisations. Using the first $300$ of these pairs a matrix $\mathbf{A}$ is trained according to the DFR algorithm. The final $30$ observations are used to evaluate DFR against other methods. The entire process is replicated 1000 times.
+    
 
-    The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range.
-    We evaluate the performance based on average Brier scores of the joint distribution of hierarchy and marginal distribution of each series on the $30$ test observations.
-
-
-    We consider four benchmarks in this experiment and all other experiments in the rest of this paper, including base forecasts, discrete bottom-up, discrete top-down and empirical distribution. 
-    The empirical distribution is a commonly used benchmark in the field of low-count time series forecasting.
+    The base probabilistic forecasts are obtained independently using the binomial AR(1) model~(\citealp{weissParameterEstimationBinomial2013}), which is suitable for count time series with a finite range. This model is misspecified, reflecting a realistic scenario where the true DGP is never known in practice. As well as evaluating base forecasts, three reconciliation methods are considered; top down, bottom up and the DFR method. We also consider the empirical distribution of $\mathbf{Y}$, which does not account for serial dependence, but is a robust and commonly used benchmark for low-count time series forecasting. To evaluate forecasts, we compute the Brier scores for the marginal distribution of each variable, and for the joint distribution. The Brier scores are averaged over the 1000 replications and 30 out-of-sample evaluation points.
 
     \subsubsection{Simulation results}
-    The above procedure was repeated $1000$ times.
-    Table~\ref{tab:sim_crosssectional_res_dist} summarises the average Brier Scores of the $1000$ samples, compared with four benchmarks.
-    The best average performance of the four approaches is indicated by bold text in each row.
-    DFR performs the best for both the total series and the hierarchy.
-    % The discrete bottom-up method beats discrete top-down in both the total and bottom levels, indicating the inferiority of the base forecasts of the total series.
-    Meanwhile, DFR shows considerable improvement in the accuracy of the total series, which implies its ability to mitigate the risk of model misspecification.
-    Similar results were obtained from forecast reconciliation for continuous variables as well.
-    Note that the Brier Score for the joint distribution of the base method is significantly larger than that of other methods, primarily because of its incoherency nature.
+    Table~\ref{tab:sim_crosssectional_res_dist} summarises the average Brier scores for all five methods with the best performing  method shown in bold for each row. The Brier scores for the Base forecasts are low for $Y_1$ and $Y_2$ when compared to $Y_3$, suggesting a higher degree of misspecification for the top level series when using the binomial AR(1). The base forecasts have lower scores than the empirical distribution when evaluated marginally, which is unsurprising since the empirical benchmark does not account for serial dependence. The Brier score for the joint base distribution however is high, which is a consequence of incoherency. After performing reconciliation with the DFR method, there is a large improvement in the Brier score for $Y_3$, that offsets the slight deterioration in the Brier score for the bottom-level series. There is also a substantial improvement in the Brier score for the joint distribution.
+    
+    To assess whether the differences in Brier score reported in Table~\ref{tab:sim_crosssectional_res_dist} are statistically significant, Multiple Comparisons from the Best (MCB) tests (\citealp{koningM3CompetitionStatistical2005}) were performed at a 95\% confidence level.
+    This testing approach is rank-based therefore does not make any assumptions about the distribution of Brier scores. These are summarised in Figure~\ref{fig:mcb_crosssectional}. If the bar corresponding to a method, does not overlap with the grey intervals shown around the best method, this indicates statistically significant differences between methods.
+    Figure~\ref{fig:mcb_crosssectional} shows that the DFR method performs significantly better than all other approaches for total series and the hierarchy (left and right panels). The middle panel of Figure~\ref{fig:mcb_crosssectional} is a composite result for both bottom level series. While DFR leads to a slight deterioration in Brier score at the bottom level compared to base, this is not statistically significant.
 
-    We also performed MCB tests (\citealp{koningM3CompetitionStatistical2005}) at a 95\% confidence level to test the statistical significance of differences in accuracy among these approaches.
-    This testing approach computes the mean ranks of the four approaches across the whole simulated dataset without imposing any distributional assumptions.
-    Non-overlapping grey intervals indicate statistically significant differences between methods.
-    As shown in Figure~\ref{fig:sim_temporal_mcb_prob}, DFR performs significantly better than all other approaches for total series and the hierarchy.
-    Note that MCB tests for the bottom series are conducted on all samples at the bottom level.
 
-    \begin{figure}
-      \centering
-      \label{fig:mcb_crosssectional}
-      \caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
-      \includegraphics[width=\textwidth]{figures/sim_cross_mcb.pdf}
-    \end{figure}
 
 
     \begin{table}
@@ -506,71 +479,48 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
       $Y_1$ & \textbf{46.52} & \textbf{46.52} & 47.25 & 46.78 & 50.41 \\ 
       $Y_2$ & \textbf{46.87} & \textbf{46.87} & 47.79 & 47.32 & 50.43 \\ 
       $Y_3$ & 67.07 & 67.13 & 67.07 & \textbf{64.57} & 67.15 \\ 
-      Y & 88.65 & 71.23 & 72.00 & \textbf{69.60} & 72.9 \\ 
+      $\mathbf{Y}$ & 88.65 & 71.23 & 72.00 & \textbf{69.60} & 72.9 \\ 
       \bottomrule
       \end{tabular}
     \end{table}
 
+    \begin{figure}
+	\centering
+	\caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+	\includegraphics[width=\textwidth]{figures/sim_cross_mcb.pdf}
+    \label{fig:mcb_crosssectional} 
+    \end{figure}
+
 
      \subsection{Temporal hierarchy}\label{sec:temporal_simu}
-     We now consider a daily temporal scenario consisting of one total series and seven bottom-level series.
+     We now consider a daily temporal hierarchy consisting of seven (daily) bottom-level series ($Y_1$-$Y_7$) and one (weekly) top-level series ($Y_8$).
      This setting is frequently encountered in supply chain management, where daily and weekly forecasts are required to support operational decisions (\citealp{syntetosSupplyChainForecasting2016}).
      The bottom-level time series are restricted to values of 0 or 1.
-     Despite this limitation, the hierarchy's domain remains extensive, making it difficult to estimate a complete reconciliation matrix with limited observations in practice.
-     Therefore, we employ the stepwise reconciliation algorithm outlined in Section \ref{sec:algorithm2}.
+     Even with binary variables, the joint distribution of the seven bottom level series and the total, has a large number of discrete points in its domain. That makes this simulation study a good test case for the stepwise reconciliation algorithm outlined in Section \ref{sec:algorithm2}.
 
      \subsubsection{Simulation setup}
 
      While intermittent series are characterised by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
-     Based on this understanding, we initially simulate weekly time series with a seasonal period of four, which are subsequently disaggregated into daily time series.
+     To emulate these characteristics, the data generating process of the temporal hierarchy is based on simulating the weekly (total) time series first. This is carried out by simulating Poisson distributed data with a conditional mean that follows a seasonal AR process. We set the seasonal period and number of autoregressive terms to $4$ and $3$, respectively. The parameters are carfeully tuned so that the conditional mean of the total series lies in the range $[2.5, 4.5]$. For the rare instances where simulated values of the total ($Y_8$) exceeds $7$, $Y_8$ is set to $7$. All data generation is implemented with the \code{gratis} package \citep{gratis}, which ensures the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
+     
+     Once a weekly series has been generated, these are disaggregated into daily time series. 
+     Seven values are drawn from independent Beta distributions $\zeta_i\sim\textrm{B}(i, 4)$ for $i=1,\dots,7$, each corresponding to $Y_i$ for $i=1,\dots,7$.
+     Letting $Y_8=w$, the values of $Y_i$ for the $w$ days corresponding to the highest values of $\zeta_i$ are set to $1$, while remainder are set to $0$. By allowing the first parameter in the Beta distribution to increase with $i$, values of 1 are more likely to occur later in the week, implying a weekly pattern.
 
-     Assuming that the weekly time series follows a Poisson distribution, we first simulate the conditional mean series utilising the autoregressive integrated moving average (ARIMA) process. This procedure is implemented with the \code{gratis} package \citep{gratis}
-     for the \proglang{R} programming language. We set the seasonal period, number of autoregressive terms, difference order and seasonal difference order to $4$, $3$, $0$ and $0$, respectively. 
-     Additional parameters are randomly produced by the package to ensure the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
-     Given that the domain of the weekly time series in our context is finite (i.e., $\leq 7$), we linearly map the generated conditional mean series into the range of $[2.5, 4.5]$.
-     Subsequently, we simulate the Poisson distributed series based on the conditional mean series. Values exceeding $7$ are set to $7$.
+     For each daily time series, after discarding an initial burn-in, $903$ observations ($129$ weeks) are generated. Analogous to Section~\ref{sec:cross-sectional_simu}, we utilise the rolling origin strategy with training window size of $350$ (50 weeks). This yields $553$ pairs of one step ahead forecasts and realisations (corresponding to 79 weeks). The SDFR algorithm is implemented using the first $532$ of these pairs. The final $21$ samples are to assess the forecasting performance. This is also replicated 1000 times.
 
-     The weekly time series are then disaggregated into daily time series by randomly selecting days for which $Y=1$ and maintaining coherence.
-     We first simulate seven probabilities based on seven independent Beta distributions $\textrm{B}(\alpha, \beta)$, corresponding to probabilities of $Y=1$ from Monday to Sunday.
-     The values of the $w$ days with the highest probabilities are set to $1$, while others are set to $0$. Here, $w$ denotes the value of the corresponding weekly observation.
-     $\beta$ is set to $4$ and $\alpha$ is set to $\alpha_i = i, i=1,\dots,7$, allowing for the probabilities of $Y=1$ to increase gradually from $i=1$ to $i=7$, suggesting potential seasonality.
-
-     For each daily time series, $1003$ observations are generated, and the initial $100$ observations are discarded as warm-ups. Analogous to Section~\ref{sec:cross-sectional_simu}, we utilise the rolling origin strategy with a fixed look-back window size of $350$, yielding $547$ windows.
-     For each rolling timestamp, the most recent $350$ observations are used as input to generate probabilistic forecasts for the following seven days.
-     The initial $526$ samples are used to train the reconciliation model, and the final $21$ samples are to assess the forecasting performance.
-
-     Base forecasts of daily time series are generated utilising an autoregressive logistic model.
-     Specifically, for each origin, we construct an individual logistic model that employs the previous six observations and weekly dummy variables as regressors to predict the subsequent observation.
-     To generate forecasts for the final seven days, at each step, we use the predicted value from the previous step as a regressor to predict the next step recursively.
-     We implement the logistic regression model with the \code{glm} function in \proglang{R}.
-
-     Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}).
-     Assuming that observations are Poisson distributed, the $\textrm{INGARCH}$ model utilises past observations and conditional mean to fit the conditional mean of current observation. The model $\textrm{INGARCH}(p, q)$ has the following form:
+     Base forecasts of daily time series are generated utilising a logistic regression model. The covariates are the values of the previous six daily observations and weekly dummy variables. We implement the logistic regression model with the \code{glm} function in \proglang{R}. Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}). The $\textrm{INGARCH}(p, q)$ model assumes a Possion distribution with a conditional mean that evolves according to:
      \[
       \lambda_t = \beta_0 + \sum_{k=1}^p \beta_ky_{t-k} + \sum_{l=1}^q \alpha_l\lambda_{t-l}, 
-     \] where $\beta_k, k=0,\dots,p$ and $\alpha_l, l=1,\dots,q$ are unknown parameters. $\lambda_t$ is the conditional mean at time $t$.
-     For the sake of simplicity, we construct $\textrm{INGARCH}(3, 3)$ models for all weekly time series, which take the conditional mean and observations from the most recent three steps as regressors.
-     We implement the $\textrm{INGARCH}$ model utilising the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}.
-     Given the predicted mean of Poisson distribution within the forecast horizon, we add the probability of the series taking values greater than its maximum up to the probability of taking its maximum value.
-     The base forecasts are then reconciled using the \textrm{SDFR} algorithm.
+     \] where $\beta_k, k=0,\dots,p$ and $\alpha_l, l=1,\dots,q$ are unknown parameters. $\lambda_t$ is the conditional mean at time $t$. While methods could be used to select the correct lag order for the INGARCH, our emphasis here is on the performance of reconciliation, therefore we fit INGARCH(3,3) to the weekly series. All implementation is carried out using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}. The model assumes a Poisson distribution, while our domain is finite, therefore the probability $Pr(Y_8=7)$ is set equal to $Pr(Y_8\geq 7)$ implied by the INGARCH model (in either case, this probability is small in practice).
 
 
      \subsubsection{Simulation results}
-     We repeated the simulation process $1000$ times.
-     Table~\ref{tab:sim_temporal_res_dist} summarises the probabilistic forecast performance of the stepwise reconciliation model compared to four benchmarks.
-     $Y_1,\dots,Y_7$ represent the daily series at the bottom level, while $Y_8$ denotes the weekly series at the total level.
-     Although SDFR does not enhance forecast accuracies for all series, the results demonstrate a compromise between discrete top-down and discrete bottom-up methods.
-     The inadequate performance exhibited by discrete top-down and empirical distribution models when applied to bottom-level series and the hierarchical might stem from their oversight of the autocorrelation embedded within the time series. 
+     Table~\ref{tab:sim_temporal_res_dist} summarises the average Brier score (over 21 evaluation points and 1000 replications) of the SDFR compared to four benchmarks.
+     The SDFR method outperforms the base forecast for four out of eight series and the empirical forecast for all series with the exception of the total. Perhaps most importantly, SDFR outperforms all other methods for the joint distribution.      Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test whether differences in forecast performance are significant. The SDFR significantly outperforms all other methods when Brier scores are computed for bottom level series only. The same result is found for Brier scores of the joint distribution. Regarding the total $Y_8$, while SDFR performs worse than top down and base, these differences are not statistically significant. It should however be noted that the empirical distribution significantly outperforms all other methods for the top level series. This suggests that the INGARCH model is a poorly specified base model in this case. It is nonetheless encouraging that even under such misspecifcation, the SDFR is robust enough to still produce the best forecast for the joint distribution.
      
-     One intriguing observation is that the forecasting accuracy improves for $Y_4$ through $Y_7$.
-     This could be attributed to the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of the previous series must be adjusted multiple times to construct the final joint distribution, thereby introducing uncertainty.
-     Another explanation could be the effective utilisation of forecast combination, where the bottom-level series corresponding to the end of the week incorporates more forecasts than preceding ones.
-     Surprisingly, the forecast accuracy of the total series does not exhibit significant deviation from base forecasts,  even though it is adjusted most frequently, showcasing the robustness of SDFR.
-     It is crucial to note that the results could vary if the SDFR algorithm is implemented in a different step order.
-     Additionally, the performance could be enhanced if we average multiple reconciled forecasts from various orderings.
-
-
-     Figure~\ref{fig:sim_temporal_mcb_prob} displays the results of MCB tests to test the significance of differences in forecast performance among these approaches. Similar to the conclusions drawn from Table~\ref{tab:sim_temporal_res_dist}, SDFR significantly outperforms the other approaches in forecasting the bottom series and the hierarchy, while its forecasts for the total series do not deviate much from base forecasts.
+     One intriguing observation is that forecast accuracy of SDFR improves for $Y_4$ through $Y_7$.
+     This could be attributed to the ordering used in the stepwise implementation of SDFR, which progresses from $Y_1$ to $Y_7$. The coherent forecasts of the first few series (i.e., $Y_1$, $Y_2$ and $Y_3$) are adjusted multiple times when constructing the final joint distribution, possibly introducing more noise into the forecasts of these variables. However, in contrast, the forecast accuracy of the total series does not exhibit significant deviation from base forecasts,  even though it is adjusted most frequently. This showcases the robustness of SDFR. It is crucial to note that while the results do depend on the ordering used in SDFR, this can be mitigated by implementing the algorithm with multiple orderings and then averaging the resulting coherent distributions.
 
      \begin{table}
      \centering
@@ -599,39 +549,27 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      \section{Empirical study}
      \label{sec:application}
-     This section uses the proposed DFR algorithm to forecast two publicly available real-world datasets.
-     Section~\ref{sec:application_crime} concentrates on temporal hierarchy and forecasts the number of criminal offences in Washington D.C.
-     Meanwhile, Section~\ref{sec:M5} constructs and forecasts cross-sectional count hierarchical time series in the M5 dataset.
+     This section uses the proposed DFR algorithm to forecast two publicly available datasets.
+     Section~\ref{sec:application_crime} concentrates on temporal hierarchies of the number of criminal offences in different census tracts of Washington D.C.
+     Section~\ref{sec:M5} deals with a cross-sectional hierarchy using a subset of retail sales variables from the M5 dataset.
 
      \subsection{Application: forecasting crime in Washington D.C.}
      \label{sec:application_crime}
 
-     Forecasting crime numbers in a specific area is vital for managing public safety and police resources.
+     Forecasting crime numbers in a specific area is vital for managing public safety and police resources. Since, crime numbers are potentially serially correlated (\citealp{aldor-noimanSpatioTemporalLowCount2013}), forecasting these data should benefit from time series modelling.
      However, forecasting becomes more challenging when dealing with smaller areas with sparse crime numbers.
-     In this subsection, we apply the proposed DFR algorithm to predict the number of offence crimes in census tracts located in Washington, D.C.
-     The original dataset\footnote{The dataset can be downloaded from \url{https://crimecards.dc.gov/}.} contains all reported crimes from 2014 to 2022 in Washington D.C., which have been aggregated into weekly time series according to location and crime type.
-     Considering the domain of the number of crimes, we perform experiments on all time series whose location type is a census tract and crime type is offence.
-     As a result, we obtain $231$ weekly time series; each representing the number of offence crimes committed within one census tract.
+     The original dataset\footnote{which can be downloaded from \url{https://crimecards.dc.gov/}.} contains all reported crimes from 2014 to 2022 in Washington D.C., that have been aggregated into weekly time series. We take the data at a census tract level resulting in $231$ weekly time series. 
 
-     The crime numbers time series are potentially autocorrelated (\citealp{aldor-noimanSpatioTemporalLowCount2013}).
-     Our objective is to generate coherent probabilistic forecasts for the next four weeks.
-     To achieve this, we construct two-level temporal hierarchies that consist of weekly (bottom level) and four-weekly (total level) frequencies and develop an individual DFR model for each time series.
-     Additionally, we restrict the maximum value (i.e., the domain of the bottom level in the DFR model) of the weekly time series as follows: if the largest observation is $1$, then its domain is set to $[0, 1]$.
-     Otherwise, it is set to $[0, 1, 2]$.
-     Any observation exceeding $2$ is truncated at $2$.
-     Notably, less than one percent of observations surpass $2$, so these adjustments have a negligible impact on the final results.
+     
+     Our next step is to construct a temporal hierarchy for each census tract. These are two-level temporal hierarchies that consist of weekly (bottom level) and monthly (top level) frequencies. Strictly speaking the data at a monthly frequency consist of a period of four weeks (28 days), however we will use `monthly' rather than `four-weekly' for ease of exposition. We develop an individual DFR model for each census tract. While a full cross-temporal hierarchy along the lines of \cite{kourentzesCrosstemporalCoherentForecasts2019} would be an interesting exercise for this dataset, extending cross-temporal reconciliation to the discrete case lies beyond the scope of this paper.
+     
+     The number of crimes in the bottom level series series, is generally either 0, 1 or 2, with less than 1\% of the sample resulting in values greater than 2. Therefore, to facilitate implementation of the DFR algorithm, we therefore set the domain of the weekly series to either $[0, 1]$ or $[0, 1, 2]$, where the rare number of values above $2$ are set to $2$.
 
-     We adopt the rolling origin strategy to train and evaluate our discrete reconciliation model.
-     Initially, we produce four-step-ahead probabilistic forecasts using INGARCH(3, 4) from a time series of $53$ weeks.
-     Subsequently, we augment the training data by one week and produce new probabilistic forecasts.
-     At each step, to obtain the probabilistic forecasts for the total level, we first aggregate the weekly series into four-weekly time series and then use INGARCH(2, 2) to produce one-step-ahead forecasts.
-     We only use windows with forecast horizons starting before $2022$ as training samples; all remaining windows are used for performance evaluation purposes.
-     We repeat the above procedure for each census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ test samples per census tract).
-     These reconciled forecasts are then used to evaluate forecasting performance.
-
-     We calculate Brier Scores for each sample at the total level, the bottom level and the entire hierarchy.
-     Table~\ref{tab:crime_bs} summarises the mean Brier Score of the $3696$ samples.
-     We also perform MCB Test to indicate the significance of the difference, with results shown in Figure~\ref{fig:application_crime}.
+     For forecast evaluation, we generate forecasts for the month ahead, consisting of four weekly forecasts and a monthly forecast. Weekly forecasts are generated as four-step-ahead probabilistic forecasts from an INGARCH(3, 4). The monthly forecast is obtained as a one-step ahead forecast after fitting an INGARCH(2, 2) to the data aggregated at a monthly frequency.
+     A training window of 52 weeks is used to fit all models, and forecasts are evaluated on 16 weeks of data using a rolling window evaluation. We repeat the above procedure for each census tract, resulting in a total of $3696$ samples ($231$ census tracts multiplied by $16$ evaluation points per census tract).
+     
+     We calculate Brier scores at the total level, at the bottom level and for the joint distribution of the entire hierarchy.
+     Table~\ref{tab:crime_bs} summarises the mean Brier scores of all methods. We also perform the MCB tests, with results shown in Figure~\ref{fig:application_crime}.
 
      \begin{table}[h]
        \centering
@@ -653,28 +591,19 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \end{figure}
 
 
-     In Table~\ref{tab:crime_bs},  although on average, the left panel shows that discrete bottom-up performs slightly better than DFR for both total level and whole hierarchy, DFR outperforms all other approaches in terms of average ranks. This indicates that DFR not only produces coherent forecasts but also improves forecasting accuracy. The most significant improvement occurs at the bottom level. Besides, the discrete bottom-up performs better than other methods, including the discrete top-down method, which suggests inferiority in total-level forecasts. The MCB test plots in Figure~\ref{fig:application_crime} demonstrate a statistical difference between DFR and other methods for bottom-level series. These findings imply that DFR is more effective than other approaches for more HTSs.
-
+     Taking these results together, DFR significantly outperforms all other methods at the bottom level. The mean Brier score for DFR over the entire hierarchy is however higher than the corresponding figure for the bottom up method. In spite of this, these differences are not statistically significant, and the DFR has lower average rank than bottom across the 3696 evaluation points. Overall, the finding is that bottom level forecasts can be improved by DFR and that improvements over the base forecasts are significant. Reconciliation methods also outperform the benchmark empirical distribution.
+     
      \subsection{Application: forecasting intermittent demand in M5 dataset}
      \label{sec:M5}
 
-     Intermittent time series are commonly observed in the modern database systems, where finer and finer granularity of data in hierarchies are collected. 
-     Such time series are prevalent in the fields of inventory and supply chain management, supporting daily store replenishment, transportation plans, after-sales services and other applications(\citealp{babaiDemandForecastingSupply2022}).
-     Coherent predictive distributions are critical for these fine-granularity hierarchies. 
-     In this subsection, we apply the proposed SDFR algorithm to a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset, which comprises $3049$ units of products sold by Walmart at ten stores located in three states in the USA from January 29, 2011 to May 23, 2016 (1941 days).
+     Intermittent time series are commonly observed in the fields of inventory and supply chain management, where forecasts support decisions concerning daily store replenishment, transportation plans, after-sales services and other applications(\citealp{babaiDemandForecastingSupply2022}). In this subsection, we apply the proposed SDFR algorithm to a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset, which comprises $3049$ units of products sold by Walmart at ten stores located in three states in the USA from January 29, 2011 to May 23, 2016 (1941 days).
      
-    We construct a cross-sectional State-Store hierarchy for single unit of product, where total series represents sales of the unit sold at a specific state, while bottom series represent sales of the unit sold at all stores at that state. 
-    In order to restrict our attention to low-count intermittent time series, we exclude the hierarchies whose maximum sale of bottom series is greater than $4$. 
-    In this experiment, we consider one-step-ahead forecast and employ the rolling origin strategy. The starting window size is chosen so that totally $730$ samples are produced, with the last $28$ samples are used for evaluation.
-    Hierarchies that do not contain enough observations are also excluded.
-    Finally, we obtain $665$ hierarchies to evaluate the performance of different approaches. 
-    The base forecasts are produced using the model that combines SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and negative binomial distribution proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
+     We construct two level cross-sectional hierarchies, with stores as the bottom level and state at the top level. This is done for individual products (stock keeping units). We restrict our attention to low-count intermittent time series, by excluding a stock keeping units if its a maximum daily sale in any store is greater than $4$. Product with insufficient sample size (i.e. newly launched products are also excluded). This leads to a total of $665$ hierarchies.
+     
+     One-day ahead forecasts are used with a rolling strategy, the SDFR algorithm is trained of $730$ pairs of observations and one step ahead forecsats. The last $28$ days of data are kept for evaluation. The base forecasts are produced as combinations of the SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and forecasts based on a negative binomial distribution as proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
 
-    Table~\ref{tab:M5} presents the accuracy of benchmarks and SDFR in terms of average Brier Score across $665$ hierarchies. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. SDFR significantly outperforms the discrete top-down method and base forecasts across all levels. While it fails to outperform discrete bottom-up or empirical distribution on single level, it performs best in terms of brier score of the hierarchy. 
-    Interestingly, the empirical distribution shows a competitive accuracy in this experiment. 
-    One of the possible reason is that the time series in this application shows weak auto-correlation, making time series model offer less benefits.
-    However, our SDFR model still improves the accuracy of the whole hierarchy compared to benchmarks in such circumstances.
-
+    Table~\ref{tab:M5} presents the accuracy of benchmarks and SDFR in terms of average Brier Score across the $665$ hierarchies and $28$ evaluation periods. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. In terms of the overall hierarchy, SDFR produces the best average Brier score. The SDFR method also significantly outperforms the discrete top-down method and base forecasts across all levels, and significantly outperforms the bottom up method when evaluation is carried out on the bottom level. The empirical benchmark performs well in this setting, perhaps due to the fact that serial dependence is weak for these data. However the overall conclusion is that SDFR improves upon base forecasts, outperforms other reconciliation benchmarks and is competitive with the Empirical benchark.
+   
     \begin{table}
         \centering
         \begin{tabular}{llllll}\toprule
@@ -700,21 +629,23 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      Distributional forecasts are becoming increasingly important in both academic and industry settings for operational research. In the context of hierarchical forecasting, \cite{kolassaWeWantCoherent2022} suggests shifting focus from coherent point forecasts to coherent probabilistic forecasts.
      The proposed discrete reconciliation framework can generate coherent distributional forecasts for discrete-valued HTS.
-     Summary statistics such as median, mean, and quantiles can be derived from the marginal distribution obtained from the distributional forecasts.
+     Key functionals such as median, mean, covariance and quantiles can be derived from the distributional forecasts.
      It is worth noting that mean point forecasts obtained in this way are also coherent in terms of aggregation.
      %Moreover, our methods offer precise distributions instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
      This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix.
-     From a machine learning perspective, this procedure can be viewed as a classification problem with an $r$ dimensional output representing class probabilities and a $q$-dimensional input. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
+     From a machine learning perspective, this procedure can be viewed as a classification problem with a a $q$-dimensional input mapped to an $r$ dimensional output representing class probabilities. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
      When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. This poses an interesting avenue for future research.
 
-     One limitation of the proposed DFR algorithm is that it can not be easily applied to a large hierarchy, which requires more observations and computational resources due to the curse of dimensionality.
-     While the SDFR algorithm mitigates this problem, it also introduces additional uncertainty.
-     In order to shed more light on how the curse of dimensionality affects the computation and understand the capacity of the proposed approaches, we summarise the number of series, the number of parameters and the estimated single-run computational time for training the reconciliation model in our experiments. 
+     One limitation of the proposed DFR algorithm is that its dimensionality grows both with the number of variables in the hierarchy and with the cardinality of the domain of the discrete variables. This is not so much a shortcoming of DFR, but a limitation of trying to model a high-dimensional multivariate discrete distribution. For example even if the 665 products in the M5 application were expressed as binary variables, their multivariate distribution would have support on $666\times2^{665}$ discrete points, much greater than the number of particles in the universe. In light of this we propose DFR and SDFR as methods to reconcile small to moderate sized hierarchies. Larger hierarchies, will inevitable include variables that are much better treated as continuous. Reconciling hierarchies with both discrete and continuous variables remains an challenging open question, we believe the methods we have proposed in this paper, represent an important piece in that larger puzzle.
+     
+    
+     In order to shed more light on how the curse of dimensionality affects the computational efficiency of DFR and SDFR, we summarise the number of series, the number of parameters (elements of $\mathbf{A}$) and the estimated run-time for training the reconciliation model once in each of our experiments. 
      The results are shown in Table~\ref{tab:time}. 
-     Note that we only report values of the largest hierarchy due to varying hierarchies in empirical studies. 
-     Computational time were evaluated on a machine equipped with a Microsoft Windows 10 system, an Intel Core i7-8700 processor clocked at 3.20GHz, providing six cores, and 16GB of memory.
-     We suggest applying the proposed algorithm to small to moderate-sized hierarchies that have similar-size domains in our experiments. When applying to large hierarchies, the bottom-level series should be low-count, such as binary. For larger hierarchies, the top-level series are likely to be more easily modelled as continuous. Reconciliation of hierarchies with both discrete and continuous variables is a problem we leave to future research.
+     Note that we only report values of the largest hierarchy in each empirical study. 
+     Computational times were evaluated on a machine equipped with a Microsoft Windows 10 system, an Intel Core i7-8700 processor clocked at 3.20GHz, providing six cores, and 16GB of memory.
+     
+     We suggest applying the proposed algorithm to small to moderate-sized hierarchies that have similar-size domains to those seen in our experiments. When applying DFR ad SDFR to larger hierarchies, the bottom-level series should be low-count, such as binary. 
 
      \begin{table}
        \centering
@@ -733,35 +664,27 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \caption{\label{tab:time} Reconciliation model size and computational time (in seconds) in the four experiments implemented in different sections.}
      \end{table}
 
-     In our experiments, we have observed that the accuracy of some series' base forecasts is not ideal.
-     We attribute this to three reasons. Firstly, it is challenging to forecast low count time series with excess zeros accurately.
-     Secondly, we have not used state-of-the-art forecasting methods for such time series as proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}.
-     Thirdly, the parameters of the employed models are not optimally estimated.
-     To improve performance in future work, we suggest using more modern forecasting methods and carefully selecting both models and the corresponding parameters.
-
-
-
+     Finally we note that in our experiments, fairly simple models were used to obtain base forecasts. While it remains challenging to accurately forecast low count time series with an excessive number of zeros, state-of-the-art methods have been proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}. While adopting such methods both base, and unreconciled forecasts, our emphasis was to demonstrate that forecast reconciliation can improve upon base forecasts in the discrete case.
 
 
      \section{Conclusion}
      \label{sec:conclusion}
 
      This paper develops a novel forecast reconciliation framework for count hierarchical time series.
-     The framework involves assigning probabilities from incoherent points to coherent points, similar to the mapping approach for continuous time series.
-     We further propose a linear reconciliation algorithm that minimises the penalised brier score of reconciled probabilistic forecasts.
-     To address the exponential growth of the domain, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
+     While our proposed idea of mapping probabilities from incoherent points to coherent points, is analogous to methods for continuous data, implementation details vary significantly.
+     Our novel framework involves rewriting the optimisation of the Brier score as an assignment problem facilitating a solution using quadratic programming. 
+     To address computational concerns in higher dimensions, we introduce a stepwise discrete reconciliation algorithm by breaking down a large hierarchy into smaller ones.
      We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
 
      Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy.
-     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and sales of product units in the M5 dataset with promising results.
-     The results indicate the potential of the proposed algorithms to be applied in reality.
-
+     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches as well as an benchmark based on the empirical distribution. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and sales of products in the M5 dataset with promising results.
+     
      One key factor contributing to our strong results is the utilisation of forecast combinations.
      Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
      Also important is that our models train the reconciliation weights using out-of-sample forecasts generated by the rolling origin strategy, leading to robust results.
 
 
-     While this work provides an explanatory attempt at discrete hierarchical time series forecasting, future research should focus more on real-world management problems associated with discrete cases. Count hierarchical time series forecasting remains an open issue that requires further attention from researchers in this area.
+     While this work provides an important step in hierarchical time series forecasting, future research should focus on hierarchies with both continuous data and count data. In light of this, count hierarchical time series forecasting remains an open issue that requires further attention from researchers in the future.
 
 \section*{Acknowledgments}
 
@@ -782,7 +705,7 @@ education fund of Beihang University and the high-performance computing (HPC) re
 \section{Algorithms}
 \label{appendix:adjust}
 
-The \code{Adjust} algorithm is used to adjust an existing multivariate joint distribution to make its marginalisation over one of the variables equal to that given by a reconciled distribution is a single step of the stepwise procedure.
+The \code{Adjust} algorithm is used to adjust an existing multivariate joint distribution to make its marginalisation over one of the variables equal to that given by a reconciled distribution in a single step of the stepwise procedure.
 
 \begin{algorithm}[H]
   \label{alg:adjust}
@@ -802,7 +725,7 @@ The \code{Adjust} algorithm is used to adjust an existing multivariate joint dis
  \end{algorithm}
 
 
- The \code{ConstructJointDist} algorithm constructs a new joint construct given two joint distributions.
+ The \code{ConstructJointDist} algorithm constructs a new joint distribution from two other joint distributions.
  Consider variables $y_1, ~ \bY_2, ~ y_3, ~ y_4, ~ \bY_5$, where $\bY_2$ and $\bY_5$ are vectors and $y_1, ~ y_3, ~ y_4$ are scalars.
  They have the following relations.
  \[
