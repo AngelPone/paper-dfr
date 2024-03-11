@@ -68,7 +68,7 @@
 
 \section*{Responses to Reviewer 1}\label{reviewer-1-comments}
 
-\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all of the comments and suggestions. Below we provide a point-by-point response to these comments.}
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all the comments and suggestions. Below we provide a point-by-point response to these comments.}
 
 \textit{In this paper, the authors proposed a discrete forecast reconciliation (DFR) algorithm to tackle the forecast reconciliation problem for discrete hierarchical time series. A variant of the algorithm, namely stepwise DFR (SDFR), is proposed for the dimensionality issue by breaking down the complex hierarchies into simpler ones. The performance of this algorithm is evaluated in two simulation experiments and two empirical experiments with real data. The result shows that overall, the proposed algorithm outperforms its counterparts in terms of accuracy. This paper addresses an important issue in forecasting that is significant both theoretically and practically. In what follows, I list several comments which I hope will help the authors to further improve this paper.}
 
@@ -78,15 +78,13 @@
   \begin{enumerate}
     \item \textit{The authors pointed out (in p.26, l.552) that the algorithm ``cannot be easily applied to a large hierarchy'' due to the dimensionality issues. This limits the applicability of the proposed algorithm. From a practical perspective, it may be necessary to offer guidelines as to which hierarchies fall into the ``large'' category. }
 
-    \RE{Thank you for your comment. We have included a paragraph in the Discussion section to discuss how the curse of dimensionality in a reconciliation model including computational issues. In particular we note that the curse of dimensionality applies to multivariate discrete forecasting in general, since for large dimension, the number of discrete points in the support can be so large as to render any method infeasible. Also for a large number of bottom level series, the corresponding top level series will have counts so large, that it begins to behave more like a continuous variable. To resolve this issue will require a method that can deal with mixed discrete-continuous hierarchies. While this lies beyond the scope of our current work, we feel that our current contribution which reconciles discrete distributions of moderate dimension could form an important part in solving the more ambitious problem of mixed discrete-continuous hierarchies.\\  
+    \RE{Thank you for your comment. We have included a paragraph in the Discussion section to discuss how the curse of dimensionality in a reconciliation model including computational issues. In particular, we note that the curse of dimensionality applies to multivariate discrete forecasting in general, since for large dimension, the number of discrete points in the support can be so large as to render any method infeasible. Also, for a large number of bottom level series, the corresponding top level series will have counts so large, that it begins to behave more like a continuous variable. To resolve this issue will require a method that can deal with mixed discrete-continuous hierarchies. While this lies beyond the scope of our current work, we feel that our current contribution which reconciles discrete distributions of moderate dimension could form an important part in solving the more ambitious problem of mixed discrete-continuous hierarchies.\\  
     	
-    	
-    	We have also added Table~5, which shows the characteristics of multiple hierarchies and the corresponding computational time used to implement the proposed algorithms. This can guide practitioners on whether a hierarchy is ``large'' accordingly.\\
-   }
+    We have also added Table~5, which shows the characteristics of multiple hierarchies and the corresponding computational time used to implement the proposed algorithms. This can guide practitioners on whether a hierarchy is ``large'' accordingly.\\}
     
 
 
-    \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimization effort is not required. Hence it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
+    \item \textit{Also, DFR does not show a definitive advantage over its counterparts (the bottom-up and top-down approaches), for which the optimisation effort is not required. Hence, it is not uncertain whether the marginal benefit of accuracy improvement can compensate for the additional computational cost. I suggest the authors further report the computation time for each of the forecasting methods under the various scenarios.}
 
     \RE{Thank you for your suggestion. As mentioned in your previous comment, we have added Table~5 to illustrate the relationship between the hierarchy size and computational time. Here we show that for many of our examples, computational cost is not prohibitive taking 5 minutes for one of our empirical applications and 25 minutes for the other (the simulation studies are computed almost instantly). Furthermore, although reconciliation methods do not always outperform simpler benchmarks (which we reiterate are special cases of our new framework), in almost all our examples DFR or SDFR significantly outperforms the base forecasts.}
 
@@ -140,7 +138,7 @@
 \newpage
 \section*{Responses to Reviewer 2}\label{reviewer-2-comments}
 
-\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all of the comments and suggestions. Below we provide a point-by-point response to these comments.}
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all the comments and suggestions. Below we provide a point-by-point response to these comments.}
 
 \textit{The paper is addressing an important issue on reconciling hierarchical probabilistic count forecasts. Diverse setting to evaluate the new approach was devised. For example, a forecasting application on mortality threshold exceedance in Australia is an interesting example based on mortality catastrophe bonds.}
 
@@ -185,7 +183,7 @@
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
-  \RE{Thank you for highlighting this issue. We agree with you that there is no study on quantifying the cost of rounding non-integer forecasts. We also agree that in operational settings where only a mean forecast is required, non-integer forecasts may be sufficient. However, some operational decisions may depend on the full multivariate discrete distribution (e.g. the probability that there are no sales in a given week may be a useful input into decision making). In this setting, a method that leads to probabilistic forecasts that have a non-integer support cannot be used. This is now discussed extensively in the introduction, particularly in the fourth paragraph.}
+  \RE{Thank you for highlighting this issue. We agree with you that there is no study on quantifying the cost of rounding non-integer forecasts. We also agree that in operational settings where only a mean forecast is required, non-integer forecasts may be sufficient. However, some operational decisions may depend on the full multivariate discrete distribution (e.g. the probability that there are no sales in a given week may be a useful input into decision-making). In this setting, a method that leads to probabilistic forecasts that have a non-integer support cannot be used. This is now discussed extensively in the introduction, particularly in the fourth paragraph.}
 
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   

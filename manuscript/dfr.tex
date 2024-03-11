@@ -77,9 +77,9 @@ in the sense that the point forecast for a parent series should equal the sum of
 and then aggregating or disaggregating them into other levels (\citealp{fliednerHierarchicalForecastingIssues2001}).
 An alternative approach, also known as \textit{forecast reconciliation}, proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{panagiotelisForecastReconciliationGeometric2021}, and others, involves
 first generating \textit{base} forecasts for each time series,
-then optimally adjusting or \textit{reconciling} these to produce coherent forecasts. In most cases this is achieved by taking a base forecast $\hat{\bm{y}}$ and premultiplying it by a projection matrix $\mathbf{P}$ to yield reconciled forecasts $\tilde{\bm{y}}=\mathbf{P}\hat{\bm{y}}$, that are coherent by construction. The precise form of the projection depends on assumptions about the covariance matrix of forecast errors, for instance assuming homoskedastic uncorrelated forecasts leads to the OLS reconcililation of \cite{hyndmanOptimalCombinationForecasts2011}, while plugging in a shrinkage estimator of the forecast error covariance leads to the MinT method of \cite{wickramasuriyaOptimalForecastReconciliation2019}. Reconciliation can also be interpreted as a forecast combination method (\citealp{hollymanUnderstandingForecastReconciliation2021}) that avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence. In addition to achieving coherence, state-of-art reconciliation approaches have been demonstrated to improve forecast accuracy.
+then optimally adjusting or \textit{reconciling} these to produce coherent forecasts. In most cases this is achieved by taking a base forecast $\hat{\bm{y}}$ and premultiplying it by a projection matrix $\mathbf{P}$ to yield reconciled forecasts $\tilde{\bm{y}}=\mathbf{P}\hat{\bm{y}}$, that are coherent by construction. The precise form of the projection depends on assumptions about the covariance matrix of forecast errors, for instance assuming homoskedastic uncorrelated forecasts leads to the OLS reconciliation of \cite{hyndmanOptimalCombinationForecasts2011}, while plugging in a shrinkage estimator of the forecast error covariance leads to the MinT method of \cite{wickramasuriyaOptimalForecastReconciliation2019}. Reconciliation can also be interpreted as a forecast combination method (\citealp{hollymanUnderstandingForecastReconciliation2021}) that avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence. In addition to achieving coherence, state-of-art reconciliation approaches have been demonstrated to improve forecast accuracy.
 
-In a decision making setting, it is natural to produce distributional forecasts rather than solely point forecasts such as the mean (\citealp{gneitingProbabilisticForecasting2014}). In the continuous data case, reconciliation has been extended to probabilistic forecasting by \cite{panagiotelisProbabilisticForecastReconciliation2022} building upon earlier efforts by \cite{jeonProbabilisticForecastReconciliation2019} and \cite{bentaiebHierarchicalProbabilisticForecasting2020}. Key components of \cite{panagiotelisProbabilisticForecastReconciliation2022} include an understanding that coherent forecasts lie on a linear subspace, that a linear function can map incoherent forecasts to this subspace, and that the weights of this linear function can be found by optimising proper scoring rules using first order methods such as gradient descent. All of these components breakdown in a discrete data setting, necessitating a novel framework for defining coherence and optimally reconciling incoherent forecasts. These are the objectives that we address in this paper.
+In a decision-making setting, it is natural to produce distributional forecasts rather than solely point forecasts such as the mean (\citealp{gneitingProbabilisticForecasting2014}). In the continuous data case, reconciliation has been extended to probabilistic forecasting by \cite{panagiotelisProbabilisticForecastReconciliation2022} building upon earlier efforts by \cite{jeonProbabilisticForecastReconciliation2019} and \cite{bentaiebHierarchicalProbabilisticForecasting2020}. Key components of \cite{panagiotelisProbabilisticForecastReconciliation2022} include an understanding that coherent forecasts lie on a linear subspace, that a linear function can map incoherent forecasts to this subspace, and that the weights of this linear function can be found by optimising proper scoring rules using first order methods such as gradient descent. All of these components breakdown in a discrete data setting, necessitating a novel framework for defining coherence and optimally reconciling incoherent forecasts. These are the objectives that we address in this paper.
 
 Before introducing our novel approach, it is important to outline the shortcomings of what would appear to be simpler alternatives. The first, is to simply apply existing forecast reconciliation methods for continuous data, such as OLS or MinT projections to discrete data. This would almost certainly yield non-integer forecasts. While this may be acceptable for mean forecasts, since the expected value of a discrete random variable need not be discrete, it will not yield a probabilistic forecast with the correct support. This may impact decisions that depend on specific probabilities, for example, the probability that no stock is sold on any day in a given week.  A second, simple solution may be based on using existing methods for reconciliation and then rounding non-integer forecasts. Unfortunately, coherence will not, in general, be preserved after rounding. For example, in a hierarchy where $X+Y=Z$, the forecasts $X=0.4$, $Y=0.4$ and $Z=0.8$ are coherent, but rounding these values to the nearest integers leads to incoherence. As such, it makes more sense to develop a hierarchical forecasting approach that handles discrete distributions directly.
 
@@ -237,7 +237,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
       \tilde{\pi}_k=\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j
     \]
     for all $k = 1, 2, \dots, r$  and  $j = 1, 2, \dots, q$.
-   Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point corresponding to element $j$ in $\hat{\bpi}$ to a coherent point correspoding to element $k$ in $\tilde{\bpi}$ (or from $\hat{\mathcal{H}}(j)$ to point $\tilde{\mathcal{H}}(k)$). Note that the matrix $\mathbf{A}$ is not a projection matrix as used for continuous data, and $a_{kj}$ must meet the following constraints
+   Each $a_{kj}$ represents how much probability is shifted from the possibly incoherent point corresponding to element $j$ in $\hat{\bpi}$ to a coherent point corresponding to element $k$ in $\tilde{\bpi}$ (or from $\hat{\mathcal{H}}(j)$ to point $\tilde{\mathcal{H}}(k)$). Note that the matrix $\mathbf{A}$ is not a projection matrix as used for continuous data, and $a_{kj}$ must meet the following constraints
    \begin{align*}
 	 0\leq a_{kj} \leq 1 , ~ \forall k, j, ~ \textrm{and} ~
 	\sum\limits_{k=1}^r a_{kj} = 1 , ~ \forall j.
@@ -273,7 +273,7 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     \begin{align*}
     {\overline{BS}}=& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})'(\mathbf{A}\hat\bpi^{t+h|t} - \mathbf{z}^{t+h})\right] \\
     =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\tilde{\pi}_k^{t+h|t}-z^{t+h}_k\right)^2\right]\\
-    =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]\,.
+    =& \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j^{t+h|t}-z^{t+h}_k\right)^2\right]\,.
     \end{align*}
     This is a quadratic function of $a_{kj}$ with smaller values indicating a better coherent forecast.
 
@@ -302,7 +302,7 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     The final objective function is defined as follows:
 
     \[
-    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j-z^{t+h}_k\right)^2\right]
+    \underset{a_{kj}}{\min} \frac{1}{|\mathcal{T}_{\textrm{window}}|}\sum\limits_{\mathcal{T}_{\textrm{window}}}\left[\sum\limits_{k=1}^r\left(\sum\limits_{j=1}^q a_{kj}\hat{{\pi}}_j^{t+h|t}-z^{t+h}_k\right)^2\right]
     \]
     subject to
     \[
@@ -351,47 +351,47 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     \SetKwFunction{construct}{ConstructJointDist}
     \SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
-    \Input{$\hat{\pi}_0,\dots,\hat{\pi}_k$}
-    \For {$i=1,\dots,k-1$}{
-      $\hat{\pi}_{\mathbf{S}_{k-i}} \leftarrow$ \bu($\hat\pi_{i+1},\dots,\hat\pi_k$)\;
+    \Input{$\hat{\pi}_0,\dots,\hat{\pi}_m$}
+    \For {$i=1,\dots,m-1$}{
+      $\hat{\pi}_{\mathbf{S}_{m-i}} \leftarrow$ \bu($\hat\pi_{i+1},\dots,\hat\pi_m$)\;
       \uIf{ i = 1}{
-        $\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \hat\pi_0$ \;
+        $\hat{\pi}_{\mathbf{S}_{m-i+1}} \leftarrow \hat\pi_0$ \;
       }
-      \Else{$\hat{\pi}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\mathbf{S}_{k-i+2}, y_{i-1}}\tilde{\bpi}(\mathbf{S}_{k-i+2}, y_{i-1}, \mathbf{S}_{k-i+1})$\;
+      \Else{$\hat{\pi}_{\mathbf{S}_{m-i+1}} \leftarrow \sum_{\mathbf{S}_{m-i+2}, y_{i-1}}\tilde{\bpi}(\mathbf{S}_{m-i+2}, y_{i-1}, \mathbf{S}_{m-i+1})$\;
       }
 
-      $\tilde{\pi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \reconcile{$\hat{\pi}_{\mathbf{S}_{k-i + 1}}, \hat\pi_{i}, \hat\pi_{\mathbf{S}_{k-i}}$}
+      $\tilde{\pi}(\mathbf{S}_{m-i+1}, y_i, \mathbf{S}_{m-i}) \leftarrow$ \reconcile{$\hat{\pi}_{\mathbf{S}_{m-i + 1}}, \hat\pi_{i}, \hat\pi_{\mathbf{S}_{m-i}}$}
     }
 
-    \For {$i=2,\dots,k-1$} {
-      $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1})$ \;
-      $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i})$ \;
-      $\tilde\pi'_{\mathbf{S}_{k-1+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{k-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$) \;
-      $\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
-      $\tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) \leftarrow$ \adjust($\tilde{\bpi}(\mathbf{S}_{k-i+1}, \mathbf{S}_{k-i+1}), y_i, \tilde{\pi}'_{\mathbf{S}_{k-i+1}})$ \;
-      $\tilde{\bpi}(\bY_i, \mathbf{S}_{k-i}) \leftarrow$ \construct($\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{k-i+1}), \tilde{\bpi}'(\mathbf{S}_{k-i+1}, y_i, \mathbf{S}_{k-i}) $)\;
+    \For {$i=2,\dots,m-1$} {
+      $\tilde\pi^{1}_{\mathbf{S}_{m-i+1}} \leftarrow \sum_{\bY_{i-1}}\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{m-i+1})$ \;
+      $\tilde\pi^{2}_{\mathbf{S}_{m-i+1}} \leftarrow \sum_{y_i,\mathbf{S}_{k-1}}\tilde{\bpi}(\mathbf{S}_{m-i+1}, y_i, \mathbf{S}_{m-i})$ \;
+      $\tilde\pi'_{\mathbf{S}_{m-i+1}} \leftarrow \frac{1}{2} (\tilde\pi^{1}_{\mathbf{S}_{m-i+1}} + \tilde\pi^{2}_{\mathbf{S}_{m-i+1}}$) \;
+      $\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{m-i+1}) \leftarrow$ \adjust($\tilde{\bpi}(\bY_{i-1}, \mathbf{S}_{m-i+1}), \tilde{\pi}'_{\mathbf{S}_{m-i+1}})$ \;
+      $\tilde{\bpi}'(\mathbf{S}_{m-i+1}, y_i, \mathbf{S}_{m-i}) \leftarrow$ \adjust($\tilde{\bpi}(\mathbf{S}_{m-i+1}, \mathbf{S}_{m-i+1}), y_i, \tilde{\pi}'_{\mathbf{S}_{m-i+1}})$ \;
+      $\tilde{\bpi}(\bY_i, \mathbf{S}_{m-i}) \leftarrow$ \construct($\tilde{\bpi}'(\bY_{i-1}, \mathbf{S}_{m-i+1}), \tilde{\bpi}'(\mathbf{S}_{m-i+1}, y_i, \mathbf{S}_{m-i}) $)\;
     }
-    \Output{$\tilde \bpi(\bY_k)$}
+    \Output{$\tilde \bpi(\bY_m)$}
 
     \end{algorithm}
 
-  Taking a hierarchy with one total series and $k~(k>3)$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how independently generated base forecasts can be reconciled into coherent joint forecasts step-by-step when $k$ is large.
-  Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_k$.
+  Taking a hierarchy with one total series and $m~(m>3)$ bottom series as an example, Algorithm \ref{alg:stepwise} shows how independently generated base forecasts can be reconciled into coherent joint forecasts step-by-step when $m$ is large.
+  Denote the total series as $y_0$ and bottom-level series as $y_1, \dots, y_m$.
   Denote the vector of first $i+1$ variables as $\mathbf{Y}_i$ and the sum of last $j$ variables as $\mathbf{S}_j$, i.e.,
   \[
-    \bY_i = (y_0, \dots, y_i)', \quad \mathbf{S}_j = \sum_{l=k-j+1}^{k} y_l.
+    \bY_i = (y_0, \dots, y_i)', \quad \mathbf{S}_j = \sum_{l=m-j+1}^{m} y_l.
   \]
-  In general, the hierarchy is split into $k-1$ three-node hierarchies.
-  For each hierarchy $i$, one bottom series (the left node) corresponds to the node $i+1$ in the original hierarchy, i.e., $y_{i}$. The other bottom series (the right node) corresponds to $\mathbf{S}_{k-i}$, which is the sum of the remaining $k-i$ series; thus making $\mathbf{S}_{k-i+1}$ their total node.
+  In general, the hierarchy is split into $m-1$ three-node hierarchies.
+  For each hierarchy $i$, one bottom series (the left node) corresponds to the node $i+1$ in the original hierarchy, i.e., $y_{i}$. The other bottom series (the right node) corresponds to $\mathbf{S}_{m-i}$, which is the sum of the remaining $m-i$ series; thus making $\mathbf{S}_{m-i+1}$ their total node.
   In the training stage, the reconciliation model \code{DFR}$_i$ is trained for this hierarchy.
   Base forecasts of the left node are obtained from input, while base forecasts of the right node are obtained using a bottom-up approach that will be discussed in Section~\ref{sec:bottomup}.
   The base forecasts for the total node are derived from the marginal distribution of that same node from the coherent distribution obtained in the previous step.
-  One can obtain base forecasts for the right and total node by forecasting directly $\mathbf{S}_{j}, j=2,\dots,k-1$, which is applicable for cross-sectional hierarchies.
-  However, in temporal hierarchies, forecasting $\mathbf{S}_{k-i+1}$ means forecasting temporal aggregation of partial time periods, introducing non-integer frequency problems and making it more challenging to capture time series dynamics.
+  One can obtain base forecasts for the right and total node by forecasting directly $\mathbf{S}_{j}, j=2,\dots,m-1$, which is applicable for cross-sectional hierarchies.
+  However, in temporal hierarchies, forecasting $\mathbf{S}_{m-i+1}$ means forecasting temporal aggregation of partial time periods, introducing non-integer frequency problems and making it more challenging to capture time series dynamics.
   Our approach instead offers simple implementation with no extra expert intervention or modelling and can be applied to both cross-sectional and temporal hierarchies.
 
-  During the forecasting stage, we first pass the base forecasts stepwise into these models to obtain $k-1$ coherent forecasts.
-  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{k-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{k-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{k-i+1}}$) are not identical because reconciliation generally changes input forecasts.
+  During the forecasting stage, we first pass the base forecasts stepwise into these models to obtain $m-1$ coherent forecasts.
+  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{m-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{m-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{m-i+1}}$) are not identical because reconciliation generally changes input forecasts.
   We average these two marginal forecasts and pass their average into the \code{Adjust} algorithm, which adjusts the joint distributions from two adjacent steps to make their marginalisations of the shared node equivalent to the average.
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   For space-saving purposes here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
@@ -499,7 +499,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \subsubsection{Simulation setup}
 
      While intermittent series are characterised by fluctuating demand intervals and size at lower levels, they may exhibit seasonality and trend when temporally aggregated into higher levels (\Citealp{kourentzesElucidateStructureIntermittent2021}).
-     To emulate these characteristics, the data generating process of the temporal hierarchy is based on simulating the weekly (total) time series first. This is carried out by simulating Poisson distributed data with a conditional mean that follows a seasonal AR process. We set the seasonal period and number of autoregressive terms to $4$ and $3$, respectively. The parameters are carfeully tuned so that the conditional mean of the total series lies in the range $[2.5, 4.5]$. For the rare instances where simulated values of the total ($Y_8$) exceeds $7$, $Y_8$ is set to $7$. All data generation is implemented with the \code{gratis} package \citep{gratis}, which ensures the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
+     To emulate these characteristics, the data generating process of the temporal hierarchy is based on simulating the weekly (total) time series first. This is carried out by simulating Poisson distributed data with a conditional mean that follows a seasonal AR process. We set the seasonal period and number of autoregressive terms to $4$ and $3$, respectively. The parameters are carefully tuned so that the conditional mean of the total series lies in the range $[2.5, 4.5]$. For the rare instances where simulated values of the total ($Y_8$) exceeds $7$, $Y_8$ is set to $7$. All data generation is implemented with the \code{gratis} package \citep{gratis}, which ensures the diversity of the simulated series (\Citealp{kangGRATISGeneRAtingTIme2020}).
      
      Once a weekly series has been generated, these are disaggregated into daily time series. 
      Seven values are drawn from independent Beta distributions $\zeta_i\sim\textrm{B}(i, 4)$ for $i=1,\dots,7$, each corresponding to $Y_i$ for $i=1,\dots,7$.
@@ -507,7 +507,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      For each daily time series, after discarding an initial burn-in, $903$ observations ($129$ weeks) are generated. Analogous to Section~\ref{sec:cross-sectional_simu}, we utilise the expanding window strategy with first training window size of $350$ (50 weeks). This yields $553$ pairs of one step ahead forecasts and realisations (corresponding to 79 weeks). The SDFR algorithm is implemented using the first $532$ of these pairs. The final $21$ observations are used to assess the forecasting performance. This is also replicated 1000 times.
 
-     Base forecasts of daily time series are generated utilising a logistic regression model. The covariates are the values of the previous six daily observations and weekly dummy variables. We implement the logistic regression model with the \code{glm} function in \proglang{R}. Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}). The $\textrm{INGARCH}(p, q)$ model assumes a Possion distribution with a conditional mean that evolves according to:
+     Base forecasts of daily time series are generated utilising a logistic regression model. The covariates are the values of the previous six daily observations and weekly dummy variables. We implement the logistic regression model with the \code{glm} function in \proglang{R}. Base forecasts of weekly time series are generated using integer-valued GARCH $(\textrm{INGARCH})$ models (\Citealp{fokianosPoissonAutoregression2009}). The $\textrm{INGARCH}(p, q)$ model assumes a Poisson distribution with a conditional mean that evolves according to:
      \[
       \lambda_t = \beta_0 + \sum_{k=1}^p \beta_ky_{t-k} + \sum_{l=1}^q \alpha_l\lambda_{t-l}, 
      \] where $\beta_k, k=0,\dots,p$ and $\alpha_l, l=1,\dots,q$ are unknown parameters. $\lambda_t$ is the conditional mean at time $t$.  We fit INGARCH(3,3) to the weekly series. While methods could be used to select the correct lag order for the INGARCH, our emphasis here is on the performance of reconciliation, including under model misspecification. All implementation is carried out using the \code{tscount} package(\Citealp{liboschikTscountPackageAnalysis2017}) for \proglang{R}. The model assumes a Poisson distribution, while our domain is finite, therefore the probability $Pr(Y_8=7)$ is set equal to $Pr(Y_8\geq 7)$ implied by the INGARCH model (in either case, this probability is small in practice).
@@ -594,13 +594,13 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      \subsection{Application: forecasting intermittent demand in M5 dataset}
      \label{sec:M5}
 
-     Intermittent time series are commonly observed in the fields of inventory and supply chain management, where forecasts support decisions concerning daily store replenishment, transportation plans, after-sales services and other applications (\citealp{babaiDemandForecastingSupply2022}). In this subsection, we apply the proposed SDFR algorithm to a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset, which comprises of $3049$ products sold by Walmart at ten stores located in three states in the USA from January 29, 2011 to May 23, 2016 (1941 days).
+     Intermittent time series are commonly observed in the fields of inventory and supply chain management, where forecasts support decisions concerning daily store replenishment, transportation plans, after-sales services and other applications (\citealp{babaiDemandForecastingSupply2022}). In this subsection, we apply the proposed SDFR algorithm to a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset, which comprises $3049$ products sold by Walmart at ten stores located in three states in the USA from January 29, 2011 to May 23, 2016 (1941 days).
      
-     We construct two level cross-sectional hierarchies, with stores as the bottom level and state at the top level. This is done separately for individual products (stock keeping units). We restrict our attention to low-count intermittent time series, by excluding a stock keeping unit if its a maximum daily sale in any store is greater than $4$. Products with insufficient sample size (i.e. newly launched products) are also excluded. This leads to a total of $665$ hierarchies.
+     We construct two level cross-sectional hierarchies, with stores as the bottom level and state at the top level. This is done separately for individual products (stock keeping units). We restrict our attention to low-count intermittent time series, by excluding a stock keeping unit if its maximum daily sale in any store is greater than $4$. Products with insufficient sample size (i.e. newly launched products) are also excluded. This leads to a total of $665$ hierarchies.
      
      One-day ahead forecasts are used with an expanding window, the SDFR algorithm is trained on $730$ pairs of observations and one step ahead forecasts. The last $28$ days of data are kept for evaluation. The base forecasts are produced as combinations of the SBA (\citealp{syntetosAccuracyIntermittentDemand2005}) forecasting method for intermittent demand and forecasts based on a negative binomial distribution as proposed in \cite{kolassaEvaluatingPredictiveCount2016}.
 
-    Table~\ref{tab:M5} presents the accuracy of benchmarks and SDFR in terms of average Brier Score across the $665$ hierarchies and $28$ evaluation periods. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. In terms of the overall hierarchy, SDFR produces the best average Brier score. The SDFR method also significantly outperforms the discrete top-down method and base forecasts across all levels, and significantly outperforms the bottom up method when evaluation is carried out on the bottom level. The empirical benchmark performs well in this setting, perhaps due to the fact that serial dependence is weak for these data. However the overall conclusion is that SDFR improves upon base forecasts, outperforms other reconciliation benchmarks and is competitive with the empirical benchark.
+    Table~\ref{tab:M5} presents the accuracy of benchmarks and SDFR in terms of average Brier Score across the $665$ hierarchies and $28$ evaluation periods. The corresponding MCB test is displayed in Figure~\ref{fig:application_M5}. In terms of the overall hierarchy, SDFR produces the best average Brier score. The SDFR method also significantly outperforms the discrete top-down method and base forecasts across all levels, and significantly outperforms the bottom up method when evaluation is carried out on the bottom level. The empirical benchmark performs well in this setting, perhaps due to the fact that serial dependence is weak for these data. However, the overall conclusion is that SDFR improves upon base forecasts, outperforms other reconciliation benchmarks and is competitive with the empirical benchmark.
    
     \begin{table}
         \centering
@@ -627,15 +627,15 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      Distributional forecasts are becoming increasingly important in both academic and industry settings for operational research. In the context of hierarchical forecasting, \cite{kolassaWeWantCoherent2022} suggests shifting focus from coherent point forecasts to coherent probabilistic forecasts.
      The proposed discrete reconciliation framework can generate coherent distributional forecasts for discrete-valued HTS.
-     Key functionals such as the median, mean, covariance and quantiles and probabilities of extreme events can be derived from the distributional forecasts.
+     Key functional such as the median, mean, covariance and quantiles and probabilities of extreme events can be derived from the distributional forecasts.
      It is worth noting that mean point forecasts obtained by our DFR method are also coherent.
      %Moreover, our methods offer precise distributions instead of relying on empirical distribution derived from sampling as seen in previous studies (e.g., \citealp{jeonProbabilisticForecastReconciliation2019,coraniProbabilisticReconciliationCount2022}).
 
      This paper focuses on linear reconciliation, achieved by multiplying the base incoherent probability vector with a reconciliation matrix.
-     To extend to non-linearity by taking a machine learning perspective, discrete forecast reconciliation could be viewed as a classification problem with a a $q$-dimensional input mapped to an $r$ dimensional output representing class probabilities. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
+     To extend to non-linearity by taking a machine learning perspective, discrete forecast reconciliation could be viewed as a classification problem with a $q$-dimensional input mapped to an $r$ dimensional output representing class probabilities. Machine learning models, such as specifically designed neural networks, can be utilised to solve this problem.
      When thousands of time series need to forecast, cross-learning techniques can be employed to construct a global non-linear reconciliation model. This poses an interesting avenue for future research.
 
-     One issue with the proposed DFR algorithm is that its dimensionality grows both with the number of variables in the hierarchy and with the cardinality of the domain of the discrete variables. This is not so much a shortcoming of DFR, but a limitation of trying to model a high-dimensional multivariate discrete distribution. For example even if the 665 products in the M5 application were expressed as binary variables, their multivariate distribution would have support on $666\times2^{665}$ discrete points, much greater than the number of particles in the universe. In light of this, we advocate for DFR and SDFR as methods to reconcile small to moderate sized hierarchies. Larger hierarchies, will inevitably include variables that are much better treated as continuous. Reconciling hierarchies with both discrete and continuous variables remains an challenging open question, we believe the methods we have proposed in this paper, represent an important piece in that larger puzzle.
+     One issue with the proposed DFR algorithm is that its dimensionality grows both with the number of variables in the hierarchy and with the cardinality of the domain of the discrete variables. This is not so much a shortcoming of DFR, but a limitation of trying to model a high-dimensional multivariate discrete distribution. For example even if the 665 products in the M5 application were expressed as binary variables, their multivariate distribution would have support on $666\times2^{665}$ discrete points, much greater than the number of particles in the universe. In light of this, we advocate for DFR and SDFR as methods to reconcile small to moderate sized hierarchies. Larger hierarchies, will inevitably include variables that are much better treated as continuous. Reconciling hierarchies with both discrete and continuous variables remains a challenging open question, we believe the methods we have proposed in this paper, represent an important piece in that larger puzzle.
      
     
      In order to shed more light on how the curse of dimensionality affects the computational efficiency of DFR and SDFR, we summarise the number of series, the number of parameters (elements of $\mathbf{A}$) and the estimated run-time for training the reconciliation model once in each of our experiments. 
@@ -660,7 +660,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
        \caption{\label{tab:time} Reconciliation model size and computational time (in seconds) in the four experiments implemented in different sections.}
      \end{table}
 
-     Finally we note that in our experiments, fairly simple models were used to obtain base forecasts. While it remains challenging to accurately forecast low count time series with an excessive number of zeros, state-of-the-art methods have been proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}. While adopting such methods could lead to more accurate base and unreconciled forecasts, our emphasis here was to demonstrate that forecast reconciliation can improve upon base forecasts in the discrete case.
+     Finally, we note that in our experiments, fairly simple models were used to obtain base forecasts. While it remains challenging to accurately forecast low count time series with an excessive number of zeros, state-of-the-art methods have been proposed by \cite{berryBayesianForecastingMany2020a} and \cite{weissEfficientAccountingEstimation2022}. While adopting such methods could lead to more accurate base and unreconciled forecasts, our emphasis here was to demonstrate that forecast reconciliation can improve upon base forecasts in the discrete case.
 
 
      \section{Conclusion}
@@ -673,7 +673,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
      We also propose probabilistic extensions of traditional top-down and bottom-up methods for count time series.
 
      Our DFR and SDFR algorithms produce coherent probabilistic forecasts and improve forecast accuracy.
-     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches as well as an benchmark based on the empirical distribution. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and sales of products in the M5 dataset with promising results.
+     We demonstrate this through simulation experiments on cross-sectional and temporal hierarchies, where our algorithms outperform discrete top-down and discrete bottom-up approaches as well as a benchmark based on the empirical distribution. Additionally, we apply the DFR algorithm to forecast crime numbers in Washington D.C. and sales of products in the M5 dataset with promising results.
      
      One key factor contributing to our strong results is the utilisation of forecast combinations.
      Similar to reconciliation approaches for continuous variables, our framework combines forecasts and the information used to produce forecasts at different levels.
@@ -682,7 +682,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
      While this work provides an important step in hierarchical time series forecasting, future research should focus on hierarchies with both continuous data and count data. In light of this, count hierarchical time series forecasting remains an open issue that requires further attention from researchers in the future.
 
-\section*{Acknowledgments}
+\section*{Acknowledgements}
 
 Yanfei Kang is supported by the National Natural Science Foundation of China (No. 72171011). This research was supported by international joint doctoral
 education fund of Beihang University and the high-performance computing (HPC) resources at Beihang University.
