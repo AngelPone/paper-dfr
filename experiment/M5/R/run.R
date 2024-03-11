@@ -1,6 +1,6 @@
 # basef
 setwd("experiment/M5")
-source("R/basef.R")
+source("R/utils.R")
 
 dtarget <- readRDS("results/data.rds")
 library(dplyr)
@@ -74,19 +74,3 @@ saveRDS(dtarget, "results/results.rds")
 
 summary(dtarget$bs, "../../manuscript/figures/")
 
-
-# library(polycor)
-# library(dplyr)
-# dtarget$polycor <- vector('list', NROW(dtarget))
-#
-# for (hierarchy_idx in seq_along(dtarget$hierarchy)) {
-#   print(hierarchy_idx)
-#   dtarget$polycor[[hierarchy_idx]] <- sapply(iterators::iter((dtarget$hierarchy[[hierarchy_idx]])), function(x){
-#     polychor(x[2:length(x)], x[1:(length(x) - 1)])
-#   })
-# }
-#
-# dtarget_cor <- dtarget %>% rowwise() %>%
-#   filter(mean(abs(polycor)) > 0.15)
-#
-# summary(dtarget_cor$bs)

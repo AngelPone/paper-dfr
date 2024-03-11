@@ -1,6 +1,6 @@
 setwd("experiments/M5")
 
-source("R/basef.R")
+source("R/utils.R")
 dts <- readRDS("results/bf.rds") %>% filter(salesmax == 4)
 
 all4_dts <- which(sapply(dts$hierarchy, function(x) { sum(sapply(x[2:length(x)], max) == 4) == 4 }))

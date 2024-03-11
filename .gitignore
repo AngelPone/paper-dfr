@@ -29,3 +29,4 @@ _minted*
 
 !*/figures/*.pdf
 !manuscript/coverletter.pdf
+!dc_crime/data.rds
