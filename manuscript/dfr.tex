@@ -337,12 +337,12 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     \subsection{Stepwise discrete reconciliation}
     \label{sec:algorithm2}
 
-    Although the so-called movement restriction reduces the dimension, the exponential growth of domain cardinalities still results in an exponential growth of the number of unknown parameters that need to be estimated.
-    As a result, it is impossible to handle a higher-dimensional hierarchy using the DFR algorithm alone.
-    To address this issue, we propose a Stepwise Discrete Forecast Reconciliation (SDFR) algorithm that can overcome the curse of dimensionality.
+    Although the so-called movement restriction reduces the number of free parameters in the quadratic program, as the number of variables increases, the number of elements in $\mathbf{A}$ grows exponentially.
+    As a result, it is difficult to handle  even a hierarchy of moderate dimension using the DFR algorithm alone.
+    To address this issue, we propose a Stepwise Discrete Forecast Reconciliation (SDFR) algorithm that can overcome computational issues associated with high dimensionality.
     Instead of reconciling forecasts of all series at once,  SDFR
-    decomposes a high-dimensional hierarchy into multiple two-level hierarchies with three nodes and reconciles these sub-hierarchies step by step using the DFR algorithm shown in Section~\ref{sec:algorithm}.
-    Given reasonable assumptions, we adjust the reconciled forecasts for these sub-hierarchies to construct joint forecasts for the entire hierarchy. As in the DFR algorithm, SDFR also consists of training and forecasting stages. The forecasting stage is shown in Algorithm \ref{alg:stepwise}, while training has a similar procedure.
+    decomposes a high-dimensional hierarchy into multiple two-level hierarchies each with three nodes. These sub-hierarchies are reconciled step by step using the DFR algorithm shown in Section~\ref{sec:algorithm}.
+    The stepwise procedure requires adjustments to the reconciled forecasts of the sub-hierarchies at each step. The training stage of SDFR is identical to DFR, while the forecasting stage is shown in Algorithm~\ref{alg:stepwise}.
     \begin{algorithm}[ht]
     \caption{\label{alg:stepwise}\textbf{S}tepwise \textbf{D}iscrete \textbf{F}orecast \textbf{R}econciliation (\textbf{SDFR})}
     \SetKwFunction{reconcile}{DFR$_i$}
@@ -384,17 +384,17 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
   In general, the hierarchy is split into $m-1$ three-node hierarchies.
   For each hierarchy $i$, one bottom series (the left node) corresponds to the node $i+1$ in the original hierarchy, i.e., $y_{i}$. The other bottom series (the right node) corresponds to $\mathbf{S}_{m-i}$, which is the sum of the remaining $m-i$ series; thus making $\mathbf{S}_{m-i+1}$ their total node.
   In the training stage, the reconciliation model \code{DFR}$_i$ is trained for this hierarchy.
-  Base forecasts of the left node are obtained from input, while base forecasts of the right node are obtained using a bottom-up approach that will be discussed in Section~\ref{sec:bottomup}.
+  Base forecasts of the left node are obtained from input, while base forecasts of the right node are obtained using a bottom-up approach that discussed in Section~\ref{sec:bottomup}.
   The base forecasts for the total node are derived from the marginal distribution of that same node from the coherent distribution obtained in the previous step.
-  One can obtain base forecasts for the right and total node by forecasting directly $\mathbf{S}_{j}, j=2,\dots,m-1$, which is applicable for cross-sectional hierarchies.
-  However, in temporal hierarchies, forecasting $\mathbf{S}_{m-i+1}$ means forecasting temporal aggregation of partial time periods, introducing non-integer frequency problems and making it more challenging to capture time series dynamics.
-  Our approach instead offers simple implementation with no extra expert intervention or modelling and can be applied to both cross-sectional and temporal hierarchies.
+  For cross-sectional hierarchies, base forecasts can be obtained for the right and total node by forecasting $\mathbf{S}_{j}, j=2,\dots,m-1$ directly.
+  However, in temporal hierarchies, forecasting $\mathbf{S}_{m-i+1}$ requires forecasting temporal aggregation of partial time periods, introducing non-integer frequency problems and making it more challenging to capture time series dynamics.
+  Our approach instead offers a simple implementation with no extra expert intervention or modelling and can be applied to both cross-sectional and temporal hierarchies.
 
   During the forecasting stage, we first pass the base forecasts stepwise into these models to obtain $m-1$ coherent forecasts.
-  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{m-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{m-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{m-i+1}}$) are not identical because reconciliation generally changes input forecasts.
-  We average these two marginal forecasts and pass their average into the \code{Adjust} algorithm, which adjusts the joint distributions from two adjacent steps to make their marginalisation of the shared node equivalent to the average.
+  Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{m-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{m-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{m-i+1}}$) are not identical since reconciliation generally changes input forecasts.
+  We average these two marginal forecasts and pass their average into the \code{Adjust} algorithm. This algorithm adjusts the joint distributions from two adjacent steps to ensure the marginal distribution of the shared node is equivalent to the average across the two steps.
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
-  For space-saving purposes here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
+  For brevity, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
   Figure~\ref{fig:sdfr} presents an example explaining how the SDFR algorithm works, where a four-node hierarchy is split into two three-node hierarchies. The DFR algorithm is  applied stepwise from left to right to each three-node hierarchy.
 
   \begin{figure}
@@ -404,7 +404,7 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
   \end{figure}
 
   Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently, we average results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
-  When handling hierarchy with more aggregation levels, we can repeat the above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile the next level.
+  When handling a hierarchy with more aggregation levels, we can repeat the above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base child forecasts (bottom-up) or base parent forecasts (top-down) to reconcile the next level.
 
 
 
