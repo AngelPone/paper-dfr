@@ -96,7 +96,7 @@
 \item \textit{Contribution. In the introduction, the authors merely summarised their work without clarifying the contribution. Thus, it is unclear to me the contribution of this research from the existing algorithms in the continuous case. If the problem formulation is an analogue of the continuous case, what about the algorithm design? A review or a brief summarization of forecast reconciliation in the continuous case should be added. The emphasis should be given to what motivates you to develop the new algorithm.}
 
 \RE{
-  Thank you for your valuable feedback. In response, we have revised the Introduction to enhance clarity and logical flow. The revised version now presents a review of continuous reconciliation approaches mainly in the second and third paragraphs, as well as an explanation of why these methods break down in the discrete setting. This is followed by a detailed discussion of motivation behind our study, including a review of existing methodologies for count hierarchical time series.
+  Thank you for your valuable feedback. In response, we have revised the Introduction to enhance clarity and logical flow. The revised version now presents a review of continuous reconciliation approaches mainly in the second and third paragraphs, as well as an explanation of why these methods break down in the discrete setting. This is followed by a detailed discussion of the motivation behind our study, including a review of existing methodologies for count hierarchical time series.
 }
 
 
@@ -123,7 +123,7 @@
 
     \item \textit{p.9, l.199 explain what ``strictly proper'' means}
 
-    \RE{Thank you for your suggestion. We now include an explanation about the strictly proper scoring rules.}
+    \RE{Thank you for your suggestion. We now include a definition of strictly proper scoring rules.}
 
 
 
@@ -147,9 +147,9 @@
 \begin{enumerate}
     \item \textit{However, the discussion on the methodology requires more explanation. The method could use other probabilistic evaluation measures such as discrete ranked probability score.}
    
-    \RE{Thank you for your comment. As we have mentioned in Section~3.1, our method could employ other probabilistic evaluation measures, such as spherical score and logarithmic score. We choose Brier score instead of others because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming.
+    \RE{Thank you for your comment. As we have mentioned in Section~3.1, our method could employ other probabilistic evaluation measures, such as spherical score and logarithmic score. We choose Brier score instead of others because it can seamlessly fit into our framework by formulating an objective function that can be solved through quadratic programming. This is now stated more clearly.
     
-    However, incorporating discrete ranked probability score (DRPS) into our method is challenging because DRPS is undefined on multivariate discrete distribution. The problem arises since there is no unique way to defining a rank between vectors of discrete values. For example, there is no unambiguous convention for ranking the values (1, 0) and (0, 1). Therefore, we keep using the Brier score in the paper and clarify the applicability of other probabilistic evaluation measures in Section~3.1.
+    Incorporating discrete ranked probability score (DRPS) into our method is challenging since DRPS is undefined on multivariate discrete distribution. The problem arises since there is no unique way to defining a rank between vectors of discrete values. For example, there is no unambiguous convention for ranking the values (1, 0) and (0, 1). Therefore, we keep using the Brier score in the paper and clarify the applicability of other probabilistic evaluation measures in Section~3.1.
     }
 
     \item \textit{The discussion of the empirical results is difficult to be read.}
@@ -181,7 +181,7 @@
 
   \item \textit{What is the purpose of including such artificial examples in the simulation given that there are many real datasets that could be used in the paper, could we make it more realistic?}
 
-  \RE{Thank you for your suggestion. Our second simulation experiment simulates daily series of intermittent nature, which is a common scenario widely seen in supply chain and retail. Furthermore, following your suggestion, we have now replaced our second empirical experiment with a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+  \RE{Thank you for your suggestion. The purpose of the simulation study is that we can control factors such as serial and cross-sectional dependence. The reason for two simulation studies is to apply both algorithms. Also, our second simulation experiment simulates daily series of intermittent nature, which is a common scenario widely seen in supply chain and retail. Furthermore, following your suggestion, we have now replaced our second empirical experiment with a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
 
   \item \textit{Author mentioned that non-integer forecasts may introduce additional costs from an operational research standpoint, as they require conversion into actionable decisions. However, the accuracy of this claim is uncertain. To my knowledge, there is no study that quantifies the cost associated with integrating non-integer forecasts into decision-making processes. While an integer forecast is often preferred for operational research problems, in practice, rounding forecasts might provide a pragmatic solution to address these concerns. Please clarify this in the revised paper.}
   
@@ -189,11 +189,11 @@
 
   \item \textit{Since the author emphasises the significance of the proposed framework for low-count time series and considering the availability of such datasets in the public domain, I recommend that the authors include examples from such datasets in their empirical studies. This may include time series with intermittent nature.}
   
-  \RE{Thank you for your suggestion. We have now replaced our second empirical experiment with a subset of M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
+  \RE{Thank you for your suggestion. We have now replaced our second empirical experiment with a subset of the M5 (\citealp{makridakisM5AccuracyCompetition2022}) dataset.}
 
   \item \textit{Could the authors consider incorporating an empirical distribution of the historical time series as a benchmark method for constructing the forecast distribution and for reconciliation? Sometimes, this simple, naive approach can be remarkably effective.}
   
-  \RE{We have now included the empirical distribution as one of the benchmarks in both our simulation and empirical studies. While it is competitive compared to base forecast, discrete bottom-up and discrete top-down, the proposed methodology performs better in most cases.}
+  \RE{We have now included the empirical distribution as one of the benchmarks in both our simulation and empirical studies. While it is competitive compared to base forecast, discrete bottom-up and discrete top-down, our proposed methodology performs better in most cases.}
   
   \item \textit{Considering the emphasis on low-volume data, it raises a question as to why the authors opted for a yearly time series in the empirical section of the study.}
  
