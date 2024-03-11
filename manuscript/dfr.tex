@@ -104,6 +104,7 @@ Section \ref{sec:method} details the proposed discrete reconciliation framework 
 Section \ref{sec:simulation} performs two simulation experiments in cross-sectional and temporal settings, and two empirical experiments are conducted in Section \ref{sec:application}.
 Then, Section \ref{sec:discussion} presents discussions and thoughts on future research. 
 Finally, Section \ref{sec:conclusion} concludes the paper.
+Data and code for reproducing the results in this paper are available at https://github.com/AngelPone/paper-dfr.
 
 
 
@@ -391,9 +392,16 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
 
   During the forecasting stage, we first pass the base forecasts stepwise into these models to obtain $m-1$ coherent forecasts.
   Adjacent hierarchies share the same node (i.e., $\mathbf{S}_{m-i+1}$), but their marginal forecasts for the shared node (i.e., $\tilde\pi^{2}_{\mathbf{S}_{m-i+1}}$ and $\tilde\pi^{1}_{\mathbf{S}_{m-i+1}}$) are not identical because reconciliation generally changes input forecasts.
-  We average these two marginal forecasts and pass their average into the \code{Adjust} algorithm, which adjusts the joint distributions from two adjacent steps to make their marginalisations of the shared node equivalent to the average.
+  We average these two marginal forecasts and pass their average into the \code{Adjust} algorithm, which adjusts the joint distributions from two adjacent steps to make their marginalisation of the shared node equivalent to the average.
   The two adjusted distributions are then passed into the \code{ConstructJointDist} algorithm to construct a new joint distribution.
   For space-saving purposes here, the \code{Adjust} and \code{ConstructJointDist} algorithms are shown in \ref{appendix:adjust}.
+  Figure~\ref{fig:sdfr} presents an example explaining how the SDFR algorithm works, where a four-node hierarchy is split into two three-node hierarchies. The DFR algorithm is  applied stepwise from left to right to each three-node hierarchy.
+
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/sdfr.pdf}
+    \caption{\label{fig:sdfr}Example procedure of the SDFR algorithm.}
+  \end{figure}
 
   Note that in our proposed algorithm, the result is sensitive to the order in which the bottom level series are combined. Consequently, we average results over different random orders of the bottom-level series; this reduces forecast uncertainty introduced by the \code{Adjust} and \code{ConstructJointDist} algorithms.
   When handling hierarchy with more aggregation levels, we can repeat the above procedure for each aggregated series either in a bottom-up or top-down manner. This means we reconcile the base forecasts of one level and use the reconciled forecasts as base children forecasts(bottom-up) or base parent forecasts (top-down) to reconcile the next level.
