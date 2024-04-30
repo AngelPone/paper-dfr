@@ -114,7 +114,7 @@ Data and code for reproducing the results in this paper are available at https:/
 % \subsection{Preliminaries}
 
 Consider an $n$-vector $\bY=\left(Y_1,Y_2,\ldots,Y_n\right)'$ of discrete random variables.
-We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables found as some linear combination of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are their aggregates.
+We partition $\bY$ so that the first $m$ elements are \textit{basis} variables and the remaining $(n-m)$ elements are \textit{determined} variables found as some integer linear combination of the basis variables. Usually, the basis variables are the bottom-level or most disaggregated data, while the determined variables are their aggregates.
 Each element of $\bY$ has a finite domain given by $\mathcal{D}(Y_i)=\left\{0, 1,2,3,\dots,D_i\right\}$, where $i = 1, 2, \dots, n$.
 
 \subsection{Discrete coherence}\label{sec:domains}
@@ -162,7 +162,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
   \begin{definition}[Discrete coherence]
   
-  A discrete coherent distribution has the property of assigning zero probability to all coherent points, i.e. $Pr(\mathbf{Y}=\bm{y})=0, \forall \bm{y}\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
+  A discrete coherent distribution has the property of assigning zero probability to all incoherent points, i.e. $Pr(\mathbf{Y}=\bm{y})=0, \forall \bm{y}\in \bar{\mathcal D}(\bY)$. Any distribution not meeting this condition is an incoherent distribution.
 
   \end{definition}
 
@@ -218,7 +218,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   
    \begin{definition}[Discrete reconciliation]
   	
-  	Let $\mathcal{C}^{b}$ denote a $b$-dimensional unit simplex and $\psi:\mathcal{C}^{q-1} \rightarrow \mathcal{C}^{q-1}$.	Then a reconciled discrete forecast is given by 
+  	Let $\mathcal{C}^{b}$ denote a $b$-dimensional unit simplex and $\psi:\mathcal{C}^{q-1} \rightarrow \mathcal{C}^{r-1}$.	Then a reconciled discrete forecast is given by 
   	\[
   	  \tilde{\bpi} = \psi(\hat{\bpi})\,,
   	\]
@@ -418,7 +418,7 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     This method is a special case of the algorithm described in Section~\ref{sec:algorithm} except that the base forecasts of aggregated series are ignored. A full vector of incoherent probabilities is formed by assuming independence (i.e. in the three-variables example, $\tilde{\pi}_{(000)} = Pr(Y_1=0)\times Pr(Y_2=0)$), and \[
     \mathbf{A} = [\mathbf{I}_4, \quad \mathbf{I}_4, \quad \mathbf{I}_4 ].
     \]
-    The mean forecast obtained from this coherent distribution is identical to that obtained by directly aggregating mean forecasts of bottom-level series. Alternative bottom-up methods that learn the dependence structure between bottom-level time series in the spirit of \citealp{bentaiebHierarchicalProbabilisticForecasting2020}) could also be derived. However, this lies beyond the scope of our current work.
+    The mean forecast obtained from this coherent distribution is identical to that obtained by directly aggregating mean forecasts of bottom-level series. Alternative bottom-up methods that learn the dependence structure between bottom-level time series in the spirit of (\citealp{bentaiebHierarchicalProbabilisticForecasting2020}) could also be derived. However, this lies beyond the scope of our current work.
     
     \subsubsection*{\textbf{Discrete top-down}}
 
@@ -490,7 +490,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
     \begin{figure}
 	\centering
-	\caption{Average ranks and 95\% confidence intervals for the four approaches in the cross-sectional simulation. The average ranks of each approach in terms of Brier scores are shown to the right of its name.}
+	\caption{Average ranks and 95\% confidence intervals for the five approaches in the cross-sectional simulation. The average ranks of each approach in terms of Brier scores are shown to the right of its name.}
 	\includegraphics[width=\textwidth]{figures/sim_cross_mcb.pdf}
     \label{fig:mcb_crosssectional} 
     \end{figure}
@@ -547,7 +547,7 @@ To showcase the effectiveness of our proposed framework, we conduct two simulati
 
 
      \begin{figure}
-       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the four approaches in the temporal simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
+       \caption{\label{fig:sim_temporal_mcb_prob}Average ranks and 95\% confidence intervals for the five approaches in the temporal simulation. The overall ranks of the approaches in terms of Brier scores are shown to the right of their names.}
        \includegraphics[width=\textwidth]{figures/temporal_mcb.pdf}
      \end{figure}
 

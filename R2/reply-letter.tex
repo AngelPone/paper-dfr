@@ -1,0 +1,118 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amssymb,amsmath}
+\PassOptionsToPackage{hyphens}{url} % url is loaded by hyperref
+\usepackage[unicode=true]{hyperref}
+\usepackage{multirow}
+\usepackage{outlines}
+\usepackage{caption}
+\captionsetup[table]{name=Table R}
+\makeatletter
+\def\fnum@table{\tablename\thetable}
+\makeatother
+\captionsetup[figure]{name=Figure R}
+\makeatletter
+\def\fnum@figure{\figurename\thefigure}
+\makeatother
+\hypersetup{
+  pdfborder={0 0 0},
+  breaklinks=true,
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{xcolor, graphicx, color, array, colortbl}
+\usepackage{longtable,booktabs}
+\let\code=\texttt
+\let\pkg=\texttt
+\let\proglang=\textsf
+
+%% BibTeX
+\usepackage[style=authoryear-comp, backend=biber, natbib=true, maxcitenames=2, maxbibnames=99, safeinputenc]{biblatex}
+\renewbibmacro{in:}{%
+  \ifentrytype{article}{}{%
+  \printtext{\bibstring{in}\intitlepunct}}}
+\DeclareNameAlias{sortname}{family-given}
+\addbibresource{../manuscript/references.bib}
+
+\usepackage{enumitem}
+\setlist[enumerate,itemize]{listparindent=\parindent,leftmargin=1.5em}% Indented paragraphs within lists
+\setlength{\itemsep}{0.0pt}
+
+%% Reply Environment: \RE[]{} -> blue text, \RE{} -> Re: blue text
+\newcommand{\RE}[2][Re:~]{{\color{blue}\textbf{#1}#2}}
+
+\usepackage{makecell}
+
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
+\RequirePackage{setspace}
+\spacing{1.5}
+
+
+\title{\bf\Large Authors' Responses to Reviewers Comments for \\
+  ``Discrete Forecast Reconciliation'' }
+
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\RE[]{We thank the Editor and the three anonymous reviewers for reviewing our paper. We are also grateful for the insightful comments and suggestions. In this revision, we have addressed all the comments raised by the reviewers, providing a point-by-point response to each comment made by the review team.}
+
+\section*{Responses to Reviewer 1}\label{reviewer-1-comments}
+
+\RE[]{First, we would like to thank the reviewer for the time of reviewing our paper. We have tried our best to address all the comments and suggestions. Below we provide a point-by-point response to these comments.}
+
+\textit{I thank the authors for their efforts in addressing my concerns and comments in the previous
+revision. I am happy to see that the paper has improved greatly. Below are some minor
+comments for the authors to address}
+
+\begin{enumerate}
+    \item While the authors have sufficiently motivated forecast reconciliation in the first section, less so is done for probabilistic forecasting. Given that reconciliation is a significant issue when probabilistic forecasts are necessary, and that probabilistic forecasting is the main cause of the curse of dimensionality, I feel that there should be a paragraph in the first section discussing why probabilistic forecasting should be considered.
+    \item The use of ``linear combination'' on page 6 is confusing. You defined the entire vector $\mathbf{Y}$ to be a discrete random variable, however, the linear combination does not guarantee that the output is discrete, as there are no restrictions to the values of the coefficients. I suggest changing it to ``integer linear combination''.
+    
+    \RE{Thank you for your advice. We have replaced linear combination with ``integer linear combination''.}
+
+    \item  Page 7, line 158. ``Coherent'' should be ``incoherent'' since $\bar{\mathcal{D}}(\mathbf{Y})$ is defined as the
+    incoherent domain.
+
+    \RE{Done. Thank you.}
+
+    \item Page 8, line 199. I wonder if it is appropriate to call $\hat{\pi}$ the incoherent probabilistic forecast. From the equation that follows, there are clearly coherent forecasts contained in the vector.
+    
+    \RE{We should note that ``discrete coherence'' is defined on a probabilistic forecast/predictive distribution, which is represented as a probability vector ($\tilde{\boldsymbol{\pi}}$ or $\hat{\boldsymbol{\pi}}$). According to Definition 2.2, $\hat{\boldsymbol{\pi}}$ is incoherent because it assigns positive probability to \textbf{incoherent points}, i.e., for example, $\hat \pi^{t+h|t}_{(010)} > 0$}.
+
+    \item Definition 2.1 on page 9. I wonder why $\psi$ is defined as $\mathcal{C}^{q-1} \rightarrow \mathcal{C}^{q-1}$? The vector $\hat \pi$ has a dimension of $q$ and $\tilde{\pi}$ has a dimension of $r$, as your example shows. In Eq. (2) below, $A$ is an $r\times q$ matrix.
+    
+    \RE{Thank you for highlighting the mistake. $\psi$ should indeed be accurately defined as $\psi: \mathcal{C}^{q-1} \rightarrow \mathcal{C}^{r-1}$. We have revised the manuscript to reflect this correct definition.}
+
+    \item Section 3.2. It would be beneficial for the readership if you could provide an instance of A within the numerical example that you have been using.
+    \item Page 18, lines 414-415. This is related to my previous comment. If the order of mappings $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique (as you stated on page 9, line 205), then how can you specify the form of $A$?
+    
+    
+
+    \item Page 18, line 421. Missing opening parenthesis.
+    
+    \RE{Done. Thank you.}
+    \item Page 22, caption of Figure 4. It should be ``... the five approaches ...''.
+    
+    \RE{Done. Thank you.}
+\end{enumerate}
+
+
+\newpage
+
+
+% \newpage
+% \bibliographystyle{agsm}
+% \bibliography{mybib}
+\printbibliography
+
+\end{document}
