@@ -7,6 +7,7 @@
 \usepackage{subfig}
 \geometry{a4paper,scale=0.8}
 \usepackage{setspace}
+\usepackage{blkarray}
 \setstretch{1.5}
 \let\code=\texttt
 \let\proglang=\textsf
@@ -78,7 +79,7 @@ and then aggregating or disaggregating them into other levels (\citealp{fliedner
 An alternative approach, also known as \textit{forecast reconciliation}, proposed by \cite{hyndmanOptimalCombinationForecasts2011} and further explored by \cite{wickramasuriyaOptimalForecastReconciliation2019}, \cite{panagiotelisForecastReconciliationGeometric2021}, and others, involves first generating \textit{base} forecasts for each time series,
 then optimally adjusting or \textit{reconciling} these to produce coherent forecasts. In most cases, this is achieved by taking a base forecast $\hat{\bm{y}}$ and premultiplying it by a projection matrix $\mathbf{P}$ to yield reconciled forecasts $\tilde{\bm{y}}=\mathbf{P}\hat{\bm{y}}$, that are coherent by construction. The precise form of the projection depends on assumptions about the covariance matrix of forecast errors, for instance, assuming homoskedastic uncorrelated forecasts leads to the OLS reconciliation of \cite{hyndmanOptimalCombinationForecasts2011}, while plugging in a shrinkage estimator of the forecast error covariance leads to the MinT method of \cite{wickramasuriyaOptimalForecastReconciliation2019}. Reconciliation can also be interpreted as a forecast combination method (\citealp{hollymanUnderstandingForecastReconciliation2021}) that avoids the requirement for complex models that simultaneously capture hierarchical constraints, external information, and serial dependence. In addition to achieving coherence, state-of-art reconciliation approaches have been demonstrated to improve forecast accuracy.
 
-In a decision-making setting, it is natural to produce distributional forecasts rather than solely point forecasts such as the mean (\citealp{gneitingProbabilisticForecasting2014}). In the continuous data case, reconciliation has been extended to probabilistic forecasting by \cite{panagiotelisProbabilisticForecastReconciliation2022} building upon earlier efforts by \cite{jeonProbabilisticForecastReconciliation2019} and \cite{bentaiebHierarchicalProbabilisticForecasting2020}. Key components of \cite{panagiotelisProbabilisticForecastReconciliation2022} include an understanding that coherent forecasts lie on a linear subspace, that a linear function can map incoherent forecasts to this subspace, and that the weights of this linear function can be found by optimising proper scoring rules using first-order methods such as gradient descent. All of these components break down in a discrete data setting, necessitating a novel framework for defining coherence and optimally reconciling incoherent forecasts. These are the objectives that we address in this paper.
+In a decision-making setting, many decisions depend on functionals of predictive distributions other than those describing central tendency such as the mean and median. For example in a retail setting, the solution to the famous Newsvendor problem is a quantile of the distribution, while in financial risk management it is crucial to predict expected shortfall. As such, it is natural to produce distributional forecasts rather than solely point forecasts (\citealp{gneitingProbabilisticForecasting2014}). In the continuous data case, reconciliation has been extended to probabilistic forecasting by \cite{panagiotelisProbabilisticForecastReconciliation2022} building upon earlier efforts by \cite{jeonProbabilisticForecastReconciliation2019} and \cite{bentaiebHierarchicalProbabilisticForecasting2020}. Key components of \cite{panagiotelisProbabilisticForecastReconciliation2022} include an understanding that coherent forecasts lie on a linear subspace, that a linear function can map incoherent forecasts to this subspace, and that the weights of this linear function can be found by optimising proper scoring rules using first-order methods such as gradient descent. All of these components break down in a discrete data setting, necessitating a novel framework for defining coherence and optimally reconciling incoherent forecasts. These are the objectives that we address in this paper.
 
 Before introducing our novel approach, it is essential to highlight the limitations of seemingly simpler alternatives. The first is to simply apply existing forecast reconciliation methods for continuous data, such as OLS or MinT projections, to discrete data. This would almost certainly yield non-integer forecasts. While this may be acceptable for mean forecasts, since the expected value of a discrete random variable need not be discrete, it will not yield a probabilistic forecast with the correct support. This may impact decisions that depend on specific probabilities, for example, the probability that no stock is sold on any day in a given week.  A second, simple solution may be using existing reconciliation methods and then rounding non-integer forecasts. Unfortunately, coherence will not, in general, be preserved after rounding. For example, in a hierarchy where $X+Y=Z$, the forecasts $X=0.4$, $Y=0.4$ and $Z=0.8$ are coherent, but rounding these values to the nearest integers leads to incoherence. As such, it makes more sense to develop a hierarchical forecasting approach that handles discrete distributions directly.
 
@@ -212,7 +213,7 @@ The coherent domain is analogous to the coherent subspace $\mathfrak{s}$ in the 
   \tilde{\pi}^{t+h|t}_{(101)},
   \tilde{\pi}^{t+h|t}_{(112)}
   \right]',\]
-  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also, the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Note that the ordering of the probabilities and the functions $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique, which does not affect the proposed algorithms.
+  where the notation $\tilde{\pi}^{t+h|t}_{1}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(000)}$, and $\tilde{\pi}^{t+h|t}_{2}$ can be used instead of $\tilde{\pi}^{t+h|t}_{(011)}$, etc. Also, the function $\tilde{\mathcal{H}}$ is defined so that $\tilde{\mathcal{H}}(1)=(0,0,0)'$, $\tilde{\mathcal{H}}(2)=(0,1,1)'$, etc. Throughout examples in the remainder of the paper we assume the ordering described above, however note that $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ could be defined differently with no loss of generality.
 
   \subsection{Discrete forecast reconciliation}\label{sec:discrec}
   
@@ -293,7 +294,17 @@ This section outlines our proposed methods for optimal discrete reconciliation. 
     \]
     which implies that probability can only be moved to one of the nearest points. In the three-variable example, probability can be moved from $(0,1,0)'$ to $(0,0,0)$ and $(0,1,1)$ but not to $(1,0,1)$ and $(1,1,2)$.
     Additionally, $a_{kj}=1$ for all $k,j$ such that $\hat{\mathcal{H}}(k)=\tilde{\mathcal{H}}(j)$.
-    This restriction implies that all probability from a coherent point in the complete domain is assigned to the same point in the coherent domain.
+    This restriction implies that all probability from a coherent point in the complete domain is assigned to the same point in the coherent domain. An example of $\mathbf{A}$ based on the three-variable example is shown as follows:
+    \[
+      \resizebox{0.85\textwidth}{!}{\begin{blockarray}{rcccccccccccc}
+      & $\hat{\pi}_{(000)}$ & $\hat{\pi}_{(010)}$ & $\hat{\pi}_{(100)}$ & $\hat{\pi}_{(110)}$  & $\hat{\pi}_{(001)}$  & $\hat{\pi}_{(011)}$ & $\hat{\pi}_{(101)}$ & $\hat{\pi}_{(111)}$ & $\hat{\pi}_{(002)}$  & $\hat{\pi}_{(012)}$ & $\hat{\pi}_{(102)}$ & $\hat{\pi}_{(112)}$ \\
+  \begin{block}{r[cccccccccccc]}
+    $\tilde{\pi}_{(000)}$ & 1   & 0.4 & 0.3 & 0.25 & 0.4  & 0   & 0   & 0   & 0.3 & 0    & 0   & 0   \\
+    $\tilde{\pi}_{(011)}$ & 0   & 0.6 & 0   & 0.25 & 0.3  & 1   & 0   & 0.3 & 0.3 & 0.35 & 0   & 0   \\
+    $\tilde{\pi}_{(101)}$ & 0   & 0   & 0.7 & 0.25 & 0.3  & 0   & 1   & 0.3 & 0.3 & 0    & 0.4 & 0   \\
+    $\tilde{\pi}_{(112)}$ & 0   & 0   & 0   & 0.25 & 0    & 0   & 0   & 0.4 & 0.1 & 0.65 & 0.6 & 1    \\\end{block}
+\end{blockarray}  }
+    \]
 
 
 
