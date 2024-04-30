@@ -74,11 +74,14 @@
 revision. I am happy to see that the paper has improved greatly. Below are some minor
 comments for the authors to address}
 
-\begin{enumerate}
+\begin{itemize}
     \item While the authors have sufficiently motivated forecast reconciliation in the first section, less so is done for probabilistic forecasting. Given that reconciliation is a significant issue when probabilistic forecasts are necessary, and that probabilistic forecasting is the main cause of the curse of dimensionality, I feel that there should be a paragraph in the first section discussing why probabilistic forecasting should be considered.
+    
+    \RE{Thank you for your suggestion. We have now added several sentences in the beginning of the third paragraph of Introduction to motivate the necessity of probabilistic forecasting in decision-making settings.}
+
     \item The use of ``linear combination'' on page 6 is confusing. You defined the entire vector $\mathbf{Y}$ to be a discrete random variable, however, the linear combination does not guarantee that the output is discrete, as there are no restrictions to the values of the coefficients. I suggest changing it to ``integer linear combination''.
     
-    \RE{Thank you for your advice. We have replaced linear combination with ``integer linear combination''.}
+    \RE{Thank you for your advice. The weights in the linear combination that we refer to here are integers (typically 0s and 1s) ensuring that the linear combinations are also integers. To clear up confusion, we have replaced linear combination with ``integer linear combination''.}
 
     \item  Page 7, line 158. ``Coherent'' should be ``incoherent'' since $\bar{\mathcal{D}}(\mathbf{Y})$ is defined as the
     incoherent domain.
@@ -87,14 +90,19 @@ comments for the authors to address}
 
     \item Page 8, line 199. I wonder if it is appropriate to call $\hat{\pi}$ the incoherent probabilistic forecast. From the equation that follows, there are clearly coherent forecasts contained in the vector.
     
-    \RE{We should note that ``discrete coherence'' is defined on a probabilistic forecast/predictive distribution, which is represented as a probability vector ($\tilde{\boldsymbol{\pi}}$ or $\hat{\boldsymbol{\pi}}$). According to Definition 2.2, $\hat{\boldsymbol{\pi}}$ is incoherent because it assigns positive probability to \textbf{incoherent points}, i.e., for example, $\hat \pi^{t+h|t}_{(010)} > 0$}.
+    \RE{We should note that ``discrete coherence'' is defined on a probabilistic forecast/predictive distribution, which is represented as a probability vector ($\tilde{\boldsymbol{\pi}}$ or $\hat{\boldsymbol{\pi}}$). When we refer to coherence and incoherence in this setting, this should be understood as a property of the entire vector of probabilities including both coherent and incoherent points. According to Definition 2.2, $\hat{\boldsymbol{\pi}}$ is incoherent because it assigns positive probability to \textbf{incoherent points}, i.e., for example, $\hat \pi^{t+h|t}_{(010)} > 0$}.
 
     \item Definition 2.1 on page 9. I wonder why $\psi$ is defined as $\mathcal{C}^{q-1} \rightarrow \mathcal{C}^{q-1}$? The vector $\hat \pi$ has a dimension of $q$ and $\tilde{\pi}$ has a dimension of $r$, as your example shows. In Eq. (2) below, $A$ is an $r\times q$ matrix.
     
-    \RE{Thank you for highlighting the mistake. $\psi$ should indeed be accurately defined as $\psi: \mathcal{C}^{q-1} \rightarrow \mathcal{C}^{r-1}$. We have revised the manuscript to reflect this correct definition.}
+    \RE{Thank you for highlighting the mistake. $\psi$ should indeed be defined as $\psi: \mathcal{C}^{q-1} \rightarrow \mathcal{C}^{r-1}$. We have revised the manuscript to reflect this correct definition.}
 
     \item Section 3.2. It would be beneficial for the readership if you could provide an instance of A within the numerical example that you have been using.
+    
+    \RE{Thanks for your suggestion. We have added an example of matrix $A$ in Section 3.1.}
+
     \item Page 18, lines 414-415. This is related to my previous comment. If the order of mappings $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ are not unique (as you stated on page 9, line 205), then how can you specify the form of $A$?
+    
+    \RE{Thanks for your comment. While the ordering used to define $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ is not unique, for a given ordering, the matrix $A$ can be defined uniquely. We now make it clearer on page 9 where we employ $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ as follows. ``Throughout examples in the remainder of the paper we assume the ordering described above, however note that $\hat{\mathcal{H}}$ and $\tilde{\mathcal{H}}$ could be defined differently with no loss of generality.''}
     
     
 
@@ -104,7 +112,7 @@ comments for the authors to address}
     \item Page 22, caption of Figure 4. It should be ``... the five approaches ...''.
     
     \RE{Done. Thank you.}
-\end{enumerate}
+\end{itemize}
 
 
 \newpage
